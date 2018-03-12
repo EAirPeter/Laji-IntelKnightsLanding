@@ -48,11 +48,11 @@
 // Multiplexer.RegisterFile.register_number_requested_to_write
 `define MUX_RF_REQW_BIT     2
 // Register $(rd)
-`define MUX_RF_REQW_RD      `MUX_RF_REQW_RD'h0
+`define MUX_RF_REQW_RD      `MUX_RF_REQW_BIT'h0
 // Register $(rt)
-`define MUX_RF_REQW_RT      `MUX_RF_REQW_RD'h1
+`define MUX_RF_REQW_RT      `MUX_RF_REQW_BIT'h1
 // Register $ra
-`define MUX_RF_REQW_31      `MUX_RF_REQW_RD'h2
+`define MUX_RF_REQW_31      `MUX_RF_REQW_BIT'h2
 
 // Multiplexer.RegisterFile.data_requested_to_write
 `define MUX_RF_DATAW_BIT    2
