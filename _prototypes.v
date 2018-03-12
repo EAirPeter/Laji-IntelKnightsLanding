@@ -24,11 +24,11 @@ endmodule
 // Description: Fetch instruction from memory
 // Author: azure-crab
 module SynInstMem(clk, rst_n, addr, inst);
+    parameter ProgPath = "C:\.Xilinx\benchmark.hex";
     input clk;
     input rst_n;
     input [31:0] addr;
     output [31:0] inst;
-    parameter prog_path = "C:\.Xilinx\benchmark.hex";
 endmodule
 
 // Brief: Instruction Decoder, combinatorial
