@@ -54,10 +54,11 @@ endmodule
 
 // Brief: Register File, synchronized
 // Author: G-H-Y
-module SynRegFile(clk, rst_n, req_dbg, req_w, req_a, req_b, data_dbg, data_w, data_a, data_b, data_v0, data_a0);
+module SynRegFile(clk, rst_n, w_en, req_dbg, req_w, req_a, req_b, data_dbg, data_w, data_a, data_b, data_v0, data_a0);
     input clk;
     input rst_n;
     input en;
+    input w_en;
     input [4:0] req_dbg;
     input [4:0] req_w;
     input [4:0] req_a;
@@ -123,13 +124,15 @@ endmodule
 
 // Brief: Control Module, synchronized
 // Author: FluorineDog
-module CmbControl(opcode, rt, funct, op_wtg, op_alu, op_datamem, mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y);
+module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w_en_datamem, mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y);
     input [5:0] opcode;
     input [4:0] rt;
     input [5:0] funct;
     output [`WTG_OP_BIT - 1:0] op_wtg;
+    output w_en_regfile;
     output [`ALU_OP_BIT - 1:0] op_alu;
     output [`DM_OP_BIT - 1:0] op_datamem;
+    output w_en_datamem;
     output [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
     output [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     output [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
