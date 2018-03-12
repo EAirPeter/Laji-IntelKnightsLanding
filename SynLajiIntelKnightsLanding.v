@@ -65,9 +65,9 @@ module SynLajiIntelKnightsLanding(
             `MUX_ALU_DATAY_RFB:
                 alu_data_y <= regfile_data_b;
             `MUX_ALU_DATAY_EXTS:
-                alu_data_y <= ext_data_sign;
+                alu_data_y <= ext_out_sign;
             `MUX_ALU_DATAY_EXTZ:
-                alu_data_y <= ext_data_zero;
+                alu_data_y <= ext_out_zero;
             default:
                 alu_data_y <= 32'd0;
         endcase
