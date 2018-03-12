@@ -2,17 +2,18 @@
 `define lajiintel_core_vh_
 
 // WhereToGo.operation
-`define WTG_OP_BIT          3
-`define WTG_OP_J32          `WTG_OP_BIT'h0      //  Set pc_new to data_x
-`define WTG_OP_J26          `WTG_OP_BIT'h1      //  Set pc_new to {pc_4[31:28], imm26, 2'b00}
+`define WTG_OP_BIT          4
+`define WTG_OP_PC4          `WTG_OP_BIT'h0      // Set pc_new to pc_4
+`define WTG_OP_J32          `WTG_OP_BIT'h8      // Set pc_new to data_x
+`define WTG_OP_J26          `WTG_OP_BIT'h9      // Set pc_new to {pc_4[31:28], imm26, 2'b00}
 // Conditional branch, set pc_new to pc_4 + {off32[29:0], 2'b00} when
 //   condition is met. Comparision between data_x and data_y or zero.
-`define WTG_OP_BEQ          `WTG_OP_BIT'h2      
-`define WTG_OP_BNE          `WTG_OP_BIT'h3
-`define WTG_OP_BLEZ         `WTG_OP_BIT'h4
-`define WTG_OP_BGTZ         `WTG_OP_BIT'h5
-`define WTG_OP_BLTZ         `WTG_OP_BIT'h6
-`define WTG_OP_BGEZ         `WTG_OP_BIT'h7
+`define WTG_OP_BEQ          `WTG_OP_BIT'ha      
+`define WTG_OP_BNE          `WTG_OP_BIT'hb
+`define WTG_OP_BLEZ         `WTG_OP_BIT'hc
+`define WTG_OP_BGTZ         `WTG_OP_BIT'hd
+`define WTG_OP_BLTZ         `WTG_OP_BIT'he
+`define WTG_OP_BGEZ         `WTG_OP_BIT'hf
 
 // ArithmeticLogicUnit.operation
 `define ALU_OP_BIT          4
