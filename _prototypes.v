@@ -28,6 +28,7 @@ module SynInstMem(clk, rst_n, addr, inst);
     input rst_n;
     input [31:0] addr;
     output [31:0] inst;
+    parameter prog_path = "C:\.Xilinx\benchmark.hex";
 endmodule
 
 // Brief: Instruction Decoder, combinatorial
