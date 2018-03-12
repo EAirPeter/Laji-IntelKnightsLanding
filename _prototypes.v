@@ -125,7 +125,7 @@ endmodule
 
 // Brief: Control Module, synchronized
 // Author: FluorineDog
-module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w_en_datamem, syscall_en, mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y);
+module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w_en_datamem, syscall_en, mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y, is_jump, is_branch);
     input [5:0] opcode;
     input [4:0] rt;
     input [5:0] funct;
@@ -138,6 +138,8 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
     output [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
     output [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     output [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
+    output is_jump;     // 1 if the current instruction is a jump instruction
+    output is_branch;   // 1 if the current instruction is a branch instraction
 endmodule
 
 // Brief: CPU Top Module, synchronized
