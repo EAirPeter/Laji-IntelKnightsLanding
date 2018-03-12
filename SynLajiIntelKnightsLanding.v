@@ -4,20 +4,19 @@
 
 module SynLajiIntelKnightsLanding(
     clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg,
-    regfile_data_dbg, datamem_data_dbg, display, display_en, halt
+    regfile_data_dbg, datamem_data_dbg, display,
+    halt, is_jump, is_branch, branched
 );
-    input clk;
-    input rst_n;
-    input en;
+    input clk, rst_n, en;
     input [4:0] regfile_req_dbg;
     input [31:0] datamem_addr_dbg;
     output [31:0] regfile_data_dbg;
     output [31:0] datamem_data_dbg;
     output [31:0] display;
     output display_en;
-    output halt;
+    output halt, is_jump, is_branch, branched;
 
-    wire [31:0] pc_new, pc, pc_4;
+    wire [31:0] pc, pc_4;
     wire [31:0] inst;
     wire [5:0] opcode, funct;
     wire [4:0] rs, rt, rd, shamt;
@@ -29,8 +28,8 @@ module SynLajiIntelKnightsLanding(
     reg [4:0] regfile_req_w;    // combinatorial
     reg [31:0] regfile_data_w;  // combinatorial
     wire [`WTG_OP_BIT - 1:0] wtg_op;
-    wire branched;
-    reg [`ALU_OP_BIT - 1:0] alu_op;
+    wire [31:0] wtg_pc_new;
+    wire [`ALU_OP_BIT - 1:0] alu_op;
     reg [31:0] alu_data_y;      // combinatorial
     wire [31:0] alu_data_res;
     wire [`DM_OP_BIT - 1:0] datamem_op;
@@ -39,6 +38,7 @@ module SynLajiIntelKnightsLanding(
     wire [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
     wire [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     wire [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
+    wire [31:0] pc_new = is_jump | branched ? wtg_pc_new : pc_4;
 
     always @(*) begin
         case (mux_regfile_req_w)
@@ -83,7 +83,7 @@ module SynLajiIntelKnightsLanding(
     );
     SynInstMem vIM(
         .clk(clk),
-        .rst_n(1),
+        .rst_n(1'b1),
         .addr(pc),
         .inst(inst)
     );
@@ -126,7 +126,7 @@ module SynLajiIntelKnightsLanding(
         .data_x(regfile_data_a),
         .data_y(regfile_data_b),
         .pc_4(pc_4),
-        .pc_new(pc_new),
+        .pc_new(wtg_pc_new),
         .branched(branched)
     );
     CmbALU vALU(
@@ -144,15 +144,18 @@ module SynLajiIntelKnightsLanding(
         .w_en(datamem_w_en),
         .addr_dbg(datamem_addr_dbg),
         .addr(alu_data_res),
+        .data_in(regfile_data_b),
         .data_dbg(datamem_data_dbg),
         .data(datamem_data)
     );
-    CmbSyscall vSys(
+    SynSyscall vSys(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(en),
         .syscall_en(syscall_en),
         .data_v0(regfile_data_v0),
         .data_a0(regfile_data_a0),
         .display(display),
-        .display_en(display_en),
         .halt(halt)
     );
     CmbControl vCtl(
@@ -167,6 +170,8 @@ module SynLajiIntelKnightsLanding(
         .syscall_en(syscall_en),
         .mux_regfile_req_w(mux_regfile_req_w),
         .mux_regfile_data_w(mux_regfile_data_w),
-        .mux_alu_data_y(mux_alu_data_y)
+        .mux_alu_data_y(mux_alu_data_y),
+        .is_jump(is_jump),
+        .is_branch(is_branch)
     );
 endmodule

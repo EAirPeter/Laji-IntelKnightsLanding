@@ -3,7 +3,7 @@
 // SynDataMem   CmbExt          cuishaobo
 // CmbControl   CmbDecoder      FluorineDog
 // SynRegFile   SynPC           G-H-Y
-// CmbALU       CmbSyscall      KailinLi
+// CmbALU       SynSyscall      KailinLi
 // CmbWTG       SynInstMem      azure-crab
 
 `include "core.vh"
@@ -55,7 +55,7 @@ endmodule
 
 // Brief: Register File, synchronized
 // Author: G-H-Y
-module SynRegFile(clk, rst_n, en, w_en, req_dbg, req_w, req_a, req_b, data_dbg, data_w, data_a, data_b, data_v0, data_a0);
+module SynRegFile(clk, rst_n, en, w_en, req_dbg, req_w, req_a, req_b, data_w, data_dbg, data_a, data_b, data_v0, data_a0);
     input clk;
     input rst_n;
     input en;
@@ -64,8 +64,8 @@ module SynRegFile(clk, rst_n, en, w_en, req_dbg, req_w, req_a, req_b, data_dbg, 
     input [4:0] req_w;
     input [4:0] req_a;
     input [4:0] req_b;
+    input [31:0] data_w;
     output [31:0] data_dbg;
-    output [31:0] data_w;
     output [31:0] data_a;
     output [31:0] data_b;
     output [31:0] data_v0;      // For syscall
@@ -115,12 +115,14 @@ endmodule
 // Description: If $v0 is 34, display content of $a0 on the 7-segment display;
 //              Otherwise pause the execution of the program
 // Author: KailinLi
-module CmbSyscall(syscall_en, data_v0, data_a0, display, display_en, halt);
+module SynSyscall(clk, rst_n, en, syscall_en, data_v0, data_a0, display, halt);
+    input clk;
+    input rst_n;
+    input en;
     input syscall_en;       
     input [31:0] data_v0;
     input [31:0] data_a0;
     output [31:0] display;
-    output display_en;
     output halt;
 endmodule
 
@@ -145,7 +147,7 @@ endmodule
 
 // Brief: CPU Top Module, synchronized
 // Author: EAirPeter
-module SynLajiIntelKnightsLanding(clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg, regfile_data_dbg, datamem_data_dbg, display, display_en, halt);
+module SynLajiIntelKnightsLanding(clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg, regfile_data_dbg, datamem_data_dbg, display, halt, is_jump, is_branch, branched);
     input clk;
     input rst_n;
     input en;
@@ -154,8 +156,10 @@ module SynLajiIntelKnightsLanding(clk, rst_n, en, regfile_req_dbg, datamem_addr_
     output [31:0] regfile_data_dbg;
     output [31:0] datamem_data_dbg;
     output [31:0] display;
-    output display_en;
     output halt;
+    output is_jump;
+    output is_branch;
+    output branched;
 endmodule
 
 // Brief: Top Module, including I/O
