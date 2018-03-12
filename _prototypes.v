@@ -54,7 +54,7 @@ endmodule
 
 // Brief: Register File, synchronized
 // Author: G-H-Y
-module SynRegFile(clk, rst_n, w_en, req_dbg, req_w, req_a, req_b, data_dbg, data_w, data_a, data_b, data_v0, data_a0);
+module SynRegFile(clk, rst_n, en, w_en, req_dbg, req_w, req_a, req_b, data_dbg, data_w, data_a, data_b, data_v0, data_a0);
     input clk;
     input rst_n;
     input en;
