@@ -97,7 +97,7 @@ endmodule
 
 // Brief: Data Memory, combinatorial
 // Author: cuishaobo
-module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_dbg, data);
+module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, data);
     input clk;
     input rst_n;
     input en;
@@ -105,6 +105,7 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_dbg, data);
     input w_en;             // Write Enable
     input [31:0] addr_dbg;  // Address of the data for debugging
     input [31:0] addr;
+    input [31:0] data_in;
     output [31:0] data_dbg; // Data to be displayed for debugging
     output [31:0] data;
 endmodule
@@ -124,7 +125,7 @@ endmodule
 
 // Brief: Control Module, synchronized
 // Author: FluorineDog
-module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w_en_datamem, mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y);
+module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w_en_datamem, syscall_en, mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y);
     input [5:0] opcode;
     input [4:0] rt;
     input [5:0] funct;
@@ -133,6 +134,7 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
     output [`ALU_OP_BIT - 1:0] op_alu;
     output [`DM_OP_BIT - 1:0] op_datamem;
     output w_en_datamem;
+    output syscall_en;
     output [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
     output [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     output [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
