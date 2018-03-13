@@ -25,7 +25,7 @@ module CmbWTG(op, off32, imm26, data_x, data_y, pc_4, pc_new, branched);
             end
             `WTG_OP_J26 : begin 
                 branched = 0;
-                pc_new = j_addr
+                pc_new = j_addr;
             end
             `WTG_OP_BEQ : begin
                 branched = (data_x == data_y);
@@ -36,7 +36,7 @@ module CmbWTG(op, off32, imm26, data_x, data_y, pc_4, pc_new, branched);
                 pc_new = branched ? b_addr : pc_4;
             end
             `WTG_OP_BLEZ : begin
-                branched = (data_x <= 0);
+                branched = (data_x <= 0);                            
                 pc_new = branched ? b_addr : pc_4;
             end
             `WTG_OP_BGTZ : begin
