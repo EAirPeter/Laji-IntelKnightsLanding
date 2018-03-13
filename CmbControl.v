@@ -87,7 +87,7 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
         // 6'b000001: //bgez
           case(rt[0])
             1'b0: 			`op_wtg = `WTG_OP_BLTZ;	 // bltz
-            1'b1: 			 op_alu = `WTG_OP_BGEZ;  // bgez
+            1'b1: 			`op_wtg = `WTG_OP_BGEZ;  // bgez
           endcase
 				end
         6'b000010: begin `op_wtg = `WTG_OP_J26;    	is_jump   = 1; 
