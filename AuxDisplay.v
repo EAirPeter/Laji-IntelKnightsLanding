@@ -11,7 +11,8 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
     output [7:0] an_n;
 
     assign an_n = 8'b0;
-
+    wire ctr_clk;
+    wire [2:0] ctr_cnt;
     wire [3:0] value[7:0];
     assign value[7] = data[31:28];
     assign value[6] = data[27:24];
@@ -21,7 +22,6 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
     assign value[2] = data[11:8];
     assign value[1] = data[7:4];
     assign value[0] = data[3:0];
-
     wire [3:0] current = value[ctr_cnt];
     always @(*) begin
         case (current)
@@ -43,9 +43,6 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
             'hf: seg_n <= 'b10001110;
         endcase
     end
-
-    wire ctr_clk;
-    wire [2:0] ctr_cnt;
 
     AuxDivider #(
         .CntMax(ScanCntMax)

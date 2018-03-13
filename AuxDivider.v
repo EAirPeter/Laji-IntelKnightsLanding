@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "Auxiliary.vh"
+
 module AuxDivider(clk, rst_n, clk_out);
     function integer Log2Ceil(input time cnt_max);
         for (Log2Ceil = 0; cnt_max; Log2Ceil = Log2Ceil + 1)

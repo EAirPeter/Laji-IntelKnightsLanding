@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module SynPC(clk, rst_n, en, pc_new, pc, pc_4);
    input clk;
    input rst_n;  //negedge reset

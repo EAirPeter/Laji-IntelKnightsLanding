@@ -19,7 +19,6 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     reg [31:0] disp_data;   // combinatorial
     wire clk_hi, clk_lo;
     wire core_clk = freq_op ? clk_lo : clk_hi;
-    wire pe_resume;
     wire core_en;
     wire [4:0] regfile_req_dbg = swt[15:11];
     wire [31:0] datamem_addr_dbg = {24'd0, swt[15:6], 2'd0};
@@ -68,7 +67,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     AuxCounter #(
         .CntBit(32)
     ) vCtrCycle(
-        .clk(clk),
+        .clk(core_clk),
         .rst_n(rst_n),
         .en(core_en),
         .ld(1'b0),
@@ -78,7 +77,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     AuxCounter #(
         .CntBit(32)
     ) vCtrJump(
-        .clk(clk),
+        .clk(core_clk),
         .rst_n(rst_n),
         .en(core_is_jump),
         .ld(1'b0),
@@ -88,7 +87,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     AuxCounter #(
         .CntBit(32)
     ) vCtrBranch(
-        .clk(clk),
+        .clk(core_clk),
         .rst_n(rst_n),
         .en(core_is_branch),
         .ld(1'b0),
@@ -98,7 +97,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     AuxCounter #(
         .CntBit(32)
     ) vCtrBranched(
-        .clk(clk),
+        .clk(core_clk),
         .rst_n(rst_n),
         .en(core_branched),
         .ld(1'b0),
