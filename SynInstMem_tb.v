@@ -20,6 +20,5 @@ module SynInstMem_tb();
         #5 rst_n = 0;
         #5 rst_n = 1;
     end
-    always #5 clk <= ~clk;
     always #20 addr = addr + 4;
 endmodule

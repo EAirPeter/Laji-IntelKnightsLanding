@@ -9,7 +9,7 @@ module SynInstMem(clk, rst_n, addr, inst);
     input rst_n;
     input [31:0] addr;
     output [31:0] inst;
-    reg [31:0] prog[1023:0];
+    reg [31:0] prog[0:1023];
     parameter prog_path = "F:/Vivado_Projects/benchmark.hex";    
     initial $readmemh(prog_path, prog);
     
