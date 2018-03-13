@@ -14,7 +14,6 @@ module SynLajiIntelKnightsLanding(
     output [31:0] regfile_data_dbg;
     output [31:0] datamem_data_dbg;
     output [31:0] display;
-    output display_en;
     output halt, is_jump, is_branch, branched;
 
     wire [31:0] pc, pc_4;

@@ -4,9 +4,9 @@
 
 module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
-    // parameter DebounceCnt = `CNT_MILLISEC(5);
-    parameter CoreClkCnt = `CNT_MILLISEC(500);
-    parameter DispClkCnt = `CNT_MILLISEC(1);
+    parameter CoreHighClkCnt = `CNT_MHZ(10);
+    parameter CoreLowClkCnt = `CNT_HZ(1);
+    parameter DispClkCnt = `CNT_KHZ(1);
     input clk;
     input rst_n;
     input resume;
@@ -17,8 +17,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire freq_op = swt[0];
     wire [2:0] mux_disp_data = swt[3:1];
     reg [31:0] disp_data;   // combinatorial
-    wire clk_div;
-    wire core_clk = freq_op ? clk : clk_div;
+    wire clk_hi, clk_lo;
+    wire core_clk = freq_op ? clk_lo : clk_hi;
     wire pe_resume;
     wire core_en;
     wire [4:0] regfile_req_dbg = swt[15:11];
@@ -43,11 +43,18 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     end
 
     AuxDivider #(
-        .CntMax(CoreClkCnt)
-    ) vDivCore(
+        .CntMax(CoreHighClkCnt)
+    ) vDivCoreHigh(
         .clk(clk),
         .rst_n(rst_n),
-        .clk_out(clk_div)
+        .clk_out(clk_hi)
+    );
+    AuxDivider #(
+        .CntMax(CoreLowClkCnt)
+    ) vDivCoreLow(
+        .clk(clk),
+        .rst_n(rst_n),
+        .clk_out(clk_lo)
     );
     AuxDisplay #(
         .ScanCntMax(DispClkCnt)

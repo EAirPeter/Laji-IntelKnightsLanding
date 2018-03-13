@@ -5,6 +5,9 @@
 `define CNT_MICROSEC(us_) ((us_) * 100)
 `define CNT_MILLISEC(ms_) ((ms_) * 100_000)
 `define CNT_SEC(s_) ((s_) * 100_000_000)
+`define CNT_HZ(hz_) (100_000_000 / (hz_))
+`define CNT_KHZ(khz_) (100_000 / (khz_))
+`define CNT_MHZ(mhz_) (100 / (mhz_))
 
 `define MUX_DISP_DATA_BIT       3
 `define MUX_DISP_DATA_CORE      `MUX_DISP_DATA_BIT'h0

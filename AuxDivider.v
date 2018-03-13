@@ -5,7 +5,8 @@ module AuxDivider(clk, rst_n, clk_out);
         for (Log2Ceil = 0; cnt_max; Log2Ceil = Log2Ceil + 1)
             cnt_max = cnt_max >> 1;
     endfunction
-    parameter CntMax = `CNT_MILLISEC(500);
+    parameter CntMax = `CNT_SEC(1);
+    parameter CntHalf = CntMax / 2;
     localparam CntBit = Log2Ceil(CntMax);
 
     input clk;

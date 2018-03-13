@@ -3,7 +3,7 @@
 `include "Auxiliary.vh"
 
 module AuxDisplay(clk, rst_n, data, seg_n, an_n);
-    parameter ScanCntMax = `CNT_MILLISEC(1);
+    parameter ScanCntMax = `CNT_KHZ(1);
     input clk;
     input rst_n;
     input [31:0] data;
