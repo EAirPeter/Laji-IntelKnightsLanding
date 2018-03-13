@@ -50,7 +50,7 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
         .CntMax(ScanCntMax)
     ) vDiv(
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(1'b1),
         .clk_out(ctr_clk)
     );
     AuxCounter #(
