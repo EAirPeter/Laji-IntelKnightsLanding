@@ -94,7 +94,7 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
 					w_en_regfile = 0;
 				end			// j
 
-        6'b000011: begin `op_wtg = `WTG_OP_J32;  	is_jump   = 1;  //jal
+        6'b000011: begin `op_wtg = `WTG_OP_J26;  	is_jump   = 1;  //jal
                     `mux_regfile_req_w = `MUX_RF_REQW_31;
                     `mux_regfile_data_w = `MUX_RF_DATAW_PC4;
                   end			// jal
