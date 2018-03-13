@@ -7,6 +7,7 @@ module SynLajiIntelKnightsLanding(
     regfile_data_dbg, datamem_data_dbg, display,
     halt, is_jump, is_branch, branched
 );
+    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk, rst_n, en;
     input [4:0] regfile_req_dbg;
     input [31:0] datamem_addr_dbg;
@@ -81,7 +82,9 @@ module SynLajiIntelKnightsLanding(
         .pc(pc),
         .pc_4(pc_4)
     );
-    SynInstMem vIM(
+    SynInstMem #(
+        .ProgPath(ProgPath)
+    ) vIM(
         .clk(clk),
         .rst_n(1'b1),
         .addr(pc),

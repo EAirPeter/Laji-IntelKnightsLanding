@@ -12,20 +12,26 @@ module AuxDivider(clk, rst_n, clk_out);
 
     input clk;
     input rst_n;
-    output reg clk_out = 'b0;
+    output reg clk_out = 1'b0;
     
-    reg [CntBit - 1:0] cnt = 'd0;
+    wire [CntBit - 1:0] ctr_cnt;
+    wire ctr_ld = ctr_cnt == CntMax - 'd1;
 
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n) begin
-            clk_out <= 'b0;
-            cnt <= 'd0;
-        end
-        else if (cnt == CntMax - 'd1) begin
-            clk_out <= ~clk_out;
-            cnt <= 'd0;
-        end
-        else
-            cnt <= cnt + 'd1;
+        if (!rst_n)
+            clk_out <= 1'b0;
+        else if (ctr_ld)
+            clk_out <= !clk_out;
     end
+
+    AuxCounter #(
+        .CntBit(CntBit)
+    ) vCtr(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(1'b1),
+        .ld(ctr_ld),
+        .val({CntBit{1'b0}}),
+        .cnt(ctr_cnt)
+    );
 endmodule

@@ -78,6 +78,8 @@ module AuxDisplay(
         .clk(ctr_clk),
         .rst_n(rst_n),
         .en(1'b1),
+        .ld(1'b0),
+        .val(3'b0),
         .cnt(ctr_cnt)
     );
 endmodule
