@@ -17,19 +17,16 @@ module SynRegFile(
     output [31:0] data_v0;
     output [31:0] data_a0;
 
-    reg [31:0] RegFile [31:0];
-
-    assign data_dbg = RegFile[req_dbg];
-    assign data_a = RegFile[req_a];
-    assign data_b = RegFile[req_b];
-    assign data_v0 = RegFile[2] ;
-    assign data_a0 = RegFile[4] ;
-   
-    always @(*) begin
-        RegFile[0] <= 32'd0;
-    end
+    reg [31:0] RegFile[31:1];
+    
+    assign data_dbg = req_dbg == 0 ? 32'd0 : RegFile[req_dbg];
+    assign data_a = req_a == 0 ? 32'd0 : RegFile[req_a];
+    assign data_b = req_b == 0 ? 32'd0 : RegFile[req_b];
+    assign data_v0 = RegFile[2];
+    assign data_a0 = RegFile[4];
+    
     always @(posedge clk) begin
-    	if (en && w_en && req_w != 5'd0)
-    		RegFile[req_w] <= data_w;
+        if (en && w_en && req_w != 5'd0)
+            RegFile[req_w] <= data_w;
     end
 endmodule

@@ -71,6 +71,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .clk(clk),
         .rst_n(rst_n),
         .en(core_en),
+        .ld(1'b0),
+        .val(32'd0),
         .cnt(cnt_cycle)
     );
     AuxCounter #(
@@ -79,6 +81,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .clk(clk),
         .rst_n(rst_n),
         .en(core_is_jump),
+        .ld(1'b0),
+        .val(32'd0),
         .cnt(cnt_jump)
     );
     AuxCounter #(
@@ -87,6 +91,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .clk(clk),
         .rst_n(rst_n),
         .en(core_is_branch),
+        .ld(1'b0),
+        .val(32'd0),
         .cnt(cnt_branch)
     );
     AuxCounter #(
@@ -95,6 +101,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .clk(clk),
         .rst_n(rst_n),
         .en(core_branched),
+        .ld(1'b0),
+        .val(32'd0),
         .cnt(cnt_branched)
     );
     AuxEnabled vEnabled(

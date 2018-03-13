@@ -42,6 +42,8 @@ module CmbALU(op, data_x, data_y, shamt, data_res);
           data_res <= (data_x < data_y);
         `ALU_OP_LUI:
           data_res <= (data_y << 'd16);
+        default:
+          data_res <= 32'd0;
       endcase
     end
     // assign data_res = (op == `ALU_OP_AND)  ?  (data_x & data_y) :
