@@ -6,7 +6,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     parameter CoreHighClkCnt = `CNT_MHZ(10);
     parameter CoreLowClkCnt = `CNT_HZ(1);
-    parameter DispClkCnt = `CNT_KHZ(1);
+    parameter DispClkCnt = `CNT_HZ(500);
     input clk;
     input rst_n;
     input resume;

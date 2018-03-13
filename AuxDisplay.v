@@ -10,7 +10,6 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
     output reg [7:0] seg_n; // combinatorial
     output [7:0] an_n;
 
-    assign an_n = 8'b0;
     wire ctr_clk;
     wire [2:0] ctr_cnt;
     wire [3:0] value[7:0];
@@ -22,6 +21,7 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
     assign value[2] = data[11:8];
     assign value[1] = data[7:4];
     assign value[0] = data[3:0];
+    assign an_n = ~(8'b1 << ctr_cnt);
     wire [3:0] current = value[ctr_cnt];
     always @(*) begin
         case (current)
