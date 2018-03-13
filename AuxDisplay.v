@@ -3,13 +3,15 @@
 `include "Auxiliary.vh"
 
 module AuxDisplay(clk, rst_n, data, seg_n, an_n);
-    parameter ScanCntMax = `CNT_MILLISEC(1);
+    parameter ScanCntMax = `CNT_KHZ(1);
     input clk;
     input rst_n;
     input [31:0] data;
     output reg [7:0] seg_n; // combinatorial
     output [7:0] an_n;
-    
+
+    assign an_n = 8'b0;
+
     wire [3:0] value[7:0];
     assign value[7] = data[31:28];
     assign value[6] = data[27:24];
