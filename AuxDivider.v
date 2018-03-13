@@ -1,7 +1,5 @@
 `timescale 1ns / 1ps
 
-`include "Auxiliary.vh"
-
 module AuxDivider(clk, rst_n, clk_out);
     function integer Log2Ceil(input time cnt_max);
         for (Log2Ceil = 0; cnt_max; Log2Ceil = Log2Ceil + 1)
@@ -12,7 +10,7 @@ module AuxDivider(clk, rst_n, clk_out);
 
     input clk;
     input rst_n;
-    output reg clk_out = 1'b0;
+    output reg clk_out;
     
     wire [CntBit - 1:0] ctr_cnt;
     wire ctr_ld = ctr_cnt == CntMax - 'd1;

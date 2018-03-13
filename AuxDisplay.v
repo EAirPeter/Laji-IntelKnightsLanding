@@ -2,34 +2,14 @@
 
 `include "Auxiliary.vh"
 
-module AuxDisplay(
-    clk, rst_n, op, core,
-    cnt_cycle, cnt_jump, cnt_branch, cnt_branched, regfile_dbg, datamem_dbg,
-    seg_n, an_n
-);
+module AuxDisplay(clk, rst_n, data, seg_n, an_n);
     parameter ScanCntMax = `CNT_MILLISEC(1);
     input clk;
     input rst_n;
-    input [`DISP_OP_BIT - 1:0] op;
-    input [31:0] core, cnt_cycle, cnt_jump, cnt_branch, cnt_branched;
-    input [31:0] regfile_dbg, datamem_dbg;
+    input [31:0] data;
     output reg [7:0] seg_n; // combinatorial
     output [7:0] an_n;
     
-    reg [31:0] data;        // combinatorial
-    always @(*) begin
-        case (op)
-            `DISP_OP_CORE:      data <= core;
-            `DISP_OP_CNT_CYC:   data <= cnt_cycle;
-            `DISP_OP_CNT_JMP:   data <= cnt_jump;
-            `DISP_OP_CNT_BCH:   data <= cnt_branch;
-            `DISP_OP_CNT_BED:   data <= cnt_branched;
-            `DISP_OP_RF_DBG:    data <= regfile_dbg;
-            `DISP_OP_DM_DBG:    data <= datamem_dbg;
-            default:            data <= core;
-        endcase
-    end
-
     wire [3:0] value[7:0];
     assign value[7] = data[31:28];
     assign value[6] = data[27:24];

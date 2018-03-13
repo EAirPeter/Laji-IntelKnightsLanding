@@ -15,7 +15,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     output [7:0] an_n;
 
     wire freq_op = swt[0];
-    wire [2:0] disp_op = swt[3:1];
+    wire [2:0] mux_disp_data = swt[3:1];
+    reg [31:0] disp_data;   // combinatorial
     wire clk_div;
     wire core_clk = freq_op ? clk : clk_div;
     wire pe_resume;
@@ -27,6 +28,19 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire [31:0] core_display;
     wire core_halt, core_is_jump, core_is_branch, core_branched;
     wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched;
+
+    always @(*) begin
+        case (mux_disp_data)
+            `MUX_DISP_DATA_CORE:    disp_data <= core_display;
+            `MUX_DISP_DATA_CNT_CYC: disp_data <= cnt_cycle;
+            `MUX_DISP_DATA_CNT_JMP: disp_data <= cnt_jump;
+            `MUX_DISP_DATA_CNT_BCH: disp_data <= cnt_branch;
+            `MUX_DISP_DATA_CNT_BED: disp_data <= cnt_branched;
+            `MUX_DISP_DATA_RF_DBG:  disp_data <= regfile_data_dbg;
+            `MUX_DISP_DATA_DM_DBG:  disp_data <= datamem_data_dbg;
+            default:                disp_data <= core_display;
+        endcase
+    end
 
     AuxDivider #(
         .CntMax(CoreClkCnt)
@@ -40,12 +54,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     ) vDisp(
         .clk(clk),
         .rst_n(rst_n),
-        .op(disp_op),
-        .core(core_display),
-        .cnt_cycle(cnt_cycle),
-        .cnt_jump(cnt_jump),
-        .cnt_branch(cnt_branch),
-        .cnt_branched(cnt_branched),
+        .data(disp_data),
         .seg_n(seg_n),
         .an_n(an_n)
     );

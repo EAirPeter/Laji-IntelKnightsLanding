@@ -4,7 +4,7 @@
 
 module AuxEnabled(clk, rst_n, resume, halt, en);
     input clk, rst_n, resume, halt;
-    output reg en = 1'b1;
+    output reg en;
 
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n)

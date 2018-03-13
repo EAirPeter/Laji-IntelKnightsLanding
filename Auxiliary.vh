@@ -6,13 +6,13 @@
 `define CNT_MILLISEC(ms_) ((ms_) * 100_000)
 `define CNT_SEC(s_) ((s_) * 100_000_000)
 
-`define DISP_OP_BIT         3
-`define DISP_OP_CORE        `DISP_OP_BIT'h0
-`define DISP_OP_CNT_CYC     `DISP_OP_BIT'h1
-`define DISP_OP_CNT_JMP     `DISP_OP_BIT'h2
-`define DISP_OP_CNT_BCH     `DISP_OP_BIT'h3
-`define DISP_OP_CNT_BED     `DISP_OP_BIT'h4
-`define DISP_OP_RF_DBG      `DISP_OP_BIT'h5
-`define DISP_OP_DM_DBG      `DISP_OP_BIT'h6
+`define MUX_DISP_DATA_BIT       3
+`define MUX_DISP_DATA_CORE      `MUX_DISP_DATA_BIT'h0
+`define MUX_DISP_DATA_CNT_CYC   `MUX_DISP_DATA_BIT'h1
+`define MUX_DISP_DATA_CNT_JMP   `MUX_DISP_DATA_BIT'h2
+`define MUX_DISP_DATA_CNT_BCH   `MUX_DISP_DATA_BIT'h3
+`define MUX_DISP_DATA_CNT_BED   `MUX_DISP_DATA_BIT'h4
+`define MUX_DISP_DATA_RF_DBG    `MUX_DISP_DATA_BIT'h5
+`define MUX_DISP_DATA_DM_DBG    `MUX_DISP_DATA_BIT'h6
 
 `endif

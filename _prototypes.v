@@ -24,7 +24,7 @@ endmodule
 // Description: Fetch instruction from memory
 // Author: azure-crab
 module SynInstMem(clk, rst_n, addr, inst);
-    parameter ProgPath = "C:\.Xilinx\benchmark.hex";
+    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk;
     input rst_n;
     input [31:0] addr;
@@ -148,6 +148,7 @@ endmodule
 // Brief: CPU Top Module, synchronized
 // Author: EAirPeter
 module SynLajiIntelKnightsLanding(clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg, regfile_data_dbg, datamem_data_dbg, display, halt, is_jump, is_branch, branched);
+    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk;
     input rst_n;
     input en;
@@ -164,4 +165,14 @@ endmodule
 
 // Brief: Top Module, including I/O
 // Author: EAirPeter
-module TopLajiIntelKnightsLanding;
+module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
+    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
+    parameter CoreClkCnt = `CNT_MILLISEC(500);
+    parameter DispClkCnt = `CNT_MILLISEC(1);
+    input clk;
+    input rst_n;
+    input resume;
+    input [15:0] swt;
+    output [7:0] seg_n;
+    output [7:0] an_n;
+endmodule
