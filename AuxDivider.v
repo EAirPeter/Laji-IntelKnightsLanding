@@ -2,6 +2,8 @@
 
 `include "Auxiliary.vh"
 
+// Brief: Frequency Divider, synchronized, auxiliary
+// Author: EAirPeter
 module AuxDivider(clk, rst_n, clk_out);
     function integer Log2Ceil(input time cnt_max);
         for (Log2Ceil = 0; cnt_max; Log2Ceil = Log2Ceil + 1)
@@ -9,14 +11,14 @@ module AuxDivider(clk, rst_n, clk_out);
     endfunction
     parameter CntMax = `CNT_SEC(1);
     parameter CntHalf = CntMax / 2;
-    localparam CntBit = Log2Ceil(CntMax);
+    localparam CntBit = Log2Ceil(CntHalf);
 
     input clk;
     input rst_n;
     output reg clk_out;
     
     wire [CntBit - 1:0] ctr_cnt;
-    wire ctr_ld = ctr_cnt == CntMax - 'd1;
+    wire ctr_ld = ctr_cnt == CntHalf - 'd1;
 
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n)

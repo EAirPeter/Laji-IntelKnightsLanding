@@ -2,15 +2,18 @@
 
 `include "Core.vh"
 
+// Brief: CPU Top Module, synchronized
+// Author: EAirPeter
 module SynLajiIntelKnightsLanding(
     clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg,
-    regfile_data_dbg, datamem_data_dbg, display,
+    pc_dbg, regfile_data_dbg, datamem_data_dbg, display,
     halt, is_jump, is_branch, branched
 );
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk, rst_n, en;
     input [4:0] regfile_req_dbg;
     input [31:0] datamem_addr_dbg;
+    output [31:0] pc_dbg;
     output [31:0] regfile_data_dbg;
     output [31:0] datamem_data_dbg;
     output [31:0] display;
@@ -39,6 +42,7 @@ module SynLajiIntelKnightsLanding(
     wire [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     wire [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
     wire [31:0] pc_new = is_jump | branched ? wtg_pc_new : pc_4;
+    assign pc_dbg = pc;
 
     always @(*) begin
         case (mux_regfile_req_w)
@@ -81,11 +85,9 @@ module SynLajiIntelKnightsLanding(
         .pc(pc),
         .pc_4(pc_4)
     );
-    SynInstMem #(
+    CmbInstMem #(
         .ProgPath(ProgPath)
     ) vIM(
-        .clk(clk),
-        .rst_n(1'b1),
         .addr(pc),
         .inst(inst)
     );

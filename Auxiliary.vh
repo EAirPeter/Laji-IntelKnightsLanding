@@ -1,5 +1,5 @@
-`ifndef lajiintel_auxiliary_vh_
-`define lajiintel_auxiliary_vh_
+`ifndef LAJIINTEL_AUXILIARY_VH_
+`define LAJIINTEL_AUXILIARY_VH_
 
 `define CNT_CLKPULSE(cp_) (cp_)
 `define CNT_MICROSEC(us_) ((us_) * 100)
@@ -15,7 +15,8 @@
 `define MUX_DISP_DATA_CNT_JMP   `MUX_DISP_DATA_BIT'h2
 `define MUX_DISP_DATA_CNT_BCH   `MUX_DISP_DATA_BIT'h3
 `define MUX_DISP_DATA_CNT_BED   `MUX_DISP_DATA_BIT'h4
-`define MUX_DISP_DATA_RF_DBG    `MUX_DISP_DATA_BIT'h5
-`define MUX_DISP_DATA_DM_DBG    `MUX_DISP_DATA_BIT'h6
+`define MUX_DISP_DATA_PC_DBG    `MUX_DISP_DATA_BIT'h5
+`define MUX_DISP_DATA_RF_DBG    `MUX_DISP_DATA_BIT'h6
+`define MUX_DISP_DATA_DM_DBG    `MUX_DISP_DATA_BIT'h7
 
 `endif

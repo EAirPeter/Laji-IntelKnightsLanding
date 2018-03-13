@@ -2,11 +2,13 @@
 
 `include "Auxiliary.vh"
 
+// Brief: Top Module, I/O included
+// Author: EAirPeter
 module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     parameter CoreHighClkCnt = `CNT_MHZ(10);
-    parameter CoreLowClkCnt = `CNT_HZ(1);
-    parameter DispClkCnt = `CNT_KHZ(4);
+    parameter CoreLowClkCnt = `CNT_HZ(16);
+    parameter DispClkCnt = `CNT_KHZ(2);
     input clk;
     input rst_n;
     input resume;
@@ -14,12 +16,13 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     output [7:0] seg_n;
     output [7:0] an_n;
 
-    wire freq_op = swt[0];
+    wire freq_sel = swt[0];
     wire [2:0] mux_disp_data = swt[3:1];
     reg [31:0] disp_data;   // combinatorial
     wire clk_hi, clk_lo;
-    wire core_clk = freq_op ? clk_lo : clk_hi;
+    wire core_clk = freq_sel ? clk_lo : clk_hi;
     wire core_en;
+    wire [31:0] core_pc_dbg;
     wire [4:0] regfile_req_dbg = swt[15:11];
     wire [31:0] datamem_addr_dbg = {24'd0, swt[15:6], 2'd0};
     wire [31:0] regfile_data_dbg;
@@ -35,6 +38,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
             `MUX_DISP_DATA_CNT_JMP: disp_data <= cnt_jump;
             `MUX_DISP_DATA_CNT_BCH: disp_data <= cnt_branch;
             `MUX_DISP_DATA_CNT_BED: disp_data <= cnt_branched;
+            `MUX_DISP_DATA_PC_DBG:  disp_data <= core_pc_dbg;
             `MUX_DISP_DATA_RF_DBG:  disp_data <= regfile_data_dbg;
             `MUX_DISP_DATA_DM_DBG:  disp_data <= datamem_data_dbg;
             default:                disp_data <= core_display;
@@ -104,7 +108,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .val(32'd0),
         .cnt(cnt_branched)
     );
-    AuxEnabled vEnabled(
+    AuxWTCIE vWTCIE(
         .clk(core_clk),
         .rst_n(rst_n),
         .resume(resume),
@@ -119,6 +123,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .en(core_en),
         .regfile_req_dbg(regfile_req_dbg),
         .datamem_addr_dbg(datamem_addr_dbg),
+        .pc_dbg(core_pc_dbg),
         .regfile_data_dbg(regfile_data_dbg),
         .datamem_data_dbg(datamem_data_dbg),
         .display(core_display),

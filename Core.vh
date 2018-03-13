@@ -1,5 +1,5 @@
-`ifndef lajiintel_core_vh_
-`define lajiintel_core_vh_
+`ifndef LAJIINTEL_CORE_VH_
+`define LAJIINTEL_CORE_VH_
 
 // WhereToGo.operation
 `define WTG_OP_BIT          3

@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+
 `include "Core.vh"
 
 // Brief: Where To Go, combinatorial
@@ -19,39 +20,39 @@ module CmbWTG(op, off32, imm26, data_x, data_y, pc_4, pc_new, branched);
 
     always @(*) begin
         case (op)
-            `WTG_OP_J32 : begin
+            `WTG_OP_J32: begin
                 branched = 0;
                 pc_new = data_x;
             end
-            `WTG_OP_J26 : begin 
+            `WTG_OP_J26: begin 
                 branched = 0;
                 pc_new = j_addr;
             end
-            `WTG_OP_BEQ : begin
+            `WTG_OP_BEQ: begin
                 branched = (data_x == data_y);
                 pc_new = branched ? b_addr : pc_4;
             end
-            `WTG_OP_BNE : begin
+            `WTG_OP_BNE: begin
                 branched = (data_x != data_y);
                 pc_new = branched ? b_addr : pc_4;
             end
-            `WTG_OP_BLEZ : begin
+            `WTG_OP_BLEZ: begin
                 branched = (data_x <= 0);                            
                 pc_new = branched ? b_addr : pc_4;
             end
-            `WTG_OP_BGTZ : begin
+            `WTG_OP_BGTZ: begin
                 branched = (data_x > 0);
                 pc_new = branched ? b_addr : pc_4;
             end
-            `WTG_OP_BLTZ : begin
+            `WTG_OP_BLTZ: begin
                 branched = (data_x < 0);
                 pc_new = branched ? b_addr : pc_4;
             end
-            `WTG_OP_BGEZ : begin
+            `WTG_OP_BGEZ: begin
                 branched = (data_x >= 0);
                 pc_new = branched ? b_addr : pc_4;
             end
-            default : begin
+            default: begin
                 branched = 0;
                 pc_new = pc_4;
             end

@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
-`include "Auxiliary.vh"
-
-module AuxEnabled(clk, rst_n, resume, halt, en);
+// Brief: Whether The Core Is Enabled, synchronized, auxiliary
+// Author: EAirPeter
+module AuxWTCIE(clk, rst_n, resume, halt, en);
     input clk, rst_n, resume, halt;
     output reg en;
 

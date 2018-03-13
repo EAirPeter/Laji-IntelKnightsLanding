@@ -2,6 +2,8 @@
 
 `include "Auxiliary.vh"
 
+// Brief: 7-Segment Display Driver, synchronized, auxiliary
+// Author: EAirPeter
 module AuxDisplay(clk, rst_n, data, seg_n, an_n);
     parameter ScanCntMax = `CNT_KHZ(1);
     input clk;
@@ -55,7 +57,7 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
         .CntBit(3)
     ) vCtr(
         .clk(ctr_clk),
-        .rst_n(rst_n),
+        .rst_n(1'b1),
         .en(1'b1),
         .ld(1'b0),
         .val(3'b0),

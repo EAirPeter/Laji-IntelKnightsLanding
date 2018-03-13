@@ -11,7 +11,7 @@ module TbAuxDivider();
         `cp(1) rst_n = 1'b1;
     end
     AuxDivider #(
-        .CntMax(5)
+        .CntMax(10)
     ) vDUT(
         .clk(clk),
         .rst_n(rst_n),

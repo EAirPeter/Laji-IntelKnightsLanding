@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
-`include "Auxiliary.vh"
-
+// Brief: Binary Counter, synchronized, auxiliary
+// Author: EAirPeter
 module AuxCounter(clk, rst_n, en, ld, val, cnt);
     parameter CntBit = 32;
     input clk;
