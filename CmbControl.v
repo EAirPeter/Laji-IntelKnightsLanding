@@ -33,7 +33,7 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
       `op_wtg = `WTG_OP_J32;
       `ALU = `ALU_OP_AND;
       `op_datamem = `DM_OP_WD;	
-      w_en_regfile = 0;
+      w_en_regfile = 1;
       w_en_datamem = 0;
       syscall_en = 0;
       // default is for the 
@@ -62,10 +62,12 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
                 begin
                             `op_wtg = `WTG_OP_J32;
                             is_jump = 1;
+      											w_en_regfile = 0;
                 end
               6'b001100:			// alu_placeholder							// syscall
                 begin
                             syscall_en = 1;
+      											w_en_regfile = 0;
                 end
               6'b100000:			`ALU = `ALU_OP_ADD;		// add
               6'b100001:			`ALU = `ALU_OP_ADD;		// addu
@@ -80,21 +82,26 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
             endcase
           end
         6'b000001: 
+				begin
+					w_en_regfile = 0;
         // 6'b000001: //bgez
           case(rt[0])
             1'b0: 			`op_wtg = `WTG_OP_BLTZ;	 // bltz
             1'b1: 			 op_alu = `WTG_OP_BGEZ;  // bgez
           endcase
-        6'b000010: begin `op_wtg = `WTG_OP_J26;    	is_jump   = 1; end			// j
+				end
+        6'b000010: begin `op_wtg = `WTG_OP_J26;    	is_jump   = 1; 
+					w_en_regfile = 0;
+				end			// j
 
         6'b000011: begin `op_wtg = `WTG_OP_J32;  	is_jump   = 1;  //jal
                     `mux_regfile_req_w = `MUX_RF_REQW_31;
                     `mux_regfile_data_w = `MUX_RF_DATAW_PC4;
                   end			// jal
-        6'b000100: begin `op_wtg = `WTG_OP_BEQ;  	is_branch = 1; end			// beq
-        6'b000101: begin `op_wtg = `WTG_OP_BNE;  	is_branch = 1; end			// bne
-        6'b000110: begin `op_wtg = `WTG_OP_BLEZ; 	is_branch = 1; end			// blez
-        6'b000111: begin `op_wtg = `WTG_OP_BGTZ; 	is_branch = 1; end			// bgtz
+        6'b000100: begin `op_wtg = `WTG_OP_BEQ;  	is_branch = 1; w_en_regfile = 0; end			// beq
+        6'b000101: begin `op_wtg = `WTG_OP_BNE;  	is_branch = 1; w_en_regfile = 0; end			// bne
+        6'b000110: begin `op_wtg = `WTG_OP_BLEZ; 	is_branch = 1; w_en_regfile = 0; end			// blez
+        6'b000111: begin `op_wtg = `WTG_OP_BGTZ; 	is_branch = 1; w_en_regfile = 0; end			// bgtz
 
         6'b001000: `ALU = `ALU_OP_ADD;			// addi
         6'b001001: `ALU = `ALU_OP_ADD;			// addiu
@@ -105,16 +112,16 @@ module CmbControl(opcode, rt, funct, op_wtg, w_en_regfile, op_alu, op_datamem, w
         6'b001101: begin `ALU = `ALU_OP_OR;	 `mux_alu_data_y = `MUX_ALU_DATAY_EXTZ; end	// ori
         6'b001110: begin `ALU = `ALU_OP_XOR; `mux_alu_data_y = `MUX_ALU_DATAY_EXTZ; end	// xori
 
-        6'b001111: begin `ALU = `ALU_OP_LUI; `mux_regfile_data_w = `MUX_RF_DATAW_DM; w_en_regfile = 0; end	// lui
-        6'b100000: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_SB; w_en_regfile = 1; end	// lb
-        6'b100001: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_SH; w_en_regfile = 1; end	// lh
-        6'b100011: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_WD; w_en_regfile = 1; end	// lw
-        6'b100100: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_UB; w_en_regfile = 1; end	// lbu
-        6'b100101: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_UH; w_en_regfile = 1; end	// lhu
+        6'b001111: begin `ALU = `ALU_OP_LUI; `mux_regfile_data_w = `MUX_RF_DATAW_DM; end	// lui
+        6'b100000: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_SB; end	// lb
+        6'b100001: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_SH; end	// lh
+        6'b100011: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_WD; end	// lw
+        6'b100100: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_UB; end	// lbu
+        6'b100101: begin `ALU = `ALU_OP_ADD; `mux_regfile_data_w = `MUX_RF_DATAW_DM; `op_datamem = `DM_OP_UH; end	// lhu
 
-        6'b101000: begin `ALU = `ALU_OP_ADD; `op_datamem = `DM_OP_SB; w_en_datamem = 1; end			// sb
-        6'b101001: begin `ALU = `ALU_OP_ADD; `op_datamem = `DM_OP_SH; w_en_datamem = 1; end			// sh
-        6'b101011: begin `ALU = `ALU_OP_ADD; `op_datamem = `DM_OP_WD; w_en_datamem = 1; end			// sw
+        6'b101000: begin `ALU = `ALU_OP_ADD; `op_datamem = `DM_OP_SB; w_en_datamem = 1; w_en_regfile = 0; end			// sb
+        6'b101001: begin `ALU = `ALU_OP_ADD; `op_datamem = `DM_OP_SH; w_en_datamem = 1; w_en_regfile = 0; end			// sh
+        6'b101011: begin `ALU = `ALU_OP_ADD; `op_datamem = `DM_OP_WD; w_en_datamem = 1; w_en_regfile = 0; end			// sw
       endcase
     end
 endmodule
