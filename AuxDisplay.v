@@ -4,10 +4,9 @@
 
 // Brief: 7-Segment Display Driver, synchronized, auxiliary
 // Author: EAirPeter
-module AuxDisplay(clk, rst_n, data, seg_n, an_n);
+module AuxDisplay(clk, data, seg_n, an_n);
     parameter ScanCntMax = `CNT_KHZ(1);
     input clk;
-    input rst_n;
     input [31:0] data;
     output reg [7:0] seg_n; // combinatorial
     output [7:0] an_n;
@@ -50,7 +49,7 @@ module AuxDisplay(clk, rst_n, data, seg_n, an_n);
         .CntMax(ScanCntMax)
     ) vDiv(
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(1'b1),
         .clk_out(ctr_clk)
     );
     AuxCounter #(

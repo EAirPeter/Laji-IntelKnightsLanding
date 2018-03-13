@@ -63,7 +63,6 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .ScanCntMax(DispClkCnt)
     ) vDisp(
         .clk(clk),
-        .rst_n(rst_n),
         .data(disp_data),
         .seg_n(seg_n),
         .an_n(an_n)
