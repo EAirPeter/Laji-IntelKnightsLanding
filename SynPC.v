@@ -1,4 +1,4 @@
-module SynPc(clk, rst_n, en, pc_new, pc, pc_4)
+module SynPC(clk, rst_n, en, pc_new, pc, pc_4);
    input clk;
    input rst_n;  //negedge reset
    input en;     //high enable normal
