@@ -74,8 +74,8 @@ module CmbControl(
             6'b000001:  begin
                 w_en_regfile = 0;
                 case(rt[0])
-                    1'b0:       op_wtg = `WTG_OP_BLTZ;      // bltz
-                    1'b1:       op_wtg = `WTG_OP_BGEZ;      // bgez
+                    1'b0: begin op_wtg = `WTG_OP_BLTZ;  is_branch = 1; end  // bltz
+                    1'b1: begin op_wtg = `WTG_OP_BGEZ;  is_branch = 1; end  // bgez
                 endcase
             end
             6'b000010:  begin   op_wtg = `WTG_OP_J26;   is_jump   = 1; w_en_regfile = 0; end    // j

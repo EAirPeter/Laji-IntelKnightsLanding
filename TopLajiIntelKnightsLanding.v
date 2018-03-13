@@ -6,8 +6,10 @@
 // Author: EAirPeter
 module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
-    parameter CoreHighClkCnt = `CNT_MHZ(10);
-    parameter CoreLowClkCnt = `CNT_HZ(16);
+    parameter CoreClk0Cnt = `CNT_HZ(2);
+    parameter CoreClk1Cnt = `CNT_HZ(20);
+    parameter CoreClk2Cnt = `CNT_HZ(200);
+    parameter CoreClk3Cnt = `CNT_MHZ(20);
     parameter DispClkCnt = `CNT_KHZ(2);
     input clk;
     input rst_n;
@@ -16,11 +18,11 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     output [7:0] seg_n;
     output [7:0] an_n;
 
-    wire freq_sel = swt[0];
-    wire [2:0] mux_disp_data = swt[3:1];
+    wire [1:0] mux_core_clk = swt[1:0];
+    wire [2:0] mux_disp_data = swt[4:2];
     reg [31:0] disp_data;   // combinatorial
-    wire clk_hi, clk_lo;
-    wire core_clk = freq_sel ? clk_lo : clk_hi;
+    wire clk_core_0, clk_core_1, clk_core_2, clk_core_3;
+    reg core_clk;           // combinatorial
     wire core_en;
     wire [31:0] core_pc_dbg;
     wire [4:0] regfile_req_dbg = swt[15:11];
@@ -32,6 +34,12 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched;
 
     always @(*) begin
+        case (mux_core_clk)
+            2'b00:  core_clk <= clk_core_0;
+            2'b01:  core_clk <= clk_core_1;
+            2'b10:  core_clk <= clk_core_2;
+            2'b11:  core_clk <= clk_core_3;
+        endcase
         case (mux_disp_data)
             `MUX_DISP_DATA_CORE:    disp_data <= core_display;
             `MUX_DISP_DATA_CNT_CYC: disp_data <= cnt_cycle;
@@ -46,18 +54,32 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     end
 
     AuxDivider #(
-        .CntMax(CoreHighClkCnt)
-    ) vDivCoreHigh(
+        .CntMax(CoreClk0Cnt)
+    ) vDivCoreClk0(
         .clk(clk),
         .rst_n(rst_n),
-        .clk_out(clk_hi)
+        .clk_out(clk_core_0)
     );
     AuxDivider #(
-        .CntMax(CoreLowClkCnt)
-    ) vDivCoreLow(
+        .CntMax(CoreClk1Cnt)
+    ) vDivCoreClk1(
         .clk(clk),
         .rst_n(rst_n),
-        .clk_out(clk_lo)
+        .clk_out(clk_core_1)
+    );
+    AuxDivider #(
+        .CntMax(CoreClk2Cnt)
+    ) vDivCoreClk2(
+        .clk(clk),
+        .rst_n(rst_n),
+        .clk_out(clk_core_2)
+    );
+    AuxDivider #(
+        .CntMax(CoreClk3Cnt)
+    ) vDivCoreClk3(
+        .clk(clk),
+        .rst_n(rst_n),
+        .clk_out(clk_core_3)
     );
     AuxDisplay #(
         .ScanCntMax(DispClkCnt)
