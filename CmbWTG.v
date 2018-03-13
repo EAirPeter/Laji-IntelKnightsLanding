@@ -14,8 +14,8 @@ module CmbWTG(op, off32, imm26, data_x, data_y, pc_4, pc_new, branched);
     output reg [31:0] pc_new;
     output reg branched;        // True on successful conditional branch
 
-    assign j_addr = {pc_4[31:28], imm26, 2'b00};
-    assign b_addr = {off32[29:0], 2'b00} + pc_4;
+    wire [31:0] j_addr = {pc_4[31:28], imm26, 2'b00};
+    wire [31:0] b_addr = {off32[29:0], 2'b00} + pc_4;
 
     always @(*) begin
         case (op)
