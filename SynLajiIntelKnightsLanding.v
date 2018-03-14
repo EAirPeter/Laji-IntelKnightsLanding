@@ -12,26 +12,25 @@ module SynLajiIntelKnightsLanding(
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk, rst_n, en;
     input [4:0] regfile_req_dbg;
-    input [31:0] datamem_addr_dbg;
+    input [`DM_ADDR_BIT - 1:0] datamem_addr_dbg;
     output [31:0] pc_dbg;
     output [31:0] regfile_data_dbg;
     output [31:0] datamem_data_dbg;
     output [31:0] display;
     output halt, is_jump, is_branch, branched;
 
-    wire [31:0] pc, pc_4;
+    wire [`IM_ADDR_BIT - 1:0] pc, pc_4;
     wire [31:0] inst;
     wire [5:0] opcode, funct;
     wire [4:0] rs, rt, rd, shamt;
     wire [15:0] imm16;
-    wire [25:0] imm26;
     wire [31:0] ext_out_sign, ext_out_zero;
     wire regfile_w_en;
     wire [31:0] regfile_data_a, regfile_data_b, regfile_data_v0, regfile_data_a0;
     reg [4:0] regfile_req_w;    // combinatorial
     reg [31:0] regfile_data_w;  // combinatorial
     wire [`WTG_OP_BIT - 1:0] wtg_op;
-    wire [31:0] wtg_pc_new;
+    wire [`IM_ADDR_BIT - 1:0] wtg_pc_new;
     wire [`ALU_OP_BIT - 1:0] alu_op;
     reg [31:0] alu_data_y;      // combinatorial
     wire [31:0] alu_data_res;
@@ -41,8 +40,8 @@ module SynLajiIntelKnightsLanding(
     wire [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
     wire [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     wire [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
-    wire [31:0] pc_new = is_jump | branched ? wtg_pc_new : pc_4;
-    assign pc_dbg = pc;
+    wire [`IM_ADDR_BIT - 1:0] pc_new = is_jump || branched ? wtg_pc_new : pc_4;
+    assign pc_dbg = {20'd0, pc, 2'd0};
 
     always @(*) begin
         case (mux_regfile_req_w)
@@ -99,8 +98,7 @@ module SynLajiIntelKnightsLanding(
         .rd(rd),
         .shamt(shamt),
         .funct(funct),
-        .imm16(imm16),
-        .imm26(imm26)
+        .imm16(imm16)
     );
     CmbExt vExt(
         .imm16(imm16),
@@ -125,8 +123,7 @@ module SynLajiIntelKnightsLanding(
     );
     CmbWTG vWTG(
         .op(wtg_op),
-        .off32(ext_out_sign),
-        .imm26(imm26),
+        .imm(imm16[`IM_ADDR_BIT - 1:0]),
         .data_x(regfile_data_a),
         .data_y(regfile_data_b),
         .pc_4(pc_4),
@@ -147,7 +144,7 @@ module SynLajiIntelKnightsLanding(
         .op(datamem_op),
         .w_en(datamem_w_en),
         .addr_dbg(datamem_addr_dbg),
-        .addr(alu_data_res),
+        .addr(alu_data_res[`DM_ADDR_BIT - 1:0]),
         .data_in(regfile_data_b),
         .data_dbg(datamem_data_dbg),
         .data(datamem_data)

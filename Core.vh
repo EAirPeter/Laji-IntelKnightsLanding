@@ -1,6 +1,9 @@
 `ifndef LAJIINTEL_CORE_VH_
 `define LAJIINTEL_CORE_VH_
 
+`define IM_ADDR_BIT         10
+`define DM_ADDR_BIT         12
+
 // WhereToGo.operation
 `define WTG_OP_BIT          3
 `define WTG_OP_J32          `WTG_OP_BIT'h0      //  Set pc_new to data_x

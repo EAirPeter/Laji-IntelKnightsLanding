@@ -5,40 +5,43 @@
 // Brief: Data Memory, combinatorial
 // Author: cuishaobo
 module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, data);
+    localparam MemLen = 1 << (`DM_ADDR_BIT - 2);
     input clk;
     input rst_n;
     input en;
     input [`DM_OP_BIT - 1:0] op;
     input w_en;             // Write Enable
-    input [31:0] addr_dbg;  // Address of the data for debugging
-    input [31:0] addr;
+    input [`DM_ADDR_BIT - 1:0] addr_dbg;  // Address of the data for debugging
+    input [`DM_ADDR_BIT - 1:0] addr;
     input [31:0] data_in;
     output [31:0] data_dbg; // Data to be displayed for debugging
     output reg [31:0] data;
     wire enable = en && w_en;
-    assign data_dbg = addr_dbg;
 
     // (* ram_style = "block" *) 
-    reg [7:0] mem_a[1023:0];
-    reg [7:0] mem_b[1023:0];
-    reg [7:0] mem_c[1023:0];
-    reg [7:0] mem_d[1023:0];
+    reg [7:0] mem_a[MemLen - 1:0];
+    reg [7:0] mem_b[MemLen - 1:0];
+    reg [7:0] mem_c[MemLen - 1:0];
+    reg [7:0] mem_d[MemLen - 1:0];
 
-    wire [9:0] eff_addr = addr[11:2];
+    wire [`DM_ADDR_BIT - 3:0] dbg_addr = addr_dbg[`DM_ADDR_BIT - 1:2];
+    wire [`DM_ADDR_BIT - 3:0] eff_addr = addr[`DM_ADDR_BIT - 1:2];
     wire [7:0] data_a = mem_a[eff_addr];
     wire [7:0] data_b = mem_b[eff_addr];
     wire [7:0] data_c = mem_c[eff_addr];
     wire [7:0] data_d = mem_d[eff_addr];
+    
+    assign data_dbg = {mem_d[dbg_addr], mem_c[dbg_addr], mem_b[dbg_addr], mem_a[dbg_addr]};
 
     reg [7:0] write_data_a;
     reg [7:0] write_data_b;
     reg [7:0] write_data_c;
     reg [7:0] write_data_d;
 
-    reg [7:0] write_en_a;
-    reg [7:0] write_en_b;
-    reg [7:0] write_en_c;
-    reg [7:0] write_en_d;
+    reg write_en_a;
+    reg write_en_b;
+    reg write_en_c;
+    reg write_en_d;
 
     always@(*) begin
         case (op)
@@ -81,7 +84,10 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
         write_data_b = 32'b0;
         write_data_c = 32'b0;
         write_data_d = 32'b0;
-
+        write_en_a = 1'b0;
+        write_en_b = 1'b0;
+        write_en_c = 1'b0;
+        write_en_d = 1'b0;
         
         case (op)
             `DM_OP_SB, `DM_OP_UB: begin

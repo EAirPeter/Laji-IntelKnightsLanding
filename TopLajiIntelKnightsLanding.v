@@ -26,7 +26,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire core_en;
     wire [31:0] core_pc_dbg;
     wire [4:0] regfile_req_dbg = swt[15:11];
-    wire [31:0] datamem_addr_dbg = {24'd0, swt[15:6], 2'd0};
+    wire [`DM_ADDR_BIT - 1:0] datamem_addr_dbg = {swt[15:6], 2'd0};
     wire [31:0] regfile_data_dbg;
     wire [31:0] datamem_data_dbg;
     wire [31:0] core_display;
