@@ -104,7 +104,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     ) vCtrJump(
         .clk(core_clk),
         .rst_n(rst_n),
-        .en(core_is_jump),
+        .en(core_en && core_is_jump),
         .ld(1'b0),
         .val(32'd0),
         .cnt(cnt_jump)
@@ -114,7 +114,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     ) vCtrBranch(
         .clk(core_clk),
         .rst_n(rst_n),
-        .en(core_is_branch),
+        .en(core_en && core_is_branch),
         .ld(1'b0),
         .val(32'd0),
         .cnt(cnt_branch)
@@ -124,7 +124,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     ) vCtrBranched(
         .clk(core_clk),
         .rst_n(rst_n),
-        .en(core_branched),
+        .en(core_en && core_branched),
         .ld(1'b0),
         .val(32'd0),
         .cnt(cnt_branched)
