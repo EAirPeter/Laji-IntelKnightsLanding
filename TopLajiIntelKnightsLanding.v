@@ -9,7 +9,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     parameter CoreClk0Cnt = `CNT_HZ(2);
     parameter CoreClk1Cnt = `CNT_HZ(20);
     parameter CoreClk2Cnt = `CNT_HZ(200);
-    parameter CoreClk3Cnt = `CNT_MHZ(20);
+    parameter CoreClk3Cnt = `CNT_MHZ(50);
     parameter DispClkCnt = `CNT_KHZ(2);
     input clk;
     input rst_n;
@@ -38,7 +38,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
             2'b00:  core_clk <= clk_core_0;
             2'b01:  core_clk <= clk_core_1;
             2'b10:  core_clk <= clk_core_2;
-            2'b11:  core_clk <= clk; // clk_core_3;
+            2'b11:  core_clk <= clk_core_3;
         endcase
         case (mux_disp_data)
             `MUX_DISP_DATA_CORE:    disp_data <= core_display;
