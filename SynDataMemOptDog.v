@@ -16,19 +16,19 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
     output [31:0] data_dbg; // Data to be displayed for debugging
     output reg [31:0] data;
 
+    assign data_dbg = addr_dbg;
+
     // (* ram_style = "block" *) 
-    reg [8:0] mem_a[1023:0];
-    reg [8:0] mem_b[1023:0];
-    reg [8:0] mem_c[1023:0];
-    reg [8:0] mem_d[1023:0];
+    reg [7:0] mem_a[1023:0];
+    reg [7:0] mem_b[1023:0];
+    reg [7:0] mem_c[1023:0];
+    reg [7:0] mem_d[1023:0];
 
-    wire enabled = en & w_en;
-    wire [9:0] effAddr = addr[11:2];
-    wire data_a[7:0] = mem_a[effAddr];
-    wire data_b[7:0] = mem_b[effAddr];
-    wire data_c[7:0] = mem_c[effAddr];
-    wire data_d[7:0] = mem_d[effAddr];
-
+    wire [9:0] eff_addr = addr[11:2];
+    wire [7:0] data_a = mem_a[eff_addr];
+    wire [7:0] data_b = mem_b[eff_addr];
+    wire [7:0] data_c = mem_c[eff_addr];
+    wire [7:0] data_d = mem_d[eff_addr];
 
     always@(*) begin
         case (op)
@@ -71,29 +71,29 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
             case (op)
                 `DM_OP_SB, `DM_OP_UB: begin
                     case(addr[1:0])
-                        0: mem_a[effAddr] <= data_in[7:0];
-                        1: mem_b[effAddr] <= data_in[7:0];
-                        2: mem_c[effAddr] <= data_in[7:0];
-                        3: mem_d[effAddr] <= data_in[7:0];
+                        0: mem_a[eff_addr] <= data_in[7:0];
+                        1: mem_b[eff_addr] <= data_in[7:0];
+                        2: mem_c[eff_addr] <= data_in[7:0];
+                        3: mem_d[eff_addr] <= data_in[7:0];
                     endcase
                 end
                 `DM_OP_SH, `DM_OP_UH: begin
                     case(addr[1])
                         0:  begin
-                            mem_a[effAddr] <= data_in[7:0];
-                            mem_b[effAddr] <= data_in[15:8];
+                            mem_a[eff_addr] <= data_in[7:0];
+                            mem_b[eff_addr] <= data_in[15:8];
                         end
                         1:  begin 
-                            mem_c[effAddr] <= data_in[7:0];
-                            mem_d[effAddr] <= data_in[15:8];
+                            mem_c[eff_addr] <= data_in[7:0];
+                            mem_d[eff_addr] <= data_in[15:8];
                         end
                     endcase
                 end
                 `DM_OP_WD: begin 
-                    mem_a[effAddr] <= data_in[7:0];
-                    mem_b[effAddr] <= data_in[15:8];
-                    mem_c[effAddr] <= data_in[23:16];
-                    mem_d[effAddr] <= data_in[31:24];
+                    mem_a[eff_addr] <= data_in[7:0];
+                    mem_b[eff_addr] <= data_in[15:8];
+                    mem_c[eff_addr] <= data_in[23:16];
+                    mem_d[eff_addr] <= data_in[31:24];
                 end
             endcase
         end
