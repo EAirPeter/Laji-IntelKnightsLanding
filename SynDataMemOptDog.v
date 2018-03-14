@@ -15,7 +15,7 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
     input [31:0] data_in;
     output [31:0] data_dbg; // Data to be displayed for debugging
     output reg [31:0] data;
-
+    wire enbale = en && w_en;
     assign data_dbg = addr_dbg;
 
     // (* ram_style = "block" *) 
@@ -34,6 +34,11 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
     reg [7:0] write_data_b;
     reg [7:0] write_data_c;
     reg [7:0] write_data_d;
+
+    reg [7:0] en_a;
+    reg [7:0] en_b;
+    reg [7:0] en_c;
+    reg [7:0] en_d;
 
     always@(*) begin
         case (op)
@@ -72,28 +77,34 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
     end
 
     always @(*) begin
-        write_data_a = data_a;
-        write_data_b = data_b;
-        write_data_c = data_c;
-        write_data_d = data_d;
+        write_data_a = 32'b0;
+        write_data_b = 32'b0;
+        write_data_c = 32'b0;
+        write_data_d = 32'b0;
+
+        
         case (op)
             `DM_OP_SB, `DM_OP_UB: begin
                 case(addr[1:0])
-                    0: write_data_a = data_in[7:0];
-                    1: write_data_b = data_in[7:0];
-                    2: write_data_c = data_in[7:0];
-                    3: write_data_d = data_in[7:0];
+                    0: begin write_data_a = data_in[7:0]; write_en_a = enable; end
+                    1: begin write_data_b = data_in[7:0]; write_en_b = enable; end
+                    2: begin write_data_c = data_in[7:0]; write_en_c = enable; end
+                    3: begin write_data_d = data_in[7:0]; write_en_d = enable; end
                 endcase
             end
             `DM_OP_SH, `DM_OP_UH: begin
                 case(addr[1])
                     0:  begin
-                        write_data_a = data_in[7:0];
-                        write_data_b = data_in[15:8];
+                        write_data_a = data_in[7:0]; 
+                        write_data_b = data_in[15:8]; 
+                        write_en_a = enable;
+                        write_en_b = enable;
                     end
                     1:  begin 
-                        write_data_c = data_in[7:0];
-                        write_data_d = data_in[15:8];
+                        write_data_c = data_in[7:0]; 
+                        write_data_d = data_in[15:8]; 
+                        write_en_c = enable;
+                        write_en_d = enable;
                     end
                 endcase
             end
@@ -102,15 +113,30 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
                 write_data_b = data_in[15:8];
                 write_data_c = data_in[23:16];
                 write_data_d = data_in[31:24];
+                write_en_a = enable;
+                write_en_b = enable;
+                write_en_c = enable;
+                write_en_d = enable;
             end
         endcase
     end
+
     always @(posedge clk) begin
-        if(write_en) begin
+        if(write_en_a) begin
             mem_a[eff_addr] <= write_data_a;
+        end
+
+        if(write_en_b) begin
             mem_b[eff_addr] <= write_data_b;
+        end
+
+        if(write_en_c) begin
             mem_c[eff_addr] <= write_data_c;
+        end
+
+        if(write_en_d) begin
             mem_d[eff_addr] <= write_data_d;
         end
     end
+
 endmodule
