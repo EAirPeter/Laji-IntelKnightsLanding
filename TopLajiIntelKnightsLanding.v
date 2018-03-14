@@ -38,7 +38,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
             2'b00:  core_clk <= clk_core_0;
             2'b01:  core_clk <= clk_core_1;
             2'b10:  core_clk <= clk_core_2;
-            2'b11:  core_clk <= clk_core_3;
+            2'b11:  core_clk <= clk; // clk_core_3;
         endcase
         case (mux_disp_data)
             `MUX_DISP_DATA_CORE:    disp_data <= core_display;
