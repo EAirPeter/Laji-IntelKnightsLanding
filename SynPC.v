@@ -14,8 +14,8 @@ module SynPC(clk, rst_n, en, pc_new, pc, pc_4);
     reg [9:0] pc_simp;
     wire pc_4_simp = pc_simp + 1;
 
-    assign pc = {20{1'b0}, pc_simp, 2{1'b0}};
-    assign pc_4 = {20{1'b0}, pc_4_simp, 2{1'b0}};
+    assign pc = {{20{1'b0}}, pc_simp, {2{1'b0}}};
+    assign pc_4 = {{20{1'b0}}, pc_4_simp, {2{1'b0}}};
 
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n)
