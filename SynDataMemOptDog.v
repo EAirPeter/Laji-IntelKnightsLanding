@@ -30,6 +30,11 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
     wire [7:0] data_c = mem_c[eff_addr];
     wire [7:0] data_d = mem_d[eff_addr];
 
+    reg [7:0] write_data_a;
+    reg [7:0] write_data_b;
+    reg [7:0] write_data_c;
+    reg [7:0] write_data_d;
+
     always@(*) begin
         case (op)
             `DM_OP_WD: data <= {data_d, data_c, data_b, data_a};
@@ -66,37 +71,46 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
         endcase
     end
 
+    always @(*) begin
+        write_data_a = data_a;
+        write_data_b = data_b;
+        write_data_c = data_c;
+        write_data_d = data_d;
+        case (op)
+            `DM_OP_SB, `DM_OP_UB: begin
+                case(addr[1:0])
+                    0: write_data_a = data_in[7:0];
+                    1: write_data_b = data_in[7:0];
+                    2: write_data_c = data_in[7:0];
+                    3: write_data_d = data_in[7:0];
+                endcase
+            end
+            `DM_OP_SH, `DM_OP_UH: begin
+                case(addr[1])
+                    0:  begin
+                        write_data_a = data_in[7:0];
+                        write_data_b = data_in[15:8];
+                    end
+                    1:  begin 
+                        write_data_c = data_in[7:0];
+                        write_data_d = data_in[15:8];
+                    end
+                endcase
+            end
+            `DM_OP_WD: begin 
+                write_data_a = data_in[7:0];
+                write_data_b = data_in[15:8];
+                write_data_c = data_in[23:16];
+                write_data_d = data_in[31:24];
+            end
+        endcase
+    end
     always @(posedge clk) begin
-        if(en && w_en) begin
-            case (op)
-                `DM_OP_SB, `DM_OP_UB: begin
-                    case(addr[1:0])
-                        0: mem_a[eff_addr] <= data_in[7:0];
-                        1: mem_b[eff_addr] <= data_in[7:0];
-                        2: mem_c[eff_addr] <= data_in[7:0];
-                        3: mem_d[eff_addr] <= data_in[7:0];
-                    endcase
-                end
-                `DM_OP_SH, `DM_OP_UH: begin
-                    case(addr[1])
-                        0:  begin
-                            mem_a[eff_addr] <= data_in[7:0];
-                            mem_b[eff_addr] <= data_in[15:8];
-                        end
-                        1:  begin 
-                            mem_c[eff_addr] <= data_in[7:0];
-                            mem_d[eff_addr] <= data_in[15:8];
-                        end
-                    endcase
-                end
-                `DM_OP_WD: begin 
-                    mem_a[eff_addr] <= data_in[7:0];
-                    mem_b[eff_addr] <= data_in[15:8];
-                    mem_c[eff_addr] <= data_in[23:16];
-                    mem_d[eff_addr] <= data_in[31:24];
-                end
-            endcase
+        if(write_en) begin
+            mem_a[eff_addr] <= write_data_a;
+            mem_b[eff_addr] <= write_data_b;
+            mem_c[eff_addr] <= write_data_c;
+            mem_d[eff_addr] <= write_data_d;
         end
     end
-
 endmodule
