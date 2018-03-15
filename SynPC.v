@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "Core.vh"
+
 // Brief: Program Counter, sychronized
 // Description: Update program counter
 // Author: G-H-Y

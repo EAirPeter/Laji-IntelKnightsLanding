@@ -3,13 +3,12 @@
 // Brief: Register File, synchronized
 // Author: G-H-Y
 module SynRegFile(
-    clk, rst_n, en, w_en, req_dbg, req_w, req_a, req_b, data_w,
+    clk, en, we, req_dbg, req_w, req_a, req_b, data_w,
 	data_dbg, data_a, data_b, data_v0, data_a0
 );
     input clk;
-    input rst_n;
     input en;
-    input w_en;
+    input we;
     input [4:0] req_dbg;
     input [4:0] req_w;
     input [4:0] req_a;
@@ -29,8 +28,8 @@ module SynRegFile(
     assign data_v0 = regs[2];
     assign data_a0 = regs[4];
     
-    always @(posedge clk) begin
-        if (en && w_en && req_w != 5'd0)
+    always @(negedge clk) begin
+        if (en && we && req_w != 5'd0)
             regs[req_w] <= data_w;
     end
 endmodule

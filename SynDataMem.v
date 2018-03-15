@@ -4,19 +4,18 @@
 
 // Brief: Data Memory, combinatorial
 // Author: cuishaobo
-module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, data);
+module SynDataMem(clk, en, op, we, addr_dbg, addr, data_in, data_dbg, data);
     localparam MemLen = 1 << (`DM_ADDR_BIT - 2);
     input clk;
-    input rst_n;
     input en;
     input [`DM_OP_BIT - 1:0] op;
-    input w_en;             // Write Enable
-    input [`DM_ADDR_BIT - 1:0] addr_dbg;  // Address of the data for debugging
+    input we;             // Write Enable
+    input [`DM_ADDR_BIT - 3:0] addr_dbg;  // Address of the data for debugging
     input [`DM_ADDR_BIT - 1:0] addr;
     input [31:0] data_in;
     output [31:0] data_dbg; // Data to be displayed for debugging
     output reg [31:0] data;
-    wire enable = en && w_en;
+    wire enable = en && we;
 
     // (* ram_style = "block" *) 
     reg [7:0] mem_a[MemLen - 1:0];
@@ -24,14 +23,13 @@ module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, d
     reg [7:0] mem_c[MemLen - 1:0];
     reg [7:0] mem_d[MemLen - 1:0];
 
-    wire [`DM_ADDR_BIT - 3:0] dbg_addr = addr_dbg[`DM_ADDR_BIT - 1:2];
     wire [`DM_ADDR_BIT - 3:0] eff_addr = addr[`DM_ADDR_BIT - 1:2];
     wire [7:0] data_a = mem_a[eff_addr];
     wire [7:0] data_b = mem_b[eff_addr];
     wire [7:0] data_c = mem_c[eff_addr];
     wire [7:0] data_d = mem_d[eff_addr];
     
-    assign data_dbg = {mem_d[dbg_addr], mem_c[dbg_addr], mem_b[dbg_addr], mem_a[dbg_addr]};
+    assign data_dbg = {mem_d[addr_dbg], mem_c[addr_dbg], mem_b[addr_dbg], mem_a[addr_dbg]};
 
     reg [7:0] write_data_a;
     reg [7:0] write_data_b;

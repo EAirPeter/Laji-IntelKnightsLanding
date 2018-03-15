@@ -2,177 +2,171 @@
 
 `include "Core.vh"
 
+`define DECL_DAT(bits_, name_) \
+    localparam Bits_``name_ = (bits_); \
+    wire [Bits_``name_ - 1:0] if_``name_, id_``name_, ex_``name_, ma_``name_, wb_``name_
+
 // Brief: CPU Top Module, synchronized
 // Author: EAirPeter
 module SynLajiIntelKnightsLanding(
-    clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg,
-    pc_dbg, regfile_data_dbg, datamem_data_dbg, display,
-    halt, is_jump, is_branch, branched
+    clk, rst_n, en, dbg_rf_req, dbg_dm_addr,
+    dbg_pc, dbg_rf_data, dbg_dm_data,
+    is_jump, is_branch, branched, display, halt
 );
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk, rst_n, en;
-    input [4:0] regfile_req_dbg;
-    input [`DM_ADDR_BIT - 1:0] datamem_addr_dbg;
-    output [31:0] pc_dbg;
-    output [31:0] regfile_data_dbg;
-    output [31:0] datamem_data_dbg;
+    input [4:0] dbg_rf_req;
+    input [`DM_ADDR_BIT - 3:0] dbg_dm_addr;
+    output [31:0] dbg_pc;
+    output [31:0] dbg_rf_data;
+    output [31:0] dbg_dm_data;
+    output is_jump, is_branch, branched;
     output [31:0] display;
-    output halt, is_jump, is_branch, branched;
+    output halt;
 
-    wire [`IM_ADDR_BIT - 1:0] pc, pc_4;
-    wire [31:0] inst;
-    wire [5:0] opcode, funct;
-    wire [4:0] rs, rt, rd, shamt;
-    wire [15:0] imm16;
-    wire [31:0] ext_out_sign, ext_out_zero;
-    wire regfile_w_en;
-    wire [31:0] regfile_data_a, regfile_data_b, regfile_data_v0, regfile_data_a0;
-    reg [4:0] regfile_req_w;    // combinatorial
-    reg [31:0] regfile_data_w;  // combinatorial
-    wire [`WTG_OP_BIT - 1:0] wtg_op;
-    wire [`IM_ADDR_BIT - 1:0] wtg_pc_new;
-    wire [`ALU_OP_BIT - 1:0] alu_op;
-    reg [31:0] alu_data_y;      // combinatorial
-    wire [31:0] alu_data_res;
-    wire [`DM_OP_BIT - 1:0] datamem_op;
-    wire datamem_w_en;
-    wire [31:0] datamem_data;
-    wire [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
-    wire [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
-    wire [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
-    wire [`IM_ADDR_BIT - 1:0] pc_new = is_jump || branched ? wtg_pc_new : pc_4;
-    assign pc_dbg = {20'd0, pc, 2'd0};
+    `DECL_DAT(`IM_ADDR_BIT      , pc_4              );
+    `DECL_DAT(32                , inst              );
+    `DECL_DAT(5                 , shamt             );
+    `DECL_DAT(16                , imm16             );
+    `DECL_DAT(32                , rf_data_a         );
+    `DECL_DAT(32                , rf_data_b         );
+    `DECL_DAT(32                , rf_data_v0        );
+    `DECL_DAT(32                , rf_data_a0        );
+    `DECL_DAT(1                 , ctl_rf_we         );
+    `DECL_DAT(`ALU_OP_BIT       , ctl_alu_op        );
+    `DECL_DAT(`WTG_OP_BIT       , ctl_wtg_op        );
+    `DECL_DAT(1                 , ctl_syscall_en    );
+    `DECL_DAT(`DM_OP_BIT        , ctl_dm_op         );
+    `DECL_DAT(1                 , ctl_dm_we         );
+    `DECL_DAT(5                 , val_rf_req_w      );
+    `DECL_DAT(`MUX_RF_DATAW_BIT , mux_rf_data_w     );
+    `DECL_DAT(`MUX_ALU_DATAY_BIT, mux_alu_data_y    );
+    `DECL_DAT(1                 , is_jump           );
+    `DECL_DAT(1                 , is_branch         );
+    `DECL_DAT(32                , alu_data_res      );
+    `DECL_DAT(`IM_ADDR_BIT      , wtg_pc_new        );
+    `DECL_DAT(1                 , branched          );
+    `DECL_DAT(32                , display           );
+    `DECL_DAT(1                 , halt              );
+    `DECL_DAT(32                , dm_data           );
+    `DECL_DAT(32                , val_rf_data_w     );
 
-    always @(*) begin
-        case (mux_regfile_req_w)
-            `MUX_RF_REQW_RD:
-                regfile_req_w <= rd;
-            `MUX_RF_REQW_RT:
-                regfile_req_w <= rt;
-            `MUX_RF_REQW_31:
-                regfile_req_w <= 5'd31;
-            default:
-                regfile_req_w <= 5'd0;
-        endcase
-        case (mux_regfile_data_w)
-            `MUX_RF_DATAW_ALU:
-                regfile_data_w <= alu_data_res;
-            `MUX_RF_DATAW_DM:
-                regfile_data_w <= datamem_data;
-            `MUX_RF_DATAW_PC4:
-                regfile_data_w <= pc_4;
-            default:
-                regfile_data_w <= 32'd0;
-        endcase
-        case (mux_alu_data_y)
-            `MUX_ALU_DATAY_RFB:
-                alu_data_y <= regfile_data_b;
-            `MUX_ALU_DATAY_EXTS:
-                alu_data_y <= ext_out_sign;
-            `MUX_ALU_DATAY_EXTZ:
-                alu_data_y <= ext_out_zero;
-            default:
-                alu_data_y <= 32'd0;
-        endcase
-    end
+    assign is_jump = wb_is_jump;
+    assign is_branch = wb_is_branch;
+    assign branched = wb_branched;
+    assign display = wb_display;
+    assign halt = wb_halt;
 
-    SynPC vPC(
-        .clk(clk),
-        .rst_n(rst_n),
-        .en(en),
-        .pc_new(pc_new),
-        .pc(pc),
-        .pc_4(pc_4)
-    );
-    CmbInstMem #(
+`define GPI_PIF vIFID
+`define GPI_IST if
+`define GPI_OST id
+`define GPI_DAT `GPI_(pc_4) `GPI(inst)
+`include "GenPiplIntf.vh"
+
+`define GPI_PIF vIDEX
+`define GPI_IST id
+`define GPI_OST ex
+`define GPI_DAT \
+    `GPI_(pc_4) `GPI(shamt) `GPI(imm16) \
+    `GPI(rf_data_a) `GPI(rf_data_b) `GPI(rf_data_v0) `GPI(rf_data_a0) \
+    `GPI(ctl_rf_we) `GPI(ctl_alu_op) `GPI(ctl_wtg_op) `GPI(ctl_syscall_en) \
+    `GPI(ctl_dm_op) `GPI(ctl_dm_we) `GPI(val_rf_req_w) \
+    `GPI(mux_rf_data_w) `GPI(mux_alu_data_y) \
+    `GPI(is_jump) `GPI(is_branch)
+`include "GenPiplIntf.vh"
+
+`define GPI_PIF vEXMA
+`define GPI_IST ex
+`define GPI_OST ma
+`define GPI_DAT \
+    `GPI_(pc_4) `GPI(rf_data_b) `GPI(ctl_rf_we) `GPI(ctl_dm_op) `GPI(ctl_dm_we) \
+    `GPI(val_rf_req_w) `GPI(mux_rf_data_w) `GPI(is_jump) `GPI(is_branch) \
+    `GPI(alu_data_res) `GPI(branched) `GPI(display) `GPI(halt)
+`include "GenPiplIntf.vh"
+
+`define GPI_PIF vMAWB
+`define GPI_IST ma
+`define GPI_OST wb
+`define GPI_DAT \
+    `GPI_(pc_4) `GPI(ctl_rf_we) `GPI(val_rf_req_w) `GPI(mux_rf_data_w) \
+    `GPI(is_jump) `GPI(is_branch) `GPI(alu_data_res) \
+    `GPI(branched) `GPI(display) `GPI(halt) `GPI(dm_data)
+`include "GenPiplIntf.vh"
+
+    PstIF #(
         .ProgPath(ProgPath)
-    ) vIM(
-        .addr(pc),
-        .inst(inst)
-    );
-    CmbDecoder vDec(
-        .inst(inst),
-        .opcode(opcode),
-        .rs(rs),
-        .rt(rt),
-        .rd(rd),
-        .shamt(shamt),
-        .funct(funct),
-        .imm16(imm16)
-    );
-    CmbExt vExt(
-        .imm16(imm16),
-        .out_sign(ext_out_sign),
-        .out_zero(ext_out_zero)
-    );
-    SynRegFile vRF(
+    ) vIF(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
-        .w_en(regfile_w_en),
-        .req_dbg(regfile_req_dbg),
-        .req_w(regfile_req_w),
-        .req_a(rs),
-        .req_b(rt),
-        .data_dbg(regfile_data_dbg),
-        .data_w(regfile_data_w),
-        .data_a(regfile_data_a),
-        .data_b(regfile_data_b),
-        .data_v0(regfile_data_v0),
-        .data_a0(regfile_data_a0)
+        .dbg_pc(dbg_pc),
+        .pc_4(if_pc_4),
+        .inst(if_inst)
     );
-    CmbWTG vWTG(
-        .op(wtg_op),
-        .imm(imm16[`IM_ADDR_BIT - 1:0]),
-        .data_x(regfile_data_a),
-        .data_y(regfile_data_b),
-        .pc_4(pc_4),
-        .pc_new(wtg_pc_new),
-        .branched(branched)
+    PstID vID(
+        .clk(clk),
+        .en(en),
+        .dbg_rf_req(dbg_rf_req),
+        .inst(id_inst),
+        .prv_ctl_rf_we(wb_ctl_rf_we),
+        .prv_val_rf_req_w(wb_val_rf_req_w),
+        .prv_val_rf_data_w(wb_val_rf_data_w),
+        .dbg_rf_data(dbg_rf_data),
+        .shamt(id_shamt),
+        .imm16(id_imm16),
+        .rf_data_a(id_rf_data_a),
+        .rf_data_b(id_rf_data_b),
+        .rf_data_v0(id_rf_data_v0),
+        .rf_data_a0(id_rf_data_a0),
+        .ctl_rf_we(id_ctl_rf_we),
+        .ctl_alu_op(id_ctl_alu_op),
+        .ctl_wtg_op(id_ctl_wtg_op),
+        .ctl_syscall_en(id_ctl_syscall_en),
+        .ctl_dm_op(id_ctl_dm_op),
+        .ctl_dm_we(id_ctl_dm_we),
+        .val_rf_req_w(id_val_rf_req_w),
+        .mux_rf_data_w(id_mux_rf_data_w),
+        .mux_alu_data_y(id_mux_alu_data_y),
+        .is_jump(id_is_jump),
+        .is_branch(id_is_branch)
     );
-    CmbALU vALU(
-        .op(alu_op),
-        .data_x(regfile_data_a),
-        .data_y(alu_data_y),
-        .shamt(shamt),
-        .data_res(alu_data_res)
-    );
-    SynDataMem vDM(
+    PstEX vEX(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
-        .op(datamem_op),
-        .w_en(datamem_w_en),
-        .addr_dbg(datamem_addr_dbg),
-        .addr(alu_data_res[`DM_ADDR_BIT - 1:0]),
-        .data_in(regfile_data_b),
-        .data_dbg(datamem_data_dbg),
-        .data(datamem_data)
+        .pc_4(ex_pc_4),
+        .shamt(ex_shamt),
+        .imm16(ex_imm16),
+        .rf_data_a(ex_rf_data_a),
+        .rf_data_b(ex_rf_data_b),
+        .rf_data_v0(ex_rf_data_v0),
+        .rf_data_a0(ex_rf_data_a0),
+        .ctl_alu_op(ex_ctl_alu_op),
+        .ctl_wtg_op(ex_ctl_wtg_op),
+        .ctl_syscall_en(ex_ctl_syscall_en),
+        .mux_alu_data_y(ex_mux_alu_data_y),
+        .alu_data_res(ex_alu_data_res),
+        .wtg_pc_new(ex_wtg_pc_new),
+        .branched(ex_branched),
+        .display(ex_display),
+        .halt(ex_halt)
     );
-    SynSyscall vSys(
+    PstMA vMA(
         .clk(clk),
-        .rst_n(rst_n),
         .en(en),
-        .syscall_en(syscall_en),
-        .data_v0(regfile_data_v0),
-        .data_a0(regfile_data_a0),
-        .display(display),
-        .halt(halt)
+        .dbg_dm_addr(dbg_dm_addr),
+        .rf_data_b(ma_rf_data_b),
+        .alu_data_res(ma_alu_data_res),
+        .ctl_dm_op(ma_ctl_dm_op),
+        .ctl_dm_we(ma_ctl_dm_we),
+        .dbg_dm_data(dbg_dm_data),
+        .dm_data(ma_dm_data)
     );
-    CmbControl vCtl(
-        .opcode(opcode),
-        .rt(rt),
-        .funct(funct),
-        .op_wtg(wtg_op),
-        .w_en_regfile(regfile_w_en),
-        .op_alu(alu_op),
-        .op_datamem(datamem_op),
-        .w_en_datamem(datamem_w_en),
-        .syscall_en(syscall_en),
-        .mux_regfile_req_w(mux_regfile_req_w),
-        .mux_regfile_data_w(mux_regfile_data_w),
-        .mux_alu_data_y(mux_alu_data_y),
-        .is_jump(is_jump),
-        .is_branch(is_branch)
+    PstWB vWB(
+        .pc_4(wb_pc_4),
+        .mux_rf_data_w(wb_mux_rf_data_w),
+        .alu_data_res(wb_alu_data_res),
+        .dm_data(wb_dm_data),
+        .val_rf_data_w(wb_val_rf_data_w)
     );
 endmodule

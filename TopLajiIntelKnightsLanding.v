@@ -1,6 +1,7 @@
 `timescale 1ns / 1ps
 
 `include "Auxiliary.vh"
+`include "Core.vh"
 
 // Brief: Top Module, I/O included
 // Author: EAirPeter
@@ -18,17 +19,20 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     output [7:0] seg_n;
     output [7:0] an_n;
 
+    (* keep = "soft" *)
+    wire unused_swt = swt[5];
+
     wire [1:0] mux_core_clk = swt[1:0];
     wire [2:0] mux_disp_data = swt[4:2];
     reg [31:0] disp_data;   // combinatorial
     wire clk_core_0, clk_core_1, clk_core_2, clk_core_3;
     reg core_clk;           // combinatorial
     wire core_en;
-    wire [31:0] core_pc_dbg;
-    wire [4:0] regfile_req_dbg = swt[15:11];
-    wire [`DM_ADDR_BIT - 1:0] datamem_addr_dbg = {swt[15:6], 2'd0};
-    wire [31:0] regfile_data_dbg;
-    wire [31:0] datamem_data_dbg;
+    wire [4:0] dbg_rf_req = swt[15:11];
+    wire [`DM_ADDR_BIT - 3:0] dbg_dm_addr = swt[15:18 - `DM_ADDR_BIT];
+    wire [31:0] dbg_pc;
+    wire [31:0] dbg_rf_data;
+    wire [31:0] dbg_dm_data;
     wire [31:0] core_display;
     wire core_halt, core_is_jump, core_is_branch, core_branched;
     wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched;
@@ -38,7 +42,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
             2'b00:  core_clk <= clk_core_0;
             2'b01:  core_clk <= clk_core_1;
             2'b10:  core_clk <= clk_core_2;
-            2'b11:  core_clk <= clk_core_3;
+            2'b11:  core_clk <= clk; // clk_core_3;
         endcase
         case (mux_disp_data)
             `MUX_DISP_DATA_CORE:    disp_data <= core_display;
@@ -46,10 +50,9 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
             `MUX_DISP_DATA_CNT_JMP: disp_data <= cnt_jump;
             `MUX_DISP_DATA_CNT_BCH: disp_data <= cnt_branch;
             `MUX_DISP_DATA_CNT_BED: disp_data <= cnt_branched;
-            `MUX_DISP_DATA_PC_DBG:  disp_data <= core_pc_dbg;
-            `MUX_DISP_DATA_RF_DBG:  disp_data <= regfile_data_dbg;
-            `MUX_DISP_DATA_DM_DBG:  disp_data <= datamem_data_dbg;
-            default:                disp_data <= core_display;
+            `MUX_DISP_DATA_PC_DBG:  disp_data <= dbg_pc;
+            `MUX_DISP_DATA_RF_DBG:  disp_data <= dbg_rf_data;
+            `MUX_DISP_DATA_DM_DBG:  disp_data <= dbg_dm_data;
         endcase
     end
 
@@ -142,11 +145,11 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .clk(core_clk),
         .rst_n(rst_n),
         .en(core_en),
-        .regfile_req_dbg(regfile_req_dbg),
-        .datamem_addr_dbg(datamem_addr_dbg),
-        .pc_dbg(core_pc_dbg),
-        .regfile_data_dbg(regfile_data_dbg),
-        .datamem_data_dbg(datamem_data_dbg),
+        .dbg_rf_req(dbg_rf_req),
+        .dbg_dm_addr(dbg_dm_addr),
+        .dbg_pc(dbg_pc),
+        .dbg_rf_data(dbg_rf_data),
+        .dbg_dm_data(dbg_dm_data),
         .display(core_display),
         .halt(core_halt),
         .is_jump(core_is_jump),
