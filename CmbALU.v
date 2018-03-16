@@ -27,10 +27,6 @@ module CmbALU(op, data_x, data_y, shamt, data_res);
                 data_res <= (data_x - data_y);
             `ALU_OP_SLLV:
                 data_res <= (data_y << data_x[4:0]);
-            `ALU_OP_SRAV:
-                data_res <= $unsigned(($signed(data_y) >>> data_x[4:0]));
-            `ALU_OP_SRLV:
-                data_res <= (data_y >> data_x[4:0]);
             `ALU_OP_SLL:
                 data_res <= (data_y << shamt);
             `ALU_OP_SRA:

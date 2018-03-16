@@ -89,7 +89,6 @@ module PstID(
     );
     CmbControl vCtl(
         .opcode(opcode),
-        .rt(rt),
         .funct(funct),
         .wtg_op(ctl_wtg_op),
         .rf_ra(ctl_rf_ra),

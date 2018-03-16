@@ -35,18 +35,6 @@ module CmbWTG(op, imm, data_x, data_y, pc_4, pc_new, branched);
                 branched = (data_x != data_y);
                 pc_new = branched ? b_addr : pc_4;
             end
-            `WTG_OP_BLEZ: begin
-                branched = (data_x <= 0);                            
-                pc_new = branched ? b_addr : pc_4;
-            end
-            `WTG_OP_BGTZ: begin
-                branched = (data_x > 0);
-                pc_new = branched ? b_addr : pc_4;
-            end
-            `WTG_OP_BLTZ: begin
-                branched = (data_x < 0);
-                pc_new = branched ? b_addr : pc_4;
-            end
             `WTG_OP_BGEZ: begin
                 branched = (data_x >= 0);
                 pc_new = branched ? b_addr : pc_4;

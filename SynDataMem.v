@@ -44,12 +44,6 @@ module SynDataMem(clk, en, op, we, addr_dbg, addr, data_in, data_dbg, data);
     always@(*) begin
         case (op)
             `DM_OP_WD: data <= {data_d, data_c, data_b, data_a};
-            `DM_OP_UH: begin
-                case (addr[1])
-                    0: data <= {16'h0, data_b, data_a};
-                    1: data <= {16'h0, data_d, data_c};
-                endcase
-            end
             `DM_OP_UB: begin
                 case (addr[1:0])
                     0: data <= {24'h0, data_a};
@@ -58,22 +52,6 @@ module SynDataMem(clk, en, op, we, addr_dbg, addr, data_in, data_dbg, data);
                     3: data <= {24'h0, data_d};
                 endcase
             end
-            `DM_OP_SH: begin
-                case (addr[1])
-                    0: data <= {{16{data_b[7]}}, data_b, data_a};
-                    1: data <= {{16{data_d[7]}}, data_d, data_c};
-                endcase
-            end
-            `DM_OP_SB: begin
-                case (addr[1:0])
-                    0: data <= {{24{data_a[7]}}, data_a};
-                    1: data <= {{24{data_b[7]}}, data_b};
-                    2: data <= {{24{data_c[7]}}, data_c};
-                    3: data <= {{24{data_d[7]}}, data_d};
-                endcase
-            end
-            default:
-                data <= 0;
         endcase
     end
 
@@ -88,28 +66,12 @@ module SynDataMem(clk, en, op, we, addr_dbg, addr, data_in, data_dbg, data);
         write_en_d = 1'b0;
         
         case (op)
-            `DM_OP_SB, `DM_OP_UB: begin
+            `DM_OP_UB: begin
                 case(addr[1:0])
                     0: begin write_data_a = data_in[7:0]; write_en_a = enable; end
                     1: begin write_data_b = data_in[7:0]; write_en_b = enable; end
                     2: begin write_data_c = data_in[7:0]; write_en_c = enable; end
                     3: begin write_data_d = data_in[7:0]; write_en_d = enable; end
-                endcase
-            end
-            `DM_OP_SH, `DM_OP_UH: begin
-                case(addr[1])
-                    0:  begin
-                        write_data_a = data_in[7:0]; 
-                        write_data_b = data_in[15:8]; 
-                        write_en_a = enable;
-                        write_en_b = enable;
-                    end
-                    1:  begin 
-                        write_data_c = data_in[7:0]; 
-                        write_data_d = data_in[15:8]; 
-                        write_en_c = enable;
-                        write_en_d = enable;
-                    end
                 endcase
             end
             `DM_OP_WD: begin 
