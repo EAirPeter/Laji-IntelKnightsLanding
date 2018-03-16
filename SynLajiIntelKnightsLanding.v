@@ -31,6 +31,8 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(16                , imm16             );
     `DECL_DAT(32                , rf_data_a         );
     `DECL_DAT(32                , rf_data_b         );
+    `DECL_DAT(32                , fwd_rf_a          );
+    `DECL_DAT(32                , fwd_rf_b          );
     `DECL_DAT(1                 , ctl_rf_we         );
     `DECL_DAT(`ALU_OP_BIT       , ctl_alu_op        );
     `DECL_DAT(`WTG_OP_BIT       , ctl_wtg_op        );
@@ -51,23 +53,23 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(1                 , halt              );
     `DECL_DAT(32                , dm_data           );
     `DECL_DAT(32                , val_rf_data_w     );
-    `DECL_DAT(1                 , is_nop            );
-
-    assign dbg_pc = {20'b0, if_pc, 2'b0};
-    assign is_jump = wb_is_jump;
-    assign is_branch = wb_is_branch;
-    assign branched = wb_branched;
-    assign is_nop = wb_is_nop;
-    assign display = wb_display;
-    assign halt = wb_halt;
+    `DECL_DAT(`MUX_FWD_RF_BIT   , mux_fwd_rf_a      );
+    `DECL_DAT(`MUX_FWD_RF_BIT   , mux_fwd_rf_b      );
 
     wire id_ctl_rf_ra, id_ctl_rf_rb;
     wire [4:0] id_val_rf_req_a, id_val_rf_req_b;
     wire pic_pc_en, pic_pc_ld;
     wire pic_ifid_en, pic_ifid_nop;
     wire pic_idex_en, pic_idex_nop;
+    wire pic_is_nop;
 
-    assign if_is_nop = 1'b0;
+    assign dbg_pc = {20'b0, if_pc, 2'b0};
+    assign is_jump = ma_is_jump;
+    assign is_branch = ma_is_branch;
+    assign branched = ma_branched;
+    assign is_nop = pic_is_nop;
+    assign display = ma_display;
+    assign halt = wb_halt;
 
     CmbPIC vPIC(
         .id_pc(id_pc),
@@ -79,19 +81,32 @@ module SynLajiIntelKnightsLanding(
         .ex_pc_4(ex_pc_4),
         .ex_rf_we(ex_ctl_rf_we),
         .ex_rf_req_w(ex_val_rf_req_w),
+        .ex_sel_rf_w_dm(ex_sel_rf_w_dm),
         .ex_is_jump(ex_is_jump),
         .ex_branched(ex_branched),
         .ex_wtg_pc_new(ex_wtg_pc_new),
         .ex_halt(ex_halt),
         .ma_rf_we(ma_ctl_rf_we),
         .ma_rf_req_w(ma_val_rf_req_w),
-        .ma_halt(ma_halt),
         .pc_en(pic_pc_en),
         .pc_ld(pic_pc_ld),
         .ifid_en(pic_ifid_en),
         .ifid_nop(pic_ifid_nop),
+        .idex_en(pic_idex_en),
         .idex_nop(pic_idex_nop),
-        .idex_en(pic_idex_en)
+        .id_mux_fwd_rf_a(id_mux_fwd_rf_a),
+        .id_mux_fwd_rf_b(id_mux_fwd_rf_b),
+        .is_nop(pic_is_nop)
+    );
+    CmbForward vFwd(
+        .mux_fwd_rf_a(ex_mux_fwd_rf_a),
+        .mux_fwd_rf_b(ex_mux_fwd_rf_b),
+        .ex_rf_data_a(ex_rf_data_a),
+        .ex_rf_data_b(ex_rf_data_b),
+        .ma_val_rf_w_tmp(ma_val_rf_w_tmp),
+        .wb_val_rf_data_w(wb_val_rf_data_w),
+        .ex_fwd_rf_a(ex_fwd_rf_a),
+        .ex_fwd_rf_b(ex_fwd_rf_b)
     );
 
 `define GPI_PIF vIFID
@@ -113,17 +128,17 @@ module SynLajiIntelKnightsLanding(
     `GPI(ctl_rf_we) `GPI(ctl_alu_op) `GPI(ctl_wtg_op) `GPI(ctl_syscall_en) \
     `GPI(ctl_dm_op) `GPI(ctl_dm_we) `GPI(val_rf_req_w) \
     `GPI(sel_rf_w_pc_4) `GPI(sel_rf_w_dm) `GPI(mux_alu_data_y) \
-    `GPI(is_jump) `GPI(is_branch)
+    `GPI(is_jump) `GPI(is_branch) `GPI(mux_fwd_rf_a) `GPI(mux_fwd_rf_b)
 `include "GenPiplIntf.vh"
 
 `define GPI_PIF vEXMA
 `define GPI_IST ex
 `define GPI_OST ma
 `define GPI_DAT \
-    `GPI_(pc_4) `GPI(rf_data_b) `GPI(ctl_rf_we) `GPI(ctl_dm_op) `GPI(ctl_dm_we) \
+    `GPI_(pc_4) `GPI(fwd_rf_b) `GPI(ctl_rf_we) `GPI(ctl_dm_op) `GPI(ctl_dm_we) \
     `GPI(val_rf_req_w) `GPI(sel_rf_w_pc_4) `GPI(sel_rf_w_dm) \
-    `GPI(is_jump) `GPI(is_branch) \
-    `GPI(alu_data_res) `GPI(branched) `GPI(display) `GPI(halt)
+    `GPI(is_jump) `GPI(is_branch) `GPI(alu_data_res) \
+    `GPI(branched) `GPI(display) `GPI(halt)
 `include "GenPiplIntf.vh"
 
 `define GPI_PIF vMAWB
@@ -131,8 +146,7 @@ module SynLajiIntelKnightsLanding(
 `define GPI_OST wb
 `define GPI_DAT \
     `GPI_(ctl_rf_we) `GPI(val_rf_req_w) `GPI(sel_rf_w_dm) `GPI(val_rf_w_tmp) \
-    `GPI(is_jump) `GPI(is_branch) \
-    `GPI(branched) `GPI(display) `GPI(halt) `GPI(dm_data)
+    `GPI(halt) `GPI(dm_data)
 `include "GenPiplIntf.vh"
 
     PstIF #(
@@ -186,8 +200,8 @@ module SynLajiIntelKnightsLanding(
         .pc_4(ex_pc_4),
         .shamt(ex_shamt),
         .imm16(ex_imm16),
-        .rf_data_a(ex_rf_data_a),
-        .rf_data_b(ex_rf_data_b),
+        .rf_data_a(ex_fwd_rf_a),
+        .rf_data_b(ex_fwd_rf_b),
         .ctl_alu_op(ex_ctl_alu_op),
         .ctl_wtg_op(ex_ctl_wtg_op),
         .ctl_syscall_en(ex_ctl_syscall_en),
@@ -203,7 +217,7 @@ module SynLajiIntelKnightsLanding(
         .en(en),
         .pc_4(ma_pc_4),
         .dbg_dm_addr(dbg_dm_addr),
-        .rf_data_b(ma_rf_data_b),
+        .rf_data_b(ma_fwd_rf_b),
         .ctl_dm_op(ma_ctl_dm_op),
         .ctl_dm_we(ma_ctl_dm_we),
         .sel_rf_w_pc_4(ma_sel_rf_w_pc_4),

@@ -25,7 +25,6 @@ SynPiplIntf #(
     .rst_n(rst_n),
     .en(`GPI_ENA),
     .nop(`GPI_NOP),
-    .is_nop_i(`GPI_INM(is_nop)),
     .data_i({
 `define GPI_(name_) `GPI_INM(name_)
 `define GPI(name_) , `GPI_(name_)
@@ -33,7 +32,6 @@ SynPiplIntf #(
 `undef GPI
 `undef GPI_
     }),
-    .is_nop_o(`GPI_ONM(is_nop)),
     .data_o({
 `define GPI_(name_) `GPI_ONM(name_)
 `define GPI(name_) , `GPI_(name_)

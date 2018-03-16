@@ -12,6 +12,16 @@ module TbLaji();
     wire [7:0] an_n;
     initial begin
         `cp(1) rst_n = 1'b1;
+        `cp(4000) resume = 1'b1;
+        `cp(1) resume = 1'b0;
+        `cp(1000) resume = 1'b1;
+        `cp(1) resume = 1'b0;
+        `cp(1000) resume = 1'b1;
+        `cp(1) resume = 1'b0;
+        `cp(1000) resume = 1'b1;
+        `cp(1) resume = 1'b0;
+        `cp(1000) resume = 1'b1;
+        `cp(1) resume = 1'b0;
     end
     TopLajiIntelKnightsLanding vDUT(
         .clk(clk),

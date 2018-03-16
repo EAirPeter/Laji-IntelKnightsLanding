@@ -75,4 +75,10 @@
 // Zero-extended imm16
 `define MUX_ALU_DATAY_EXTZ  `MUX_ALU_DATAY_BIT'h2
 
+// Multiplexer.Forwarding.register_file
+`define MUX_FWD_RF_BIT      2
+`define MUX_FWD_RF_NORM     `MUX_FWD_RF_BIT'h0
+`define MUX_FWD_RF_TMP      `MUX_FWD_RF_BIT'h2
+`define MUX_FWD_RF_DAT      `MUX_FWD_RF_BIT'h3
+
 `endif
