@@ -6,7 +6,7 @@
 // Author: EAirPeter
 module PstEX(
     clk, rst_n, en,
-    pc_4, shamt, imm16, rf_data_a, rf_data_b, rf_data_v0, rf_data_a0,
+    pc_4, shamt, imm16, rf_data_a, rf_data_b,
     ctl_alu_op, ctl_wtg_op, ctl_syscall_en, mux_alu_data_y,
     alu_data_res, wtg_pc_new, branched, display, halt
 );
@@ -14,7 +14,7 @@ module PstEX(
     input [`IM_ADDR_BIT - 1:0] pc_4;
     input [4:0] shamt;
     input [15:0] imm16;
-    input [31:0] rf_data_a, rf_data_b, rf_data_v0, rf_data_a0;
+    input [31:0] rf_data_a, rf_data_b;
     input [`ALU_OP_BIT - 1:0] ctl_alu_op;
     input [`WTG_OP_BIT - 1:0] ctl_wtg_op;
     input ctl_syscall_en;
@@ -60,8 +60,8 @@ module PstEX(
         .rst_n(rst_n),
         .en(en),
         .syscall_en(ctl_syscall_en),
-        .data_v0(rf_data_v0),
-        .data_a0(rf_data_a0),
+        .data_v0(rf_data_a),
+        .data_a0(rf_data_b),
         .display(display),
         .halt(halt)
     );

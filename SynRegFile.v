@@ -4,7 +4,7 @@
 // Author: G-H-Y
 module SynRegFile(
     clk, en, we, req_dbg, req_w, req_a, req_b, data_w,
-	data_dbg, data_a, data_b, data_v0, data_a0
+	data_dbg, data_a, data_b
 );
     input clk;
     input en;
@@ -17,16 +17,12 @@ module SynRegFile(
     output [31:0] data_dbg;
     output [31:0] data_a;
     output [31:0] data_b;
-    output [31:0] data_v0;
-    output [31:0] data_a0;
 
     reg [31:0] regs[31:1];
     
     assign data_dbg = req_dbg == 0 ? 32'd0 : regs[req_dbg];
     assign data_a = req_a == 0 ? 32'd0 : regs[req_a];
     assign data_b = req_b == 0 ? 32'd0 : regs[req_b];
-    assign data_v0 = regs[2];
-    assign data_a0 = regs[4];
     
     always @(negedge clk) begin
         if (en && we && req_w != 5'd0)

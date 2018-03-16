@@ -6,7 +6,7 @@
 // Brief: Top Module, I/O included
 // Author: EAirPeter
 module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
-    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
+    parameter ProgPath = "D:/code/hust/ACM01/cpu/asm/benchmark.hex";
     parameter CoreClk0Cnt = `CNT_HZ(2);
     parameter CoreClk1Cnt = `CNT_HZ(20);
     parameter CoreClk2Cnt = `CNT_HZ(200);
@@ -35,7 +35,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire [31:0] dbg_dm_data;
     wire [31:0] core_display;
     wire core_halt, core_is_jump, core_is_branch, core_branched;
-    wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched;
+    wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched, cnt_nop;
 
     always @(*) begin
         case (mux_core_clk)
@@ -50,7 +50,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
             `MUX_DISP_DATA_CNT_JMP: disp_data <= cnt_jump;
             `MUX_DISP_DATA_CNT_BCH: disp_data <= cnt_branch;
             `MUX_DISP_DATA_CNT_BED: disp_data <= cnt_branched;
-            `MUX_DISP_DATA_PC_DBG:  disp_data <= dbg_pc;
+            `MUX_DISP_DATA_CNT_NOP: disp_data <= cnt_nop;
             `MUX_DISP_DATA_RF_DBG:  disp_data <= dbg_rf_data;
             `MUX_DISP_DATA_DM_DBG:  disp_data <= dbg_dm_data;
         endcase
@@ -132,6 +132,16 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .val(32'd0),
         .cnt(cnt_branched)
     );
+    AuxCounter #(
+        .CntBit(32)
+    ) vCtrNop(
+        .clk(core_clk),
+        .rst_n(rst_n),
+        .en(core_en && core_is_nop),
+        .ld(1'b0),
+        .val(32'd0),
+        .cnt(cnt_nop)
+    );
     AuxWTCIE vWTCIE(
         .clk(core_clk),
         .rst_n(rst_n),
@@ -150,10 +160,11 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .dbg_pc(dbg_pc),
         .dbg_rf_data(dbg_rf_data),
         .dbg_dm_data(dbg_dm_data),
-        .display(core_display),
-        .halt(core_halt),
         .is_jump(core_is_jump),
         .is_branch(core_is_branch),
-        .branched(core_branched)
+        .branched(core_branched),
+        .is_nop(core_is_nop),
+        .display(core_display),
+        .halt(core_halt)
     );
 endmodule

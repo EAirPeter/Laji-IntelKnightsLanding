@@ -61,10 +61,10 @@
 `define MUX_RF_DATAW_BIT    2
 // Output of ALU
 `define MUX_RF_DATAW_ALU    `MUX_RF_DATAW_BIT'h0
-// Output of DataMem
-`define MUX_RF_DATAW_DM     `MUX_RF_DATAW_BIT'h1
 // PC + 4
-`define MUX_RF_DATAW_PC4    `MUX_RF_DATAW_BIT'h2
+`define MUX_RF_DATAW_PC4    `MUX_RF_DATAW_BIT'h1
+// Output of DataMem
+`define MUX_RF_DATAW_DM     `MUX_RF_DATAW_BIT'h2
 
 // Multiplexer.ArithmeticLogicUnit.data_y
 `define MUX_ALU_DATAY_BIT   2

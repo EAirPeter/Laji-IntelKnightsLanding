@@ -1,5 +1,13 @@
-// GPI_PIF, GPI_IST, GPI_OST, GPI_DAT
+// GPI_PIF, GPI_ENA, GPI_NOP, GPI_IST, GPI_OST, GPI_DAT
 // GPI GPI_
+
+`ifndef GPI_ENA
+`define GPI_ENA en
+`endif
+
+`ifndef GPI_NOP
+`define GPI_NOP 1'b0
+`endif
 
 `define GPI_CAT(x_, y_) x_``_``y_
 `define GPI_BNM(name_) `GPI_CAT(Bits, name_)
@@ -15,8 +23,9 @@ SynPiplIntf #(
 ) `GPI_PIF(
     .clk(clk),
     .rst_n(rst_n),
-    .en(en),
-    .nop(1'b0),
+    .en(`GPI_ENA),
+    .nop(`GPI_NOP),
+    .is_nop_i(`GPI_INM(is_nop)),
     .data_i({
 `define GPI_(name_) `GPI_INM(name_)
 `define GPI(name_) , `GPI_(name_)
@@ -24,6 +33,7 @@ SynPiplIntf #(
 `undef GPI
 `undef GPI_
     }),
+    .is_nop_o(`GPI_ONM(is_nop)),
     .data_o({
 `define GPI_(name_) `GPI_ONM(name_)
 `define GPI(name_) , `GPI_(name_)
@@ -41,4 +51,6 @@ SynPiplIntf #(
 `undef GPI_DAT
 `undef GPI_OST
 `undef GPI_IST
+`undef GPI_NOP
+`undef GPI_ENA
 `undef GPI_PIF
