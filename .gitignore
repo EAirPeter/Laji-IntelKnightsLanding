@@ -1,7 +1,10 @@
 *
 !.gitignore
-!*.md
-!*.v
-!*.vh
-!*.xdc
+!**/*.md
+!**/*.v
+!**/*.vh
+!**/*.xdc
+!**/*.hex
+!**/*.asm
 !test/
+!cpu-testcase/

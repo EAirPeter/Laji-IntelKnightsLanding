@@ -10,7 +10,7 @@ module SynInstMem_tb();
     reg [31:0] addr;
     wire [31:0] inst;
     parameter prog_path = `BENCHMARK_FILEPATH;
-    SynInstMem tb(clk, rst_n, addr, inst);
+    CmbInstMem tb(addr[`IM_ADDR_BIT - 1 + 2:2], inst);
     initial begin
         clk <= 0;
         addr <= 0;
