@@ -5,20 +5,26 @@
 // Brief: CPU Top Module, synchronized
 // Author: EAirPeter
 module SynLajiIntelKnightsLanding(
-    clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg,
-    pc_dbg, regfile_data_dbg, datamem_data_dbg, display,
-    halt, is_jump, is_branch, branched
+    // clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg,
+    // pc_dbg, regfile_data_dbg, datamem_data_dbg, display,
+    // halt, is_jump, is_branch, branched
+    input clk, 
+    input rst_n, 
+    input en,
+    input [4:0] regfile_req_dbg,
+    input [`DM_ADDR_BIT - 1:0] datamem_addr_dbg,
+    output [31:0] pc_dbg,
+    output [31:0] regfile_data_dbg,
+    output [31:0] datamem_data_dbg,
+    output [31:0] display,
+    output halt, 
+    output is_jump, 
+    output is_branch, 
+    output branched
 );
-    parameter ProgPath = `BENCHMARK_FILEPATH;
-    input clk, rst_n, en;
-    input [4:0] regfile_req_dbg;
-    input [`DM_ADDR_BIT - 1:0] datamem_addr_dbg;
-    output [31:0] pc_dbg;
-    output [31:0] regfile_data_dbg;
-    output [31:0] datamem_data_dbg;
-    output [31:0] display;
-    output halt, is_jump, is_branch, branched;
 
+
+    parameter ProgPath = `BENCHMARK_FILEPATH;
     wire [`IM_ADDR_BIT - 1:0] pc, pc_4;
     wire [31:0] inst;
     wire [5:0] opcode, funct;

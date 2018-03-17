@@ -11,7 +11,7 @@ module TbLaji();
     wire [7:0] seg_n;
     wire [7:0] an_n;
     initial begin
-        `cp(1) rst_n = 1'b1;
+        `cp(10) rst_n = 1'b1;
     end
     TopLajiIntelKnightsLanding vDUT(
         .clk(clk),
