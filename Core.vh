@@ -75,6 +75,7 @@
 // Zero-extended imm16
 `define MUX_ALU_DATAY_EXTZ  `MUX_ALU_DATAY_BIT'h2
 
-`define BENCHMARK_FILEPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/cpu-testcase/benchmark.hex"
-
+`define FOLDERPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/cpu-testcase/"
+`define FILENAME "retard-pipeline.hex"
+`define BENCHMARK_FILEPATH {`FOLDERPATH, `FILENAME}
 `endif

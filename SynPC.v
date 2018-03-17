@@ -15,8 +15,8 @@ module SynPC(clk, rst_n, en, pc_new, pc, pc_4);
 
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n)
-            pc = 0;
+            pc <= 0;
         else if (en)
-            pc = pc_new;
+            pc <= pc_new;
     end
 endmodule
