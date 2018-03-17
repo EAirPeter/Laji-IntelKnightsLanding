@@ -23,7 +23,6 @@ module SynLajiIntelKnightsLanding(
     output branched
 );
 
-
     parameter ProgPath = `BENCHMARK_FILEPATH;
     wire [`IM_ADDR_BIT - 1:0] pc, pc_4;
     wire [31:0] inst;
@@ -46,56 +45,56 @@ module SynLajiIntelKnightsLanding(
     wire [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
     wire [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     wire [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
-    wire [`IM_ADDR_BIT - 1:0] pc_new = is_jump || branched ? wtg_pc_new : pc_4;
     assign pc_dbg = {20'd0, pc, 2'd0};
+    wire [`IM_ADDR_BIT - 1:0] pc_new ;
 
-    always @(*) begin
-        case (mux_regfile_req_w)
-            `MUX_RF_REQW_RD:
-                regfile_req_w <= rd;
-            `MUX_RF_REQW_RT:
-                regfile_req_w <= rt;
-            `MUX_RF_REQW_31:
-                regfile_req_w <= 5'd31;
-            default:
-                regfile_req_w <= 5'd0;
-        endcase
-        case (mux_regfile_data_w)
-            `MUX_RF_DATAW_ALU:
-                regfile_data_w <= alu_data_res;
-            `MUX_RF_DATAW_DM:
-                regfile_data_w <= datamem_data;
-            `MUX_RF_DATAW_PC4:
-                regfile_data_w <= pc_4;
-            default:
-                regfile_data_w <= 32'd0;
-        endcase
-        case (mux_alu_data_y)
-            `MUX_ALU_DATAY_RFB:
-                alu_data_y <= regfile_data_b;
-            `MUX_ALU_DATAY_EXTS:
-                alu_data_y <= ext_out_sign;
-            `MUX_ALU_DATAY_EXTZ:
-                alu_data_y <= ext_out_zero;
-            default:
-                alu_data_y <= 32'd0;
-        endcase
-    end
+
+    // wire [`IM_ADDR_BIT - 1:0] pc, pc_4;
+    wire [`IM_ADDR_BIT - 1:0]  pc_4_ps0;
+    // wire [31:0] inst;
+    wire [31:0] inst_ps0;
+
+    // use it before SynPC later to save time
+    assign pc_new = is_jump || branched ? wtg_pc_new : pc_4_ps0;
+
+    ////////////////////////////
+    ////////////////////////////
+    ////////   ps0  ////////////
+    ////////////////////////////
+    ////////////////////////////
 
     SynPC vPC(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
         .pc_new(pc_new),
+        // output
         .pc(pc),
-        .pc_4(pc_4)
+        .pc_4(pc_4_ps0)
     );
+
     CmbInstMem #(
         .ProgPath(ProgPath)
     ) vIM(
         .addr(pc),
-        .inst(inst)
+        // output
+        .inst(inst_ps0)
     );
+
+    ///////////////////////
+    ///////   ps1  ////////
+    ///////////////////////
+    SynPS1 vPS1(
+        .clk(clk), 
+        .rst_n(rst_n),
+        .en(en),
+        .inst_in(inst_ps0),
+        .pc_4_in(pc_4_ps0),
+        // output
+        .inst(inst),
+        .pc_4(pc_4)
+    );
+
     CmbDecoder vDec(
         .inst(inst),
         .opcode(opcode),
@@ -106,11 +105,13 @@ module SynLajiIntelKnightsLanding(
         .funct(funct),
         .imm16(imm16)
     );
+
     CmbExt vExt(
         .imm16(imm16),
         .out_sign(ext_out_sign),
         .out_zero(ext_out_zero)
     );
+
     SynRegFile vRF(
         .clk(clk),
         .rst_n(rst_n),
@@ -181,4 +182,39 @@ module SynLajiIntelKnightsLanding(
         .is_jump(is_jump),
         .is_branch(is_branch)
     );
+
+    always @(*) begin
+        case (mux_regfile_req_w)
+            `MUX_RF_REQW_RD:
+                regfile_req_w <= rd;
+            `MUX_RF_REQW_RT:
+                regfile_req_w <= rt;
+            `MUX_RF_REQW_31:
+                regfile_req_w <= 5'd31;
+            default:
+                regfile_req_w <= 5'd0;
+        endcase
+        case (mux_regfile_data_w)
+            `MUX_RF_DATAW_ALU:
+                regfile_data_w <= alu_data_res;
+            `MUX_RF_DATAW_DM:
+                regfile_data_w <= datamem_data;
+            `MUX_RF_DATAW_PC4:
+                regfile_data_w <= pc_4;
+            default:
+                regfile_data_w <= 32'd0;
+        endcase
+        case (mux_alu_data_y)
+            `MUX_ALU_DATAY_RFB:
+                alu_data_y <= regfile_data_b;
+            `MUX_ALU_DATAY_EXTS:
+                alu_data_y <= ext_out_sign;
+            `MUX_ALU_DATAY_EXTZ:
+                alu_data_y <= ext_out_zero;
+            default:
+                alu_data_y <= 32'd0;
+        endcase
+    end
+
+
 endmodule

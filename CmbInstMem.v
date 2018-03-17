@@ -10,6 +10,8 @@ module CmbInstMem(addr, inst);
     output [31:0] inst;
     
     reg [31:0] prog[0:1023];
-    initial $readmemh(ProgPath, prog);
+    initial begin
+        $readmemh(ProgPath, prog);
+    end
     assign inst = prog[addr];
 endmodule
