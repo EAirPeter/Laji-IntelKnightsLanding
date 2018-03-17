@@ -1,11 +1,12 @@
 `timescale 1ns / 1ps
 
 `include "Auxiliary.vh"
+`include "Core.vh"
 
 // Brief: Top Module, I/O included
 // Author: EAirPeter
 module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
-    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
+    parameter ProgPath = `BENCHMARK_FILEPATH;
     parameter CoreClk0Cnt = `CNT_HZ(2);
     parameter CoreClk1Cnt = `CNT_HZ(20);
     parameter CoreClk2Cnt = `CNT_HZ(200);

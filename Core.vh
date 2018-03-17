@@ -75,4 +75,6 @@
 // Zero-extended imm16
 `define MUX_ALU_DATAY_EXTZ  `MUX_ALU_DATAY_BIT'h2
 
+`define BENCHMARK_FILEPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/test/benchmark.hex"
+
 `endif

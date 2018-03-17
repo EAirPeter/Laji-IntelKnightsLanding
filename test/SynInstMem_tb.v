@@ -9,7 +9,7 @@ module SynInstMem_tb();
     reg rst_n;
     reg [31:0] addr;
     wire [31:0] inst;
-   parameter prog_path = "F:/Vivado_Projects/benchmark.hex";
+    parameter prog_path = `BENCHMARK_FILEPATH;
     SynInstMem tb(clk, rst_n, addr, inst);
     initial begin
         clk <= 0;

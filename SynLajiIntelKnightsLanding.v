@@ -9,7 +9,7 @@ module SynLajiIntelKnightsLanding(
     pc_dbg, regfile_data_dbg, datamem_data_dbg, display,
     halt, is_jump, is_branch, branched
 );
-    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
+    parameter ProgPath = `BENCHMARK_FILEPATH;
     input clk, rst_n, en;
     input [4:0] regfile_req_dbg;
     input [`DM_ADDR_BIT - 1:0] datamem_addr_dbg;
