@@ -24,8 +24,8 @@ module SynLajiIntelKnightsLanding(
 );
 
     parameter ProgPath = `BENCHMARK_FILEPATH;
-    wire [`IM_ADDR_BIT - 1:0] pc, pc_4;
-    wire [31:0] inst;
+    wire [`IM_ADDR_BIT - 1:0] pc, pc_4, pc_4_ps0;
+    wire [31:0] inst, inst_ps0;
     wire [5:0] opcode, funct;
     wire [4:0] rs, rt, rd, shamt;
     wire [15:0] imm16;
@@ -50,19 +50,10 @@ module SynLajiIntelKnightsLanding(
 
 
     // wire [`IM_ADDR_BIT - 1:0] pc, pc_4;
-    wire [`IM_ADDR_BIT - 1:0]  pc_4_ps0;
     // wire [31:0] inst;
-    wire [31:0] inst_ps0;
 
-    // use it before SynPC later to save time
+   // use it before SynPC later to save time
     assign pc_new = is_jump || branched ? wtg_pc_new : pc_4_ps0;
-
-    ////////////////////////////
-    ////////////////////////////
-    ////////   ps0  ////////////
-    ////////////////////////////
-    ////////////////////////////
-
     SynPC vPC(
         .clk(clk),
         .rst_n(rst_n),
@@ -72,6 +63,9 @@ module SynLajiIntelKnightsLanding(
         .pc(pc),
         .pc_4(pc_4_ps0)
     );
+    ////////////////////////////
+    ////////////////////////////
+
 
     CmbInstMem #(
         .ProgPath(ProgPath)
@@ -81,107 +75,64 @@ module SynLajiIntelKnightsLanding(
         .inst(inst_ps0)
     );
 
-    ///////////////////////
-    ///////   ps1  ////////
-    ///////////////////////
-    SynPS1 vPS1(
-        .clk(clk), 
-        .rst_n(rst_n),
-        .en(en),
-        .inst_in(inst_ps0),
-        .pc_4_in(pc_4_ps0),
-        // output
-        .inst(inst),
-        .pc_4(pc_4)
-    );
+
+    ////////////////////////////
+    ////////////////////////////
+
+    // SynPS1 vPS1(
+    //     .clk(clk), 
+    //     .rst_n(rst_n),
+    //     .en(en),
+    //     .inst_in(inst_ps0),
+    //     .pc_4_in(pc_4_ps0),
+    //     // output
+    //     .inst(inst_ps1),
+    //     .pc_4(pc_4_ps1)
+    // );
+    assign inst_ps1 = inst_ps0;
+    assign pc_4_ps1 = pc_4_ps0;
+    
+    ////////////////////////////
+    ////////////////////////////
+
 
     CmbDecoder vDec(
-        .inst(inst),
-        .opcode(opcode),
-        .rs(rs),
-        .rt(rt),
-        .rd(rd),
-        .shamt(shamt),
-        .funct(funct),
-        .imm16(imm16)
+        .inst(inst_ps1),
+        // output
+        .opcode(opcode),    // self use
+        .rs(rs),            // self use
+        .rt(rt),            // self use
+        .rd(rd),            // self use 
+        .shamt(shamt_dec),  // for_alu 
+        .funct(funct),      // self use
+        .imm16(imm16_dec)   // self use && for alu
     );
 
-    CmbExt vExt(
-        .imm16(imm16),
-        .out_sign(ext_out_sign),
-        .out_zero(ext_out_zero)
-    );
 
-    SynRegFile vRF(
-        .clk(clk),
-        .rst_n(rst_n),
-        .en(en),
-        .w_en(regfile_w_en),
-        .req_dbg(regfile_req_dbg),
-        .req_w(regfile_req_w),
-        .req_a(rs),
-        .req_b(rt),
-        .data_dbg(regfile_data_dbg),
-        .data_w(regfile_data_w),
-        .data_a(regfile_data_a),
-        .data_b(regfile_data_b),
-        .data_v0(regfile_data_v0),
-        .data_a0(regfile_data_a0)
-    );
-    CmbWTG vWTG(
-        .op(wtg_op),
-        .imm(imm16[`IM_ADDR_BIT - 1:0]),
-        .data_x(regfile_data_a),
-        .data_y(regfile_data_b),
-        .pc_4(pc_4),
-        .pc_new(wtg_pc_new),
-        .branched(branched)
-    );
-    CmbALU vALU(
-        .op(alu_op),
-        .data_x(regfile_data_a),
-        .data_y(alu_data_y),
-        .shamt(shamt),
-        .data_res(alu_data_res)
-    );
-    SynDataMem vDM(
-        .clk(clk),
-        .rst_n(rst_n),
-        .en(en),
-        .op(datamem_op),
-        .w_en(datamem_w_en),
-        .addr_dbg(datamem_addr_dbg),
-        .addr(alu_data_res[`DM_ADDR_BIT - 1:0]),
-        .data_in(regfile_data_b),
-        .data_dbg(datamem_data_dbg),
-        .data(datamem_data)
-    );
-    SynSyscall vSys(
-        .clk(clk),
-        .rst_n(rst_n),
-        .en(en),
-        .syscall_en(syscall_en),
-        .data_v0(regfile_data_v0),
-        .data_a0(regfile_data_a0),
-        .display(display),
-        .halt(halt)
-    );
     CmbControl vCtl(
         .opcode(opcode),
         .rt(rt),
         .funct(funct),
-        .op_wtg(wtg_op),
-        .w_en_regfile(regfile_w_en),
-        .op_alu(alu_op),
-        .op_datamem(datamem_op),
-        .w_en_datamem(datamem_w_en),
-        .syscall_en(syscall_en),
-        .mux_regfile_req_w(mux_regfile_req_w),
-        .mux_regfile_data_w(mux_regfile_data_w),
-        .mux_alu_data_y(mux_alu_data_y),
-        .is_jump(is_jump),
-        .is_branch(is_branch)
+        // output
+        .op_wtg(wtg_op_ctl),
+        .w_en_regfile(regfile_w_en), // self use
+        .op_alu(alu_op_ctl),
+        .op_datamem(datamem_op_ctl),
+        .w_en_datamem(datamem_w_en_ctl),
+        .syscall_en(syscall_en_ctl),
+        .mux_regfile_req_w(mux_regfile_req_w),          // self use
+        .mux_regfile_data_w(mux_regfile_data_w),        // self use
+        .mux_alu_data_y(mux_alu_data_y_ctl), 
+        .is_jump(is_jump),      // out_connection
+        .is_branch(is_branch)   // out_connection
     );
+    assign datamem_op = datamem_op_ctl;
+    assign datamem_w_en = datamem_w_en_ctl;
+    assign mux_alu_data_y = mux_alu_data_y_ctl;
+    assign wtg_op = wtg_op_ctl;
+    assign alu_op = alu_op_ctl;
+
+
 
     always @(*) begin
         case (mux_regfile_req_w)
@@ -204,6 +155,38 @@ module SynLajiIntelKnightsLanding(
             default:
                 regfile_data_w <= 32'd0;
         endcase
+    end
+
+
+    SynRegFile vRF(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(en),
+        .w_en(regfile_w_en),
+        .req_dbg(regfile_req_dbg),
+        .req_w(regfile_req_w),
+        .req_a(rs),
+        .req_b(rt),
+        .data_w(regfile_data_w),
+        // output
+        .data_dbg(regfile_data_dbg),
+        .data_a(regfile_data_a),
+        .data_b(regfile_data_b),
+        .data_v0(regfile_data_v0),
+        .data_a0(regfile_data_a0)
+    );
+    /////////////////////////////
+    ///////   ps2 ID/EX  ////////
+
+    /////////////////////////////
+
+    CmbExt vExt(
+        .imm16(imm16_),
+        .out_sign(ext_out_sign),
+        .out_zero(ext_out_zero)
+    );
+
+    always @(*) begin
         case (mux_alu_data_y)
             `MUX_ALU_DATAY_RFB:
                 alu_data_y <= regfile_data_b;
@@ -216,5 +199,50 @@ module SynLajiIntelKnightsLanding(
         endcase
     end
 
+    CmbALU vALU(
+        .op(alu_op),
+        .data_x(regfile_data_a),
+        .data_y(alu_data_y),
+        .shamt(shamt),
+        .data_res(alu_data_res)
+    );
+
+    SynSyscall vSys(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(en),
+        .syscall_en(syscall_en),
+        .data_v0(regfile_data_v0),
+        .data_a0(regfile_data_a0),
+        .display(display),
+        .halt(halt)
+    );
+    /////////////////////////////
+    ///////   ps3 ID/DM  ////////
+    /////////////////////////////
+
+
+    CmbWTG vWTG(
+        .op(wtg_op),
+        .imm(imm16[`IM_ADDR_BIT - 1:0]),
+        .data_x(regfile_data_a),
+        .data_y(regfile_data_b),
+        .pc_4(pc_4),
+        .pc_new(wtg_pc_new),
+        .branched(branched)
+    );
+
+    SynDataMem vDM(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(en),
+        .op(datamem_op),
+        .w_en(datamem_w_en),
+        .addr_dbg(datamem_addr_dbg),
+        .addr(alu_data_res[`DM_ADDR_BIT - 1:0]),
+        .data_in(regfile_data_b),
+        .data_dbg(datamem_data_dbg),
+        .data(datamem_data)
+    );
 
 endmodule

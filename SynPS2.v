@@ -4,7 +4,7 @@
 // Description: forward between IF/ID
 // main work: pc+4, inst
 // Author: FluorineDog
-module SynPS1(
+module SynPS2(
     input clk,
     input rst_n,    //negedge reset
     input en,         //high enable normal
