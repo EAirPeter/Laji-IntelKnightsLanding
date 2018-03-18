@@ -179,6 +179,7 @@ module SynLajiIntelKnightsLanding(
     assign shamt_ps2 = shamt_ps1;
     assign alu_op_ps2 = alu_op_ps1;
     assign regfile_w_en_ps2 = regfile_w_en_ps1;
+    assign mux_alu_data_y_ps2 = mux_alu_data_y_ps1;
     /////////////////////////////
 
     CmbExt vExt(
@@ -274,6 +275,7 @@ module SynLajiIntelKnightsLanding(
     assign mux_regfile_req_w_ps4 = mux_regfile_req_w_ps3;
     assign alu_data_res_ps4 = alu_data_res_ps3;
     assign regfile_w_en_ps4 = regfile_w_en_ps3;
+    assign pc_4_ps4 = pc_4_ps3;
     //////////////////////
     
     always @(*) begin
