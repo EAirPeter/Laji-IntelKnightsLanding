@@ -28,7 +28,10 @@ module SynLajiIntelKnightsLanding(
     wire [31:0] inst_ps0, inst_ps1;
     wire [5:0] opcode, funct;
     wire [4:0] rs;
-    wire [4:0] rt, rt_ps1, rt_ps2, rt_ps3, rt_ps4;
+    reg [4:0] regfile_req_a;          // conbinatorial
+    wire [4:0] rt;
+    reg [4:0] regfile_req_b;          // conbinatorial 
+    wire [4:0] rt_ps1, rt_ps2, rt_ps3, rt_ps4;
     wire [4:0] rd_ps1, rd_ps2, rd_ps3, rd_ps4;
     wire [4:0] shamt_ps1, shamt_ps2;
     wire [15:0] imm16_ps1, imm16_ps2, imm16_ps3;
@@ -37,8 +40,6 @@ module SynLajiIntelKnightsLanding(
             regfile_w_en_ps3, regfile_w_en_ps4;
     wire [31:0] regfile_data_a_ps1, regfile_data_a_ps2, regfile_data_a_ps3;
     wire [31:0] regfile_data_b_ps1, regfile_data_b_ps2, regfile_data_b_ps3;
-    wire [31:0] regfile_data_v0_ps1, regfile_data_v0_ps2;
-    wire [31:0] regfile_data_a0_ps1, regfile_data_a0_ps2;
     reg [4:0] regfile_req_w;    // combinatorial
     reg [31:0] regfile_data_w;  // combinatorial
     wire [`WTG_OP_BIT - 1:0] wtg_op_ps1, wtg_op_ps2, wtg_op_ps3;
@@ -139,6 +140,20 @@ module SynLajiIntelKnightsLanding(
     );
 
 
+    wire mux_regfile_a_req = syscall_en_ps1;
+    wire mux_regfile_b_req = syscall_en_ps1;
+    always@(*) begin
+        case(mux_regfile_a_req)
+            `MUX_RFA_REQ_RS: regfile_req_a = rs;
+            `MUX_RFA_REQ_V0: regfile_req_a = `V0;
+        endcase
+        case(mux_regfile_b_req)
+            `MUX_RFB_REQ_RT: regfile_req_b = rt;
+            `MUX_RFB_REQ_A0: regfile_req_b = `A0;
+        endcase
+ 
+    end
+
 
     SynRegFile vRF(
         .clk(clk),
@@ -147,22 +162,18 @@ module SynLajiIntelKnightsLanding(
         .w_en(regfile_w_en_ps4),        // DO AT PS4
         .req_dbg(regfile_req_dbg), 
         .req_w(regfile_req_w),          // DO AT PS4
-        .req_a(rs),
-        .req_b(rt),
+        .req_a(regfile_req_a),
+        .req_b(regfile_req_b),
         .data_w(regfile_data_w),        // DO AT PS4
         // output
         .data_dbg(regfile_data_dbg), // out connection
         .data_a(regfile_data_a_ps1), 
-        .data_b(regfile_data_b_ps1),
-        .data_v0(regfile_data_v0_ps1),
-        .data_a0(regfile_data_a0_ps1)
+        .data_b(regfile_data_b_ps1)
     );
     /////////////////////////////
     ///////   ps2 ID/EX  ////////
     assign regfile_data_a_ps2 = regfile_data_a_ps1;
     assign regfile_data_b_ps2 = regfile_data_b_ps1;
-    assign regfile_data_v0_ps2 = regfile_data_v0_ps1;
-    assign regfile_data_a0_ps2 = regfile_data_a0_ps1;
 
 
     assign rd_ps2 = rd_ps1;
@@ -215,8 +226,8 @@ module SynLajiIntelKnightsLanding(
         .rst_n(rst_n),
         .en(en),
         .syscall_en(syscall_en_ps2),
-        .data_v0(regfile_data_v0_ps2),
-        .data_a0(regfile_data_a0_ps2),
+        .data_v0(regfile_data_a_ps2),
+        .data_a0(regfile_data_b_ps2),
 
         .display(display),              // out connection
         .halt(halt)                     // out connection

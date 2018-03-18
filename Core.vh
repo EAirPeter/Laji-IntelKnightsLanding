@@ -66,6 +66,19 @@
 // PC + 4
 `define MUX_RF_DATAW_PC4    `MUX_RF_DATAW_BIT'h2
 
+
+`define V0  5'h2
+`define A0  5'h4
+// equal to syscall 
+`define MUX_RFA_REQ_BIT   1
+`define MUX_RFA_REQ_RS    `MUX_RFA_REQ_BIT'h0
+`define MUX_RFA_REQ_V0    `MUX_RFA_REQ_BIT'h1
+
+// equal to syscall 
+`define MUX_RFB_REQ_BIT   1
+`define MUX_RFB_REQ_RT    `MUX_RFB_REQ_BIT'h0
+`define MUX_RFB_REQ_A0    `MUX_RFB_REQ_BIT'h1
+
 // Multiplexer.ArithmeticLogicUnit.data_y
 `define MUX_ALU_DATAY_BIT   2
 // RegFile port B
@@ -75,7 +88,8 @@
 // Zero-extended imm16
 `define MUX_ALU_DATAY_EXTZ  `MUX_ALU_DATAY_BIT'h2
 
+
 `define FOLDERPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/cpu-testcase/"
-`define FILENAME "retard-pipeline.hex"
+`define FILENAME "benchmark.hex"
 `define BENCHMARK_FILEPATH {`FOLDERPATH, `FILENAME}
 `endif
