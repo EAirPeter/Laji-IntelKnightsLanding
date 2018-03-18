@@ -29,11 +29,12 @@ module SynLajiIntelKnightsLanding(
     wire [5:0] opcode, funct;
     wire [4:0] rs;
     wire [4:0] rt, rt_ps1, rt_ps2, rt_ps3, rt_ps4;
-    wire [4:0] rd, rd_ps1, rd_ps2, rd_ps3, rd_ps4;
+    wire [4:0] rd_ps1, rd_ps2, rd_ps3, rd_ps4;
     wire [4:0] shamt_ps1, shamt_ps2;
     wire [15:0] imm16_ps1, imm16_ps2, imm16_ps3;
     wire [31:0] ext_out_sign, ext_out_zero;
-    wire regfile_w_en;
+    wire regfile_w_en_ps1, regfile_w_en_ps2, 
+            regfile_w_en_ps3, regfile_w_en_ps4;
     wire [31:0] regfile_data_a_ps1, regfile_data_a_ps2, regfile_data_a_ps3;
     wire [31:0] regfile_data_b_ps1, regfile_data_b_ps2, regfile_data_b_ps3;
     wire [31:0] regfile_data_v0_ps1, regfile_data_v0_ps2;
@@ -143,12 +144,12 @@ module SynLajiIntelKnightsLanding(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
-        .w_en(regfile_w_en),
+        .w_en(regfile_w_en_ps4),        // DO AT PS4
         .req_dbg(regfile_req_dbg), 
-        .req_w(regfile_req_w),
+        .req_w(regfile_req_w),          // DO AT PS4
         .req_a(rs),
         .req_b(rt),
-        .data_w(regfile_data_w),
+        .data_w(regfile_data_w),        // DO AT PS4
         // output
         .data_dbg(regfile_data_dbg), // out connection
         .data_a(regfile_data_a_ps1), 
@@ -177,6 +178,7 @@ module SynLajiIntelKnightsLanding(
     assign syscall_en_ps2 = syscall_en_ps1;
     assign shamt_ps2 = shamt_ps1;
     assign alu_op_ps2 = alu_op_ps1;
+    assign regfile_w_en_ps2 = regfile_w_en_ps1;
     /////////////////////////////
 
     CmbExt vExt(
@@ -233,6 +235,7 @@ module SynLajiIntelKnightsLanding(
     assign pc_4_ps3 = pc_4_ps2;
     assign datamem_op_ps3 = datamem_op_ps2;
     assign datamem_w_en_ps3 = datamem_w_en_ps2;
+    assign regfile_w_en_ps3 = regfile_w_en_ps2;
 
     /////////////////////////////
 
@@ -270,6 +273,7 @@ module SynLajiIntelKnightsLanding(
     assign datamem_data_ps4 = datamem_data_ps3;
     assign mux_regfile_req_w_ps4 = mux_regfile_req_w_ps3;
     assign alu_data_res_ps4 = alu_data_res_ps3;
+    assign regfile_w_en_ps4 = regfile_w_en_ps3;
     //////////////////////
     
     always @(*) begin
