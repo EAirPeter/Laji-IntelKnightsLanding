@@ -6,18 +6,19 @@ module SynPS1(
     input clk,
     input rst_n,
     input en,       
-    input [31:0] inst_in,
+    input clear,
     input [`IM_ADDR_BIT - 1:0] pc_4_in,
-    output reg [31:0] inst,
-    output reg [`IM_ADDR_BIT - 1:0] pc_4
+    input [31:0] inst_in,
+    output reg [`IM_ADDR_BIT - 1:0] pc_4,
+    output reg [31:0] inst
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n) begin 
-            inst <= 0;
+        if (!rst_n | !clear) begin 
             pc_4 <= 0;
+            inst <= 0;
         end else if(en) begin
-            inst <= inst_in;
             pc_4 <= pc_4_in;
+            inst <= inst_in;
         end
     end
 endmodule

@@ -29,3 +29,4 @@ wire [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y_ps1, mux_alu_data_y_ps2;
 wire [`IM_ADDR_BIT - 1:0] pc_new_todo;
 wire syscall_en_ps1, syscall_en_ps2;
 wire halt_ps2, halt_ps3, halt_ps4;
+wire clear_vps1, clear_vps2, clear_vps3, clear_vps4;
