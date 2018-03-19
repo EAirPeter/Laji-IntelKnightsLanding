@@ -16,7 +16,7 @@ module SynLajiIntelKnightsLanding(
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk, rst_n, en;
     input [4:0] dbg_rf_req;
-    input [`DM_ADDR_BIT - 3:0] dbg_dm_addr;
+    input [`DM_ADDR_NBIT - 3:0] dbg_dm_addr;
     output [31:0] dbg_pc;
     output [31:0] dbg_rf_data;
     output [31:0] dbg_dm_data;
@@ -24,41 +24,44 @@ module SynLajiIntelKnightsLanding(
     output [31:0] display;
     output halt;
 
-    `DECL_DAT(`IM_ADDR_BIT      , pc                );
-    `DECL_DAT(`IM_ADDR_BIT      , pc_4              );
-    `DECL_DAT(32                , inst              );
-    `DECL_DAT(5                 , shamt             );
-    `DECL_DAT(16                , imm16             );
-    `DECL_DAT(32                , rf_data_a         );
-    `DECL_DAT(32                , rf_data_b         );
-    `DECL_DAT(32                , fwd_rf_a          );
-    `DECL_DAT(32                , fwd_rf_b          );
-    `DECL_DAT(1                 , ctl_rf_we         );
-    `DECL_DAT(`ALU_OP_BIT       , ctl_alu_op        );
-    `DECL_DAT(`WTG_OP_BIT       , ctl_wtg_op        );
-    `DECL_DAT(1                 , ctl_syscall_en    );
-    `DECL_DAT(`DM_OP_BIT        , ctl_dm_op         );
-    `DECL_DAT(1                 , ctl_dm_we         );
-    `DECL_DAT(5                 , val_rf_req_w      );
-    `DECL_DAT(1                 , sel_rf_w_pc_4     );
-    `DECL_DAT(1                 , sel_rf_w_dm       );
-    `DECL_DAT(32                , val_rf_w_tmp      );
-    `DECL_DAT(`MUX_ALU_DATAY_BIT, mux_alu_data_y    );
-    `DECL_DAT(1                 , is_jump           );
-    `DECL_DAT(1                 , is_branch         );
-    `DECL_DAT(32                , alu_data_res      );
-    `DECL_DAT(`IM_ADDR_BIT      , wtg_pc_new        );
-    `DECL_DAT(1                 , branched          );
-    `DECL_DAT(32                , display           );
-    `DECL_DAT(1                 , halt              );
-    `DECL_DAT(32                , dm_data           );
-    `DECL_DAT(32                , val_rf_data_w     );
-    `DECL_DAT(`MUX_FWD_RF_BIT   , mux_fwd_rf_a      );
-    `DECL_DAT(`MUX_FWD_RF_BIT   , mux_fwd_rf_b      );
+    `DECL_DAT(`IM_ADDR_NBIT         , pc                );
+    `DECL_DAT(`IM_ADDR_NBIT         , pc_4              );
+    `DECL_DAT(1                     , bht_take          );
+    `DECL_DAT(32                    , inst              );
+    `DECL_DAT(5                     , shamt             );
+    `DECL_DAT(16                    , imm16             );
+    `DECL_DAT(32                    , rf_data_a         );
+    `DECL_DAT(32                    , rf_data_b         );
+    `DECL_DAT(32                    , fwd_rf_a          );
+    `DECL_DAT(32                    , fwd_rf_b          );
+    `DECL_DAT(1                     , ctl_rf_we         );
+    `DECL_DAT(`ALU_OP_NBIT          , ctl_alu_op        );
+    `DECL_DAT(`WTG_OP_NBIT          , ctl_wtg_op        );
+    `DECL_DAT(1                     , ctl_syscall_en    );
+    `DECL_DAT(`DM_OP_NBIT           , ctl_dm_op         );
+    `DECL_DAT(1                     , ctl_dm_we         );
+    `DECL_DAT(5                     , val_rf_req_w      );
+    `DECL_DAT(1                     , sel_rf_w_pc_4     );
+    `DECL_DAT(1                     , sel_rf_w_dm       );
+    `DECL_DAT(32                    , val_rf_w_tmp      );
+    `DECL_DAT(`MUX_ALU_DATAY_NBIT   , mux_alu_data_y    );
+    `DECL_DAT(1                     , is_jump           );
+    `DECL_DAT(1                     , is_branch         );
+    `DECL_DAT(32                    , alu_data_res      );
+    `DECL_DAT(1                     , branched          );
+    `DECL_DAT(32                    , display           );
+    `DECL_DAT(1                     , halt              );
+    `DECL_DAT(32                    , dm_data           );
+    `DECL_DAT(32                    , val_rf_data_w     );
+    `DECL_DAT(`MUX_FWD_RF_NBIT      , mux_fwd_rf_a      );
+    `DECL_DAT(`MUX_FWD_RF_NBIT      , mux_fwd_rf_b      );
 
+    wire [`IM_ADDR_NBIT - 1:0] if_bht_pc_new;
     wire id_ctl_rf_ra, id_ctl_rf_rb;
     wire [4:0] id_val_rf_req_a, id_val_rf_req_b;
-    wire pic_pc_en, pic_pc_ld;
+    wire [`IM_ADDR_NBIT - 1:0] ex_wtg_pc_new, ex_wtg_pc_branch;
+    wire pic_pc_en, pic_pc_ld_wtg;
+    wire [`BHT_OP_NBIT - 1:0] pic_bht_op;
     wire pic_ifid_en, pic_ifid_nop;
     wire pic_idex_en, pic_idex_nop;
     wire pic_is_nop;
@@ -79,17 +82,20 @@ module SynLajiIntelKnightsLanding(
         .id_rf_req_b(id_val_rf_req_b),
         .ex_pc(ex_pc),
         .ex_pc_4(ex_pc_4),
+        .ex_bht_take(ex_bht_take),
         .ex_rf_we(ex_ctl_rf_we),
         .ex_rf_req_w(ex_val_rf_req_w),
         .ex_sel_rf_w_dm(ex_sel_rf_w_dm),
         .ex_is_jump(ex_is_jump),
+        .ex_is_branch(ex_is_branch),
         .ex_branched(ex_branched),
         .ex_wtg_pc_new(ex_wtg_pc_new),
         .ex_halt(ex_halt),
         .ma_rf_we(ma_ctl_rf_we),
         .ma_rf_req_w(ma_val_rf_req_w),
         .pc_en(pic_pc_en),
-        .pc_ld(pic_pc_ld),
+        .pc_ld_wtg(pic_pc_ld_wtg),
+        .bht_op(pic_bht_op),
         .ifid_en(pic_ifid_en),
         .ifid_nop(pic_ifid_nop),
         .idex_en(pic_idex_en),
@@ -108,13 +114,23 @@ module SynLajiIntelKnightsLanding(
         .ex_fwd_rf_a(ex_fwd_rf_a),
         .ex_fwd_rf_b(ex_fwd_rf_b)
     );
+    SynBHT vBHT(
+        .clk(clk),
+        .rst_n(rst_n),
+        .op(pic_bht_op),
+        .pc_r(if_pc),
+        .pc_w(ex_pc),
+        .dst_w(ex_wtg_pc_branch),
+        .dst_r(if_bht_pc_new),
+        .take_r(if_bht_take)
+    );
 
 `define GPI_PIF vIFID
 `define GPI_ENA en && pic_ifid_en
 `define GPI_NOP pic_ifid_nop
 `define GPI_IST if
 `define GPI_OST id
-`define GPI_DAT `GPI_(pc) `GPI(pc_4) `GPI(inst)
+`define GPI_DAT `GPI_(pc) `GPI(pc_4) `GPI(bht_take) `GPI(inst)
 `include "GenPiplIntf.vh"
 
 `define GPI_PIF vIDEX
@@ -123,7 +139,7 @@ module SynLajiIntelKnightsLanding(
 `define GPI_IST id
 `define GPI_OST ex
 `define GPI_DAT \
-    `GPI_(pc) `GPI(pc_4) `GPI(shamt) `GPI(imm16) \
+    `GPI_(pc) `GPI(pc_4) `GPI(bht_take) `GPI(shamt) `GPI(imm16) \
     `GPI(rf_data_a) `GPI(rf_data_b) \
     `GPI(ctl_rf_we) `GPI(ctl_alu_op) `GPI(ctl_wtg_op) `GPI(ctl_syscall_en) \
     `GPI(ctl_dm_op) `GPI(ctl_dm_we) `GPI(val_rf_req_w) \
@@ -156,8 +172,10 @@ module SynLajiIntelKnightsLanding(
         .rst_n(rst_n),
         .en(en),
         .pc_en(pic_pc_en),
-        .pc_ld(pic_pc_ld),
-        .pc_new(ex_wtg_pc_new),
+        .pc_ld_wtg(pic_pc_ld_wtg),
+        .pc_ld_bht(if_bht_take),
+        .wtg_pc_new(ex_wtg_pc_new),
+        .bht_pc_new(if_bht_pc_new),
         .pc(if_pc),
         .pc_4(if_pc_4),
         .inst(if_inst)
@@ -208,6 +226,7 @@ module SynLajiIntelKnightsLanding(
         .mux_alu_data_y(ex_mux_alu_data_y),
         .alu_data_res(ex_alu_data_res),
         .wtg_pc_new(ex_wtg_pc_new),
+        .wtg_pc_branch(ex_wtg_pc_branch),
         .branched(ex_branched),
         .display(ex_display),
         .halt(ex_halt)

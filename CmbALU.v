@@ -5,7 +5,7 @@
 // Brief: Arithmetic Logic Unit, combinatorial
 // Author: KailinLi
 module CmbALU(op, data_x, data_y, shamt, data_res);
-    input [`ALU_OP_BIT - 1:0] op;
+    input [`ALU_OP_NBIT - 1:0] op;
     input [31:0] data_x;
     input [31:0] data_y;
     input [4:0] shamt;      // Separate input for shift 

@@ -23,13 +23,13 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire unused_swt = swt[5];
 
     wire [1:0] mux_core_clk = swt[1:0];
-    wire [`MUX_DISP_DATA_BIT - 1:0] mux_disp_data = swt[`MUX_DISP_DATA_BIT + 1:2];
+    wire [`MUX_DISP_DATA_NBIT - 1:0] mux_disp_data = swt[`MUX_DISP_DATA_NBIT + 1:2];
     reg [31:0] disp_data;   // combinatorial
     wire clk_core_0, clk_core_1, clk_core_2, clk_core_3;
     reg core_clk;           // combinatorial
     wire core_en;
     wire [4:0] dbg_rf_req = swt[15:11];
-    wire [`DM_ADDR_BIT - 3:0] dbg_dm_addr = swt[15:18 - `DM_ADDR_BIT];
+    wire [`DM_ADDR_NBIT - 3:0] dbg_dm_addr = swt[15:18 - `DM_ADDR_NBIT];
     wire [31:0] dbg_pc;
     wire [31:0] dbg_rf_data;
     wire [31:0] dbg_dm_data;

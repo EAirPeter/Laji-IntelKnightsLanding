@@ -13,15 +13,15 @@ module CmbControl(
     input [5:0] opcode;
     input [5:0] funct;
     output reg rf_ra, rf_rb, rf_we;
-    output reg [`ALU_OP_BIT - 1:0] alu_op; // alias to alu to increase Hamming Distance 
-    output reg [`WTG_OP_BIT - 1:0] wtg_op;
+    output reg [`ALU_OP_NBIT - 1:0] alu_op; // alias to alu to increase Hamming Distance 
+    output reg [`WTG_OP_NBIT - 1:0] wtg_op;
     output reg syscall_en;
-    output reg [`DM_OP_BIT - 1:0] dm_op;
+    output reg [`DM_OP_NBIT - 1:0] dm_op;
     output reg dm_we;
-    output reg [`MUX_RF_REQW_BIT - 1:0] mux_rf_req_w;
+    output reg [`MUX_RF_REQW_NBIT - 1:0] mux_rf_req_w;
     output reg sel_rf_w_pc_4;
     output reg sel_rf_w_dm;
-    output reg [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
+    output reg [`MUX_ALU_DATAY_NBIT - 1:0] mux_alu_data_y;
     output reg is_jump;     // 1 if the current instruction is a jump instruction
     output reg is_branch;   // 1 if the current instruction is a branch instraction
     

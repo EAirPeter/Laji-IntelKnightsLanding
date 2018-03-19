@@ -8,19 +8,19 @@ module PstEX(
     clk, rst_n, en,
     pc_4, shamt, imm16, rf_data_a, rf_data_b,
     ctl_alu_op, ctl_wtg_op, ctl_syscall_en, mux_alu_data_y,
-    alu_data_res, wtg_pc_new, branched, display, halt
+    alu_data_res, wtg_pc_new, wtg_pc_branch, branched, display, halt
 );
     input clk, rst_n, en;
-    input [`IM_ADDR_BIT - 1:0] pc_4;
+    input [`IM_ADDR_NBIT - 1:0] pc_4;
     input [4:0] shamt;
     input [15:0] imm16;
     input [31:0] rf_data_a, rf_data_b;
-    input [`ALU_OP_BIT - 1:0] ctl_alu_op;
-    input [`WTG_OP_BIT - 1:0] ctl_wtg_op;
+    input [`ALU_OP_NBIT - 1:0] ctl_alu_op;
+    input [`WTG_OP_NBIT - 1:0] ctl_wtg_op;
     input ctl_syscall_en;
-    input [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
+    input [`MUX_ALU_DATAY_NBIT - 1:0] mux_alu_data_y;
     output [31:0] alu_data_res;
-    output [`IM_ADDR_BIT - 1:0] wtg_pc_new;
+    output [`IM_ADDR_NBIT - 1:0] wtg_pc_new, wtg_pc_branch;
     output branched;
     output [31:0] display;
     output halt;
@@ -48,11 +48,12 @@ module PstEX(
     );
     CmbWTG vWTG(
         .op(ctl_wtg_op),
-        .imm(imm16[`IM_ADDR_BIT - 1:0]),
+        .imm(imm16[`IM_ADDR_NBIT - 1:0]),
         .data_x(rf_data_a),
         .data_y(rf_data_b),
         .pc_4(pc_4),
         .pc_new(wtg_pc_new),
+        .pc_branch(wtg_pc_branch),
         .branched(branched)
     );
     SynSyscall vSys(

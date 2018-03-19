@@ -7,40 +7,44 @@
 module CmbPIC(
     id_pc,
     id_rf_ra, id_rf_rb, id_rf_req_a, id_rf_req_b,
-    ex_pc, ex_pc_4, ex_rf_we, ex_rf_req_w,
-    ex_sel_rf_w_dm, ex_is_jump, ex_branched,
+    ex_pc, ex_pc_4, ex_bht_take, ex_rf_we, ex_rf_req_w,
+    ex_sel_rf_w_dm, ex_is_jump, ex_is_branch, ex_branched,
     ex_wtg_pc_new, ex_halt,
     ma_rf_we, ma_rf_req_w,
-    pc_en, pc_ld,
+    pc_en, pc_ld_wtg, bht_op,
     ifid_en, ifid_nop, idex_en, idex_nop,
     id_mux_fwd_rf_a, id_mux_fwd_rf_b,
     is_nop
 );
-    input [`IM_ADDR_BIT - 1:0] id_pc;
+    input [`IM_ADDR_NBIT - 1:0] id_pc;
     input id_rf_ra, id_rf_rb;
     input [4:0] id_rf_req_a, id_rf_req_b;
-    input [`IM_ADDR_BIT - 1:0] ex_pc, ex_pc_4;
-    input ex_rf_we;
+    input [`IM_ADDR_NBIT - 1:0] ex_pc, ex_pc_4;
+    input ex_bht_take, ex_rf_we;
     input [4:0] ex_rf_req_w;
-    input ex_sel_rf_w_dm, ex_is_jump, ex_branched;
-    input [`IM_ADDR_BIT - 1:0] ex_wtg_pc_new;
+    input ex_sel_rf_w_dm, ex_is_jump, ex_is_branch, ex_branched;
+    input [`IM_ADDR_NBIT - 1:0] ex_wtg_pc_new;
     input ex_halt;
     input ma_rf_we;
     input [4:0] ma_rf_req_w;
-    output reg pc_en, pc_ld;
+    output reg pc_en, pc_ld_wtg;
+    output reg [`BHT_OP_NBIT - 1:0] bht_op;
     output reg ifid_en, ifid_nop, idex_en, idex_nop; // combinatorial
-    output reg [`MUX_FWD_RF_BIT - 1:0] id_mux_fwd_rf_a, id_mux_fwd_rf_b;
+    output reg [`MUX_FWD_RF_NBIT - 1:0] id_mux_fwd_rf_a, id_mux_fwd_rf_b;
     output reg is_nop;
+
+    wire ex_is_jorb = ex_is_jump || ex_is_branch;
 
     reg noc_ra, noc_rb, noc_ex, noc_ma;
     reg noc_raex, noc_rama, noc_rbex, noc_rbma;
-    reg [`IM_ADDR_BIT - 1:0] pc_correct;
+    reg [`IM_ADDR_NBIT - 1:0] pc_correct;
     reg noc_go;
     reg is_clr;
 
     always @(*) begin
         pc_en = 1;
-        pc_ld = 0;
+        pc_ld_wtg = 0;
+        bht_op = `BHT_OP_NOP;
         ifid_en = 1;
         ifid_nop = 0;
         idex_en = 1;
@@ -74,7 +78,7 @@ module CmbPIC(
             id_mux_fwd_rf_b = `MUX_FWD_RF_DAT;
         if (ex_halt)
             is_nop = 1;
-        pc_correct = ex_is_jump || ex_branched ? ex_wtg_pc_new : ex_pc_4;
+        pc_correct = ex_is_jorb ? ex_wtg_pc_new : ex_pc_4;
         noc_go = ex_pc == ex_pc_4;
         is_clr = !noc_go && id_pc != pc_correct;
         if (is_nop) begin
@@ -83,9 +87,15 @@ module CmbPIC(
             idex_nop = 1;
         end
         if (is_clr) begin
-            pc_ld = 1;
+            pc_ld_wtg = 1;
             ifid_nop = 1;
             idex_nop = 1;
+        end
+        if (ex_is_jorb) begin
+            if (ex_is_jump)
+                bht_op = `BHT_OP_SET;
+            else
+                bht_op = ex_branched ? `BHT_OP_INC : `BHT_OP_DEC;
         end
     end
 endmodule

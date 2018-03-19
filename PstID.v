@@ -27,19 +27,19 @@ module PstID(
     output [15:0] imm16;
     output [31:0] rf_data_a, rf_data_b;
     output ctl_rf_ra, ctl_rf_rb, ctl_rf_we;
-    output [`ALU_OP_BIT - 1:0] ctl_alu_op;
-    output [`WTG_OP_BIT - 1:0] ctl_wtg_op;
+    output [`ALU_OP_NBIT - 1:0] ctl_alu_op;
+    output [`WTG_OP_NBIT - 1:0] ctl_wtg_op;
     output ctl_syscall_en;
-    output [`DM_OP_BIT - 1:0] ctl_dm_op;
+    output [`DM_OP_NBIT - 1:0] ctl_dm_op;
     output ctl_dm_we;
     output reg [4:0] val_rf_req_w, val_rf_req_a, val_rf_req_b; // combinatorial
     output sel_rf_w_pc_4, sel_rf_w_dm;
-    output [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
+    output [`MUX_ALU_DATAY_NBIT - 1:0] mux_alu_data_y;
     output is_jump, is_branch;
 
     wire [5:0] opcode, funct;
     wire [4:0] rs, rt, rd;
-    wire [`MUX_RF_REQW_BIT - 1:0] mux_rf_req_w;
+    wire [`MUX_RF_REQW_NBIT - 1:0] mux_rf_req_w;
 
     always @(*) begin
         case (mux_rf_req_w)

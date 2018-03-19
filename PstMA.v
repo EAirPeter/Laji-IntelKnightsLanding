@@ -13,10 +13,10 @@ module PstMA(
      val_rf_w_tmp, dm_data
 );
     input clk, en;
-    input [`DM_ADDR_BIT - 3:0] dbg_dm_addr;
-    input [`IM_ADDR_BIT - 1:0] pc_4;
+    input [`DM_ADDR_NBIT - 3:0] dbg_dm_addr;
+    input [`IM_ADDR_NBIT - 1:0] pc_4;
     input [31:0] rf_data_b;
-    input [`DM_OP_BIT - 1:0] ctl_dm_op;
+    input [`DM_OP_NBIT - 1:0] ctl_dm_op;
     input ctl_dm_we;
     input sel_rf_w_pc_4;
     input [31:0] alu_data_res;
@@ -32,7 +32,7 @@ module PstMA(
         .op(ctl_dm_op),
         .we(ctl_dm_we),
         .addr_dbg(dbg_dm_addr),
-        .addr(alu_data_res[`DM_ADDR_BIT - 1:0]),
+        .addr(alu_data_res[`DM_ADDR_NBIT - 1:0]),
         .data_in(rf_data_b),
         .data_dbg(dbg_dm_data),
         .data(dm_data)

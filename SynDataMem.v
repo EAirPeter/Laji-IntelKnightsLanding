@@ -5,13 +5,13 @@
 // Brief: Data Memory, combinatorial
 // Author: cuishaobo
 module SynDataMem(clk, en, op, we, addr_dbg, addr, data_in, data_dbg, data);
-    localparam MemLen = 1 << (`DM_ADDR_BIT - 2);
+    localparam MemLen = 1 << (`DM_ADDR_NBIT - 2);
     input clk;
     input en;
-    input [`DM_OP_BIT - 1:0] op;
+    input [`DM_OP_NBIT - 1:0] op;
     input we;             // Write Enable
-    input [`DM_ADDR_BIT - 3:0] addr_dbg;  // Address of the data for debugging
-    input [`DM_ADDR_BIT - 1:0] addr;
+    input [`DM_ADDR_NBIT - 3:0] addr_dbg;  // Address of the data for debugging
+    input [`DM_ADDR_NBIT - 1:0] addr;
     input [31:0] data_in;
     output [31:0] data_dbg; // Data to be displayed for debugging
     output reg [31:0] data;
@@ -23,7 +23,7 @@ module SynDataMem(clk, en, op, we, addr_dbg, addr, data_in, data_dbg, data);
     reg [7:0] mem_c[MemLen - 1:0];
     reg [7:0] mem_d[MemLen - 1:0];
 
-    wire [`DM_ADDR_BIT - 3:0] eff_addr = addr[`DM_ADDR_BIT - 1:2];
+    wire [`DM_ADDR_NBIT - 3:0] eff_addr = addr[`DM_ADDR_NBIT - 1:2];
     wire [7:0] data_a = mem_a[eff_addr];
     wire [7:0] data_b = mem_b[eff_addr];
     wire [7:0] data_c = mem_c[eff_addr];

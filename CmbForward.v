@@ -10,7 +10,7 @@ module CmbForward(
     ma_val_rf_w_tmp, wb_val_rf_data_w,
     ex_fwd_rf_a, ex_fwd_rf_b
 );
-    input [`MUX_FWD_RF_BIT - 1:0] mux_fwd_rf_a, mux_fwd_rf_b;
+    input [`MUX_FWD_RF_NBIT - 1:0] mux_fwd_rf_a, mux_fwd_rf_b;
     input [31:0] ex_rf_data_a, ex_rf_data_b;
     input [31:0] ma_val_rf_w_tmp, wb_val_rf_data_w;
     output reg [31:0] ex_fwd_rf_a, ex_fwd_rf_b; // combinatorial
