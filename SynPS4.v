@@ -27,7 +27,7 @@ module SynPS4(
     output reg halt
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n | !clear) begin 
+        if (!rst_n || clear) begin 
             pc_4 <= 0;
             rt <= 0;
             rd <= 0;

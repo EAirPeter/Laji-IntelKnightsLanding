@@ -9,16 +9,20 @@ module SynPS1(
     input clear,
     input [`IM_ADDR_BIT - 1:0] pc_4_in,
     input [31:0] inst_in,
+    input [`IM_ADDR_BIT - 1:0] pc_guessed_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
-    output reg [31:0] inst
+    output reg [31:0] inst,
+    output reg [`IM_ADDR_BIT - 1:0] pc_guessed
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n | !clear) begin 
+        if (!rst_n || clear) begin 
             pc_4 <= 0;
             inst <= 0;
+            pc_guessed <= 0;
         end else if(en) begin
             pc_4 <= pc_4_in;
             inst <= inst_in;
+            pc_guessed <= pc_guessed_in;
         end
     end
 endmodule

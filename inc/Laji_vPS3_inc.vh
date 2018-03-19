@@ -2,7 +2,7 @@
     SynPS3 vPS3(
         .clk(clk),
         .rst_n(rst_n),
-        .en(en),
+        .en(en_vps3),
         .clear(clear_vps3),
         .pc_4_in(pc_4_ps2),
         .pc_4(pc_4_ps3),
@@ -30,6 +30,8 @@
         .mux_regfile_req_w(mux_regfile_req_w_ps3),
         .mux_regfile_data_w_in(mux_regfile_data_w_ps2),
         .mux_regfile_data_w(mux_regfile_data_w_ps3),
-        .halt_in(halt_ps2),
-        .halt(halt_ps3)
+        .syscall_en_in(syscall_en_ps2),
+        .syscall_en(syscall_en_ps3),
+        .pc_guessed_in(pc_guessed_ps2),
+        .pc_guessed(pc_guessed_ps3)
     );

@@ -15,7 +15,7 @@ module SynPS{0}(
 {1}
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n | !clear) begin 
+        if (!rst_n || clear) begin 
 {2}
         end else if(en) begin
 {3}
@@ -46,7 +46,7 @@ header2 = """    // dog auto generation
     SynPS{0} vPS{0}(
         .clk(clk),
         .rst_n(rst_n),
-        .en(en),
+        .en(en_vps{0}),
         .clear(clear_vps{0}),
 {1}
     );

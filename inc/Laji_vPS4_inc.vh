@@ -2,7 +2,7 @@
     SynPS4 vPS4(
         .clk(clk),
         .rst_n(rst_n),
-        .en(en),
+        .en(en_vps4),
         .clear(clear_vps4),
         .pc_4_in(pc_4_ps3),
         .pc_4(pc_4_ps4),

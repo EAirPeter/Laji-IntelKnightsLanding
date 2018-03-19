@@ -23,6 +23,7 @@ module SynPS2(
     input [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w_in,
     input [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y_in,
     input syscall_en_in,
+    input [`IM_ADDR_BIT - 1:0] pc_guessed_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
     output reg [4:0] rt,
     output reg [4:0] rd,
@@ -38,10 +39,11 @@ module SynPS2(
     output reg [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w,
     output reg [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w,
     output reg [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y,
-    output reg syscall_en
+    output reg syscall_en,
+    output reg [`IM_ADDR_BIT - 1:0] pc_guessed
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n | !clear) begin 
+        if (!rst_n || clear) begin 
             pc_4 <= 0;
             rt <= 0;
             rd <= 0;
@@ -58,6 +60,7 @@ module SynPS2(
             mux_regfile_data_w <= 0;
             mux_alu_data_y <= 0;
             syscall_en <= 0;
+            pc_guessed <= 0;
         end else if(en) begin
             pc_4 <= pc_4_in;
             rt <= rt_in;
@@ -75,6 +78,7 @@ module SynPS2(
             mux_regfile_data_w <= mux_regfile_data_w_in;
             mux_alu_data_y <= mux_alu_data_y_in;
             syscall_en <= syscall_en_in;
+            pc_guessed <= pc_guessed_in;
         end
     end
 endmodule

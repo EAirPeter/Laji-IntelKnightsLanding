@@ -2,7 +2,7 @@
     SynPS2 vPS2(
         .clk(clk),
         .rst_n(rst_n),
-        .en(en),
+        .en(en_vps2),
         .clear(clear_vps2),
         .pc_4_in(pc_4_ps1),
         .pc_4(pc_4_ps2),
@@ -35,5 +35,7 @@
         .mux_alu_data_y_in(mux_alu_data_y_ps1),
         .mux_alu_data_y(mux_alu_data_y_ps2),
         .syscall_en_in(syscall_en_ps1),
-        .syscall_en(syscall_en_ps2)
+        .syscall_en(syscall_en_ps2),
+        .pc_guessed_in(pc_guessed_ps1),
+        .pc_guessed(pc_guessed_ps2)
     );

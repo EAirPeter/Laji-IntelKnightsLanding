@@ -16,7 +16,7 @@ wire [31:0] regfile_data_b_ps1, regfile_data_b_ps2, regfile_data_b_ps3;
 reg [4:0] regfile_req_w;    // combinatorial
 reg [31:0] regfile_data_w;  // combinatorial
 wire [`WTG_OP_BIT - 1:0] wtg_op_ps1, wtg_op_ps2, wtg_op_ps3;
-wire [`IM_ADDR_BIT - 1:0] wtg_pc_new_todo;
+wire [`IM_ADDR_BIT - 1:0] wtg_pc_new;
 wire [`ALU_OP_BIT - 1:0] alu_op_ps1, alu_op_ps2;
 reg [31:0] alu_data_y;      // combinatorial
 wire [31:0] alu_data_res_ps2, alu_data_res_ps3, alu_data_res_ps4;
@@ -26,7 +26,8 @@ wire [31:0] datamem_data_ps3, datamem_data_ps4;
 wire [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w_ps1, mux_regfile_req_w_ps2, mux_regfile_req_w_ps3, mux_regfile_req_w_ps4;
 wire [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w_ps1, mux_regfile_data_w_ps2, mux_regfile_data_w_ps3, mux_regfile_data_w_ps4;
 wire [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y_ps1, mux_alu_data_y_ps2;
-wire [`IM_ADDR_BIT - 1:0] pc_new_todo;
-wire syscall_en_ps1, syscall_en_ps2;
-wire halt_ps2, halt_ps3, halt_ps4;
+wire [`IM_ADDR_BIT - 1:0] pc_new;
+wire syscall_en_ps1, syscall_en_ps2, syscall_en_ps3;
+wire halt_ps3, halt_ps4;
 wire clear_vps1, clear_vps2, clear_vps3, clear_vps4;
+wire [`IM_ADDR_BIT - 1:0] pc_guessed_ps0, pc_guessed_ps1, pc_guessed_ps2, pc_guessed_ps3;

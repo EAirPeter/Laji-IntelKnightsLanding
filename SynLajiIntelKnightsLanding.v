@@ -27,16 +27,18 @@ module SynLajiIntelKnightsLanding(
     `include "inc/Laji_defines_inc.vh"
     assign pc_dbg = {20'd0, pc, 2'd0};
 
-    // use it before SynPC later to save time
-    // buggy
-    assign pc_new_todo = is_jump || branched ? wtg_pc_new_todo : pc_4_ps0;
+    // use BHT instead, buggy
+    assign pc_guessed_ps0 = pc_4_ps0;
+    assign pc_new = pred_succ ? pc_guessed_ps0 : wtg_pc_new;
+
     ////////////////////////////
     ///////  ps0 gen/IF  ///////
+    assign en_vps0 = en_vps1;
     SynPC vPC(
         .clk(clk),
         .rst_n(rst_n),
-        .en(en),
-        .pc_new(pc_new_todo),
+        .en(en_vps0),
+        .pc_new(pc_new),
         // output
         .pc(pc),
         .pc_4(pc_4_ps0)
@@ -55,6 +57,8 @@ module SynLajiIntelKnightsLanding(
 
     ////////////////////////////
     ///////   ps1 IF/ID  ////////
+    assign en_vps1 = en_vps2;
+    assign clear_vps1 = !pred_succ;
     `include "inc/Laji_vPS1_inc.vh"
     ////////////////////////////
 
@@ -121,11 +125,16 @@ module SynLajiIntelKnightsLanding(
         .data_a(regfile_data_a_ps1), 
         .data_b(regfile_data_b_ps1)
     );
+    
     /////////////////////////////
     ///////   ps2 ID/EX  ////////
+    assign en_vps2 = en_vps3;
+    assign clear_vps2 = !pred_succ;
     `include "inc/Laji_vPS2_inc.vh"
     /////////////////////////////
-
+    // data_src: ps3: alu.out/rd/rt
+    // data_src: ps4: dm.out base_on rt
+    
     CmbExt vExt(
         .imm16(imm16_ps2),
         .out_sign(ext_out_sign),
@@ -154,21 +163,25 @@ module SynLajiIntelKnightsLanding(
         .data_res(alu_data_res_ps2)
     );
 
+
+    /////////////////////////////
+    ///////   ps3 ID/DM  ////////
+    assign en_vps3 = en_vps4;
+    assign clear_vps3 = !pred_succ;
+    `include "inc/Laji_vPS3_inc.vh"
+    /////////////////////////////
+    // ps4: datamem: rt
+    
     SynSyscall vSys(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
-        .syscall_en(syscall_en_ps2),
-        .data_v0(regfile_data_a_ps2),
-        .data_a0(regfile_data_b_ps2),
-
+        .syscall_en(syscall_en_ps3),
+        .data_v0(regfile_data_a_ps3),
+        .data_a0(regfile_data_b_ps3),
         .display(display),              // out connection
-        .halt(halt_ps2)                     // out connection
+        .halt(halt_ps3)                 // out connection
     );
-    /////////////////////////////
-    ///////   ps3 ID/DM  ////////
-    `include "inc/Laji_vPS3_inc.vh"
-    /////////////////////////////
 
     CmbWTG vWTG(
         .op(wtg_op_ps3),
@@ -176,12 +189,12 @@ module SynLajiIntelKnightsLanding(
         .data_x(regfile_data_a_ps3),
         .data_y(regfile_data_b_ps3),
         .pc_4(pc_4_ps3),
+        .pc_guessed(pc_guessed_ps3),
         // output
-        .pc_new(wtg_pc_new_todo),
+        .pc_new(wtg_pc_new),
+        .pred_succ(pred_succ),
         .branched(branched)            // out connection
     );
-
-
 
     SynDataMem vDM(
         .clk(clk),
@@ -196,8 +209,11 @@ module SynLajiIntelKnightsLanding(
         .data_dbg(datamem_data_dbg),
         .data(datamem_data_ps3)
     );
+
     ///////////////////////
     //////write back///////
+    assign en_vps4 = en;
+    assign clear_vps4 = 0;
     `include "inc/Laji_vPS4_inc.vh"
     //////////////////////
 
@@ -224,5 +240,9 @@ module SynLajiIntelKnightsLanding(
                 regfile_data_w <= 32'd0;
         endcase
     end
-
 endmodule
+
+// reorder marks
+// data race:
+// read_data: alu.x.y, dm.x.y, syscall.out(should)
+// write_data: alu.out, dm.out
