@@ -8,3 +8,5 @@
 !**/*.asm
 !test/
 !cpu-testcase/
+!gen.py
+!inc/
