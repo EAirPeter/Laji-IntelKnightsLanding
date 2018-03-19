@@ -163,7 +163,7 @@ module SynLajiIntelKnightsLanding(
         .data_a0(regfile_data_b_ps2),
 
         .display(display),              // out connection
-        .halt(halt)                     // out connection
+        .halt(halt_ps2)                     // out connection
     );
     /////////////////////////////
     ///////   ps3 ID/DM  ////////
@@ -200,7 +200,8 @@ module SynLajiIntelKnightsLanding(
     //////write back///////
     `include "inc/Laji_vPS4_inc.vh"
     //////////////////////
-    
+
+    assign halt = halt_ps4;
     always @(*) begin
         case (mux_regfile_req_w_ps4)
             `MUX_RF_REQW_RD:

@@ -16,7 +16,7 @@ module SynPS%d(
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin 
 %s
-        end else begin
+        end else if(en) begin
 %s
         end
     end

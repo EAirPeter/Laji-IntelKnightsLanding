@@ -18,6 +18,7 @@ module SynPS3(
     input [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w_in,
     input [`WTG_OP_BIT - 1:0] wtg_op_in,
     input datamem_w_en_in,
+    input halt_in,
     input regfile_w_en_in,
     output reg [15:0] imm16,
     output reg [31:0] alu_data_res,
@@ -31,6 +32,7 @@ module SynPS3(
     output reg [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w,
     output reg [`WTG_OP_BIT - 1:0] wtg_op,
     output reg datamem_w_en,
+    output reg halt,
     output reg regfile_w_en
 );
     always @(posedge clk, negedge rst_n) begin
@@ -38,6 +40,7 @@ module SynPS3(
             alu_data_res <= 0;
             datamem_op <= 0;
             datamem_w_en <= 0;
+            halt <= 0;
             imm16 <= 0;
             mux_regfile_data_w <= 0;
             mux_regfile_req_w <= 0;
@@ -48,10 +51,11 @@ module SynPS3(
             regfile_w_en <= 0;
             rt <= 0;
             wtg_op <= 0;
-        end else begin
+        end else if(en) begin
             alu_data_res <= alu_data_res_in;
             datamem_op <= datamem_op_in;
             datamem_w_en <= datamem_w_en_in;
+            halt <= halt_in;
             imm16 <= imm16_in;
             mux_regfile_data_w <= mux_regfile_data_w_in;
             mux_regfile_req_w <= mux_regfile_req_w_in;

@@ -15,7 +15,7 @@ module SynPS1(
         if (!rst_n) begin 
             inst <= 0;
             pc_4 <= 0;
-        end else begin
+        end else if(en) begin
             inst <= inst_in;
             pc_4 <= pc_4_in;
         end

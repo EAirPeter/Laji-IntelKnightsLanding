@@ -57,7 +57,7 @@ module SynPS2(
             shamt <= 0;
             syscall_en <= 0;
             wtg_op <= 0;
-        end else begin
+        end else if(en) begin
             alu_op <= alu_op_in;
             datamem_op <= datamem_op_in;
             datamem_w_en <= datamem_w_en_in;
