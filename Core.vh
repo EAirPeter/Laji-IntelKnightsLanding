@@ -54,7 +54,7 @@
 `define MUX_RF_REQW_RD      `MUX_RF_REQW_BIT'h0
 // Register $(rt)
 `define MUX_RF_REQW_RT      `MUX_RF_REQW_BIT'h1
-// Register $ra
+// Register $ra, i should consider it.
 `define MUX_RF_REQW_31      `MUX_RF_REQW_BIT'h2
 
 // Multiplexer.RegisterFile.data_requested_to_write

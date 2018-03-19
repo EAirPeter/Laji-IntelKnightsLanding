@@ -135,6 +135,7 @@ module SynLajiIntelKnightsLanding(
     // data_src: ps3: alu.out/rd/rt
     // data_src: ps4: dm.out base_on rt
     
+    
     CmbExt vExt(
         .imm16(imm16_ps2),
         .out_sign(ext_out_sign),
@@ -163,15 +164,34 @@ module SynLajiIntelKnightsLanding(
         .data_res(alu_data_res_ps2)
     );
 
+    always @(*) begin
+        case (mux_regfile_req_w_ps2)
+            `MUX_RF_REQW_RD:
+                regfile_req_w_ps2 <= rd_ps2;
+            `MUX_RF_REQW_RT:
+                regfile_req_w_ps2 <= rt_ps2;
+            `MUX_RF_REQW_31:
+                regfile_req_w_ps2 <= 5'd31;
+            default:
+                regfile_req_w_ps2 <= 5'd0;
+        endcase
+    end
 
+    CmbRedirctMem vRedrMem(
+        .datamem_w_en(datamem_w_en_ps2),
+        .regfile_w_en(regfile_w_en_ps3),
+        .rt(rt_ps2),
+        .regfile_req_w(regfile_req_w_ps3),
+        .rediect(stop_vps2)
+    );
+     
     /////////////////////////////
     ///////   ps3 ID/DM  ////////
-    assign en_vps3 = en_vps4;
-    assign clear_vps3 = !pred_succ;
+    assign en_vps3 = en_vps4 && !stop_vps2;
+    assign clear_vps3 = !pred_succ && stop_vps2;
     `include "inc/Laji_vPS3_inc.vh"
     /////////////////////////////
     // ps4: datamem: rt
-    
     SynSyscall vSys(
         .clk(clk),
         .rst_n(rst_n),
@@ -219,16 +239,6 @@ module SynLajiIntelKnightsLanding(
 
     assign halt = halt_ps4;
     always @(*) begin
-        case (mux_regfile_req_w_ps4)
-            `MUX_RF_REQW_RD:
-                regfile_req_w <= rd_ps4;
-            `MUX_RF_REQW_RT:
-                regfile_req_w <= rt_ps4;
-            `MUX_RF_REQW_31:
-                regfile_req_w <= 5'd31;
-            default:
-                regfile_req_w <= 5'd0;
-        endcase
         case (mux_regfile_data_w_ps4)
             `MUX_RF_DATAW_ALU:
                 regfile_data_w <= alu_data_res_ps4;
