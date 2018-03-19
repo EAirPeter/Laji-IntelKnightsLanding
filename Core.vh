@@ -90,6 +90,6 @@
 
 
 `define FOLDERPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/cpu-testcase/"
-`define FILENAME "benchmark.hex"
+`define FILENAME "retard-pipeline.hex"
 `define BENCHMARK_FILEPATH {`FOLDERPATH, `FILENAME}
 `endif

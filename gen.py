@@ -7,7 +7,7 @@ header = """`timescale 1ns / 1ps
 `include "Core.vh"
 // Brief: pipeline stage%d, sychronized
 // Author: FluorineDog
-module SynPS1(
+module SynPS%d(
     input clk,
     input rst_n,
     input en,       
@@ -38,10 +38,17 @@ with open(defines_file) as file:
                 table[int(word[-1])].add((word, width))
 
 tab = "    "
+tab2 = tab + tab
 tab3 = tab + tab + tab
 
-header2 = """// dog auto generation
+header2 = """    // dog auto generation
+    SynPS%d vPS%d(
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(en),
+
 %s
+    );
 """
 
 # print("hhh")
@@ -59,28 +66,28 @@ def gen(key_list, index):
         output_lines.append(tab + "output reg " + width + word)
         rst_lines.append(tab3 + word + " <= 0;")
         pc_4_lines.append(tab3 + "%s <= %s_in;" % (word, word))
-        assign_lines.append("assign %s_ps%d = %s_ps%d;" % (word, index+1, word, index))
+        assign_lines.append(tab2 + ".%s_in(%s_ps%d)" % (word, word, index))
+        assign_lines.append(tab2 + ".%s(%s_ps%d)" % (word, word, index + 1))
     input_lines.sort()
     output_lines.sort()
     rst_lines.sort()
     pc_4_lines.sort()
-    assign_lines.sort()
 
 
     l1 = ",\n".join(input_lines + output_lines)
     l2 = "\n".join(rst_lines)
     l3 = "\n".join(pc_4_lines)
 
-    ll1 = "\n".join(assign_lines)
+    ll1 = ",\n".join(assign_lines)
     index += 1
     filename = "SynPS%d.v" % index 
     with open(filename, "w") as file:
-        file.write(header% (index, l1, l2, l3))
+        file.write(header% (index, index, l1, l2, l3))
 
     
     filename = "inc/Laji_vPS%d_inc.vh" % index
     with open(filename, "w") as file:
-        file.write(header2% (ll1))
+        file.write(header2% (index, index, ll1))
     
 for src in range(0, 5):
     if src == 4:

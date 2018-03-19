@@ -2,7 +2,7 @@
 `include "Core.vh"
 // Brief: pipeline stage3, sychronized
 // Author: FluorineDog
-module SynPS1(
+module SynPS3(
     input clk,
     input rst_n,
     input en,       
