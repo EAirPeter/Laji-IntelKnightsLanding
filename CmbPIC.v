@@ -14,7 +14,7 @@ module CmbPIC(
     pc_en, pc_ld_wtg, bht_op,
     ifid_en, ifid_nop, idex_en, idex_nop,
     id_mux_fwd_rf_a, id_mux_fwd_rf_b,
-    is_nop
+    is_nop, dbp_hit, dbp_miss
 );
     input [`IM_ADDR_NBIT - 1:0] id_pc;
     input id_rf_ra, id_rf_rb;
@@ -31,7 +31,7 @@ module CmbPIC(
     output reg [`BHT_OP_NBIT - 1:0] bht_op;
     output reg ifid_en, ifid_nop, idex_en, idex_nop; // combinatorial
     output reg [`MUX_FWD_RF_NBIT - 1:0] id_mux_fwd_rf_a, id_mux_fwd_rf_b;
-    output reg is_nop;
+    output reg is_nop, dbp_hit, dbp_miss;
 
     wire ex_is_jorb = ex_is_jump || ex_is_branch;
 
@@ -52,6 +52,8 @@ module CmbPIC(
         id_mux_fwd_rf_a = `MUX_FWD_RF_NORM;
         id_mux_fwd_rf_b = `MUX_FWD_RF_NORM;
         is_nop = 0;
+        dbp_hit = 0;
+        dbp_miss = 0;
         noc_ra = !id_rf_ra || id_rf_req_a == 0;
         noc_rb = !id_rf_rb || id_rf_req_b == 0;
         noc_ex = !ex_rf_we || ex_rf_req_w == 0;
@@ -92,6 +94,10 @@ module CmbPIC(
             idex_nop = 1;
         end
         if (ex_is_jorb) begin
+            if (is_clr)
+                dbp_miss = 1;
+            else
+                dbp_hit = 1;
             if (ex_is_jump)
                 bht_op = `BHT_OP_SET;
             else

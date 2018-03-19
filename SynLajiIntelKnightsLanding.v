@@ -11,7 +11,8 @@
 module SynLajiIntelKnightsLanding(
     clk, rst_n, en, dbg_rf_req, dbg_dm_addr,
     dbg_pc, dbg_rf_data, dbg_dm_data,
-    is_jump, is_branch, branched, is_nop, display, halt
+    is_jump, is_branch, branched, is_nop,
+    dbp_hit, dbp_miss, display, halt
 );
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
     input clk, rst_n, en;
@@ -20,7 +21,7 @@ module SynLajiIntelKnightsLanding(
     output [31:0] dbg_pc;
     output [31:0] dbg_rf_data;
     output [31:0] dbg_dm_data;
-    output is_jump, is_branch, branched, is_nop;
+    output is_jump, is_branch, branched, is_nop, dbp_hit, dbp_miss;
     output [31:0] display;
     output halt;
 
@@ -49,6 +50,9 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(1                     , is_branch         );
     `DECL_DAT(32                    , alu_data_res      );
     `DECL_DAT(1                     , branched          );
+    `DECL_DAT(1                     , is_nop            );
+    `DECL_DAT(1                     , dbp_hit           );
+    `DECL_DAT(1                     , dbp_miss          );
     `DECL_DAT(32                    , display           );
     `DECL_DAT(1                     , halt              );
     `DECL_DAT(32                    , dm_data           );
@@ -64,13 +68,14 @@ module SynLajiIntelKnightsLanding(
     wire [`BHT_OP_NBIT - 1:0] pic_bht_op;
     wire pic_ifid_en, pic_ifid_nop;
     wire pic_idex_en, pic_idex_nop;
-    wire pic_is_nop;
 
     assign dbg_pc = {20'b0, if_pc, 2'b0};
     assign is_jump = ma_is_jump;
     assign is_branch = ma_is_branch;
     assign branched = ma_branched;
-    assign is_nop = pic_is_nop;
+    assign is_nop = ma_is_nop;
+    assign dbp_hit = ma_dbp_hit;
+    assign dbp_miss = ma_dbp_miss;
     assign display = ma_display;
     assign halt = wb_halt;
 
@@ -102,7 +107,9 @@ module SynLajiIntelKnightsLanding(
         .idex_nop(pic_idex_nop),
         .id_mux_fwd_rf_a(id_mux_fwd_rf_a),
         .id_mux_fwd_rf_b(id_mux_fwd_rf_b),
-        .is_nop(pic_is_nop)
+        .is_nop(ex_is_nop),
+        .dbp_hit(ex_dbp_hit),
+        .dbp_miss(ex_dbp_miss)
     );
     CmbForward vFwd(
         .mux_fwd_rf_a(ex_mux_fwd_rf_a),
@@ -154,7 +161,7 @@ module SynLajiIntelKnightsLanding(
     `GPI_(pc_4) `GPI(fwd_rf_b) `GPI(ctl_rf_we) `GPI(ctl_dm_op) `GPI(ctl_dm_we) \
     `GPI(val_rf_req_w) `GPI(sel_rf_w_pc_4) `GPI(sel_rf_w_dm) \
     `GPI(is_jump) `GPI(is_branch) `GPI(alu_data_res) \
-    `GPI(branched) `GPI(display) `GPI(halt)
+    `GPI(branched) `GPI(is_nop) `GPI(dbp_hit) `GPI(dbp_miss) `GPI(display) `GPI(halt)
 `include "GenPiplIntf.vh"
 
 `define GPI_PIF vMAWB

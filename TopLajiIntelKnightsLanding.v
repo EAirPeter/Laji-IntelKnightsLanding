@@ -19,9 +19,6 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     output [7:0] seg_n;
     output [7:0] an_n;
 
-    (* keep = "soft" *)
-    wire unused_swt = swt[5];
-
     wire [1:0] mux_core_clk = swt[1:0];
     wire [`MUX_DISP_DATA_NBIT - 1:0] mux_disp_data = swt[`MUX_DISP_DATA_NBIT + 1:2];
     reg [31:0] disp_data;   // combinatorial
@@ -34,25 +31,28 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire [31:0] dbg_rf_data;
     wire [31:0] dbg_dm_data;
     wire [31:0] core_display;
-    wire core_halt, core_is_jump, core_is_branch, core_branched;
-    wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched, cnt_nop;
+    wire core_halt, core_is_jump, core_is_branch, core_branched, core_dbp_hit, core_dbp_miss;
+    wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched, cnt_nop, cnt_bhit, cnt_bmis;
 
     always @(*) begin
         case (mux_core_clk)
             2'b00:  core_clk <= clk_core_0;
             2'b01:  core_clk <= clk_core_1;
             2'b10:  core_clk <= clk_core_2;
-            2'b11:  core_clk <= clk; // clk_core_3;
+            2'b11:  core_clk <= clk_core_3;
         endcase
         case (mux_disp_data)
-            `MUX_DISP_DATA_CORE:    disp_data <= core_display;
-            `MUX_DISP_DATA_CNT_CYC: disp_data <= cnt_cycle;
-            `MUX_DISP_DATA_CNT_JMP: disp_data <= cnt_jump;
-            `MUX_DISP_DATA_CNT_BCH: disp_data <= cnt_branch;
-            `MUX_DISP_DATA_CNT_BED: disp_data <= cnt_branched;
-            `MUX_DISP_DATA_CNT_NOP: disp_data <= cnt_nop;
-            `MUX_DISP_DATA_RF_DBG:  disp_data <= dbg_rf_data;
-            `MUX_DISP_DATA_DM_DBG:  disp_data <= dbg_dm_data;
+            `MUX_DISP_DATA_CORE:     disp_data <= core_display;
+            `MUX_DISP_DATA_CNT_CYC:  disp_data <= cnt_cycle;
+            `MUX_DISP_DATA_CNT_JMP:  disp_data <= cnt_jump;
+            `MUX_DISP_DATA_CNT_BCH:  disp_data <= cnt_branch;
+            `MUX_DISP_DATA_CNT_BED:  disp_data <= cnt_branched;
+            `MUX_DISP_DATA_CNT_NOP:  disp_data <= cnt_nop;
+            `MUX_DISP_DATA_CNT_BHIT: disp_data <= cnt_bhit;
+            `MUX_DISP_DATA_CNT_BMIS: disp_data <= cnt_bmis;
+            `MUX_DISP_DATA_RF_DBG:   disp_data <= dbg_rf_data;
+            `MUX_DISP_DATA_DM_DBG:   disp_data <= dbg_dm_data;
+            default:                 disp_data <= core_display;
         endcase
     end
 
@@ -142,6 +142,26 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .val(32'd0),
         .cnt(cnt_nop)
     );
+    AuxCounter #(
+        .CntBit(32)
+    ) vCtrBhtHit(
+        .clk(core_clk),
+        .rst_n(rst_n),
+        .en(core_en && core_dbp_hit),
+        .ld(1'b0),
+        .val(32'd0),
+        .cnt(cnt_bhit)
+    );
+    AuxCounter #(
+        .CntBit(32)
+    ) vCtrBhtMiss(
+        .clk(core_clk),
+        .rst_n(rst_n),
+        .en(core_en && core_dbp_miss),
+        .ld(1'b0),
+        .val(32'd0),
+        .cnt(cnt_bmis)
+    );
     AuxWTCIE vWTCIE(
         .clk(core_clk),
         .rst_n(rst_n),
@@ -164,6 +184,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .is_branch(core_is_branch),
         .branched(core_branched),
         .is_nop(core_is_nop),
+        .dbp_hit(core_dbp_hit),
+        .dbp_miss(core_dbp_miss),
         .display(core_display),
         .halt(core_halt)
     );
