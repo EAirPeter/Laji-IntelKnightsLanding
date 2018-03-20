@@ -15,6 +15,7 @@ module SynPS2(
     input regfile_w_en_in,
     input [31:0] regfile_data_a_in,
     input [31:0] regfile_data_b_in,
+    input [4:0] regfile_req_w_in,
     input [`WTG_OP_BIT - 1:0] wtg_op_in,
     input [`ALU_OP_BIT - 1:0] alu_op_in,
     input [`DM_OP_BIT - 1:0] datamem_op_in,
@@ -32,6 +33,7 @@ module SynPS2(
     output reg regfile_w_en,
     output reg [31:0] regfile_data_a,
     output reg [31:0] regfile_data_b,
+    output reg [4:0] regfile_req_w,
     output reg [`WTG_OP_BIT - 1:0] wtg_op,
     output reg [`ALU_OP_BIT - 1:0] alu_op,
     output reg [`DM_OP_BIT - 1:0] datamem_op,
@@ -52,6 +54,7 @@ module SynPS2(
             regfile_w_en <= 0;
             regfile_data_a <= 0;
             regfile_data_b <= 0;
+            regfile_req_w <= 0;
             wtg_op <= 0;
             alu_op <= 0;
             datamem_op <= 0;
@@ -70,6 +73,7 @@ module SynPS2(
             regfile_w_en <= regfile_w_en_in;
             regfile_data_a <= regfile_data_a_in;
             regfile_data_b <= regfile_data_b_in;
+            regfile_req_w <= regfile_req_w_in;
             wtg_op <= wtg_op_in;
             alu_op <= alu_op_in;
             datamem_op <= datamem_op_in;

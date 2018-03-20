@@ -26,9 +26,10 @@ endmodule
 defines_file = "inc/Laji_defines_inc.vh"
 with open(defines_file) as file:
     for line in file.readlines():
-        ans = pattern.match(line).groups()
+        ans = pattern.match(line)
         if not ans:
             continue
+        ans = ans.groups()
         width = ans[1]
         keywords = ans[2]
         # print(width, keywords)

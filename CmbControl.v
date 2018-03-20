@@ -25,7 +25,7 @@ module CmbControl(
     output reg is_branch;   // 1 if the current instruction is a branch instraction
 
     always@(*) begin
-        op_wtg = `WTG_OP_J32;
+        op_wtg = `WTG_OP_DEFAULT;
         op_alu = `ALU_OP_AND;
         op_datamem = `DM_OP_WD;  
         w_en_regfile = 1;

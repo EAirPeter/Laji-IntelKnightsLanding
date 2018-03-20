@@ -6,6 +6,7 @@ module SynRegFile(
     clk, rst_n, en, w_en, req_dbg, req_w, req_a, req_b, data_w,
 	data_dbg, data_a, data_b
 );
+
     input clk;
     input rst_n;
     input en;

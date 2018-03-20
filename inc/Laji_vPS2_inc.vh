@@ -20,6 +20,8 @@
         .regfile_data_a(regfile_data_a_ps2),
         .regfile_data_b_in(regfile_data_b_ps1),
         .regfile_data_b(regfile_data_b_ps2),
+        .regfile_req_w_in(regfile_req_w_ps1),
+        .regfile_req_w(regfile_req_w_ps2),
         .wtg_op_in(wtg_op_ps1),
         .wtg_op(wtg_op_ps2),
         .alu_op_in(alu_op_ps1),
