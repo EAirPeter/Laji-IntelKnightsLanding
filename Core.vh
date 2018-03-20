@@ -78,6 +78,17 @@
 // Output of DataMem
 `define MUX_RF_DATAW_DM     `MUX_RF_DATAW_NBIT'h2
 
+// Multiplexer.RegistersC0.ie_w
+`define MUX_RC0_IEW_NBIT    2
+`define MUX_RC0_IEW_RF      `MUX_RC0_IEW_NBIT'h0
+`define MUX_RC0_IEW_ONE     `MUX_RC0_IEW_NBIT'h2
+`define MUX_RC0_IEW_ZERO    `MUX_RC0_IEW_NBIT'h3
+
+// Multiplexer.RegistersC0.ie_w
+`define MUX_RC0_EPCW_NBIT   1
+`define MUX_RC0_EPCW_RF     `MUX_RC0_IEW_NBIT'h0
+`define MUX_RC0_EPCW_PC     `MUX_RC0_IEW_NBIT'h1
+
 // Multiplexer.ArithmeticLogicUnit.data_y
 `define MUX_ALU_DATAY_NBIT  2
 // RegFile port B
@@ -92,5 +103,11 @@
 `define MUX_FWD_RF_NORM     `MUX_FWD_RF_NBIT'h0
 `define MUX_FWD_RF_TMP      `MUX_FWD_RF_NBIT'h2
 `define MUX_FWD_RF_DAT      `MUX_FWD_RF_NBIT'h3
+
+// Multiplexer.Forwarding.registers_c0
+`define MUX_FWD_RC0_NBIT    2
+`define MUX_FWD_RC0_NORM    `MUX_FWD_RC0_NBIT'h0
+`define MUX_FWD_RC0_EX      `MUX_FWD_RC0_NBIT'h2
+`define MUX_FWD_RC0_MA      `MUX_FWD_RC0_NBIT'h3
 
 `endif

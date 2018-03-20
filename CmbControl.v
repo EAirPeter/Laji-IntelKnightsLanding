@@ -5,18 +5,21 @@
 // Brief: Control Module, synchronized
 // Author: FluorineDog
 module CmbControl(
-    opcode, rs, funct, is_irq,
-    rf_ra, rf_rb, rf_we, rc0_op,
+    opcode, rs, funct, is_irq, is_epc,
+    rf_ra, rf_rb, rf_we, rc0_op, rc0_ie_we, rc0_epc_we,
     alu_op, wtg_op, syscall_en, dm_op, dm_we,
-    mux_rf_req_w, sel_rf_w_pc_4, sel_rf_w_dm, mux_alu_data_y,
+    mux_rf_req_w, sel_rf_w_pc_4, sel_rf_w_dm,
+    mux_rc0_ie_w, mux_rc0_epc_w,
+    mux_alu_data_y,
     is_jump, is_branch
 );
     input [5:0] opcode;
     input [4:0] rs;
     input [5:0] funct;
-    input is_irq;
+    input is_irq, is_epc;
     output reg rf_ra, rf_rb, rf_we;
     output reg [`RC0_OP_NBIT - 1:0] rc0_op;
+    output reg rc0_ie_we, rc0_epc_we;
     output reg [`ALU_OP_NBIT - 1:0] alu_op; // alias to alu to increase Hamming Distance 
     output reg [`WTG_OP_NBIT - 1:0] wtg_op;
     output reg syscall_en;
@@ -25,6 +28,8 @@ module CmbControl(
     output reg [`MUX_RF_REQW_NBIT - 1:0] mux_rf_req_w;
     output reg sel_rf_w_pc_4;
     output reg sel_rf_w_dm;
+    output reg [`MUX_RC0_IEW_NBIT - 1:0] mux_rc0_ie_w;
+    output reg [`MUX_RC0_EPCW_NBIT - 1:0] mux_rc0_epc_w;
     output reg [`MUX_ALU_DATAY_NBIT - 1:0] mux_alu_data_y;
     output reg is_jump;     // 1 if the current instruction is a jump instruction
     output reg is_branch;   // 1 if the current instruction is a branch instraction
@@ -37,6 +42,10 @@ module CmbControl(
         rf_rb = 1;
         rf_we = 1;
         rc0_op = `RC0_OP_NOP;
+        rc0_ie_we = 0;
+        rc0_epc_we = 0;
+        mux_rc0_ie_w = `MUX_RC0_IEW_RF;
+        mux_rc0_epc_w = `MUX_RC0_EPCW_RF;
         dm_we = 0;
         syscall_en = 0;
 
@@ -48,6 +57,10 @@ module CmbControl(
         is_branch = 0;
         if (is_irq) begin
             rc0_op = `RC0_OP_IRQ;
+            rc0_ie_we = 1;
+            rc0_epc_we = 1;
+            mux_rc0_ie_w = `MUX_RC0_IEW_ZERO;
+            mux_rc0_epc_w = `MUX_RC0_EPCW_PC;
             rf_ra = 0;
             rf_rb = 0;
             rf_we = 0;
@@ -120,12 +133,17 @@ module CmbControl(
                 rf_ra = 0;
                 if (rs[4]) begin        // eret
                     rc0_op = `RC0_OP_RET;
+                    rc0_ie_we = 1;
+                    mux_rc0_ie_w = `MUX_RC0_IEW_ONE;
                     rf_rb = 0;
                     rf_we = 0;
                     wtg_op = `WTG_OP_IRET;
                 end
                 else if (rs[2]) begin   // mtc0
-                    rc0_op = `RC0_OP_WEN;
+                    if (is_epc)
+                        rc0_epc_we = 1;
+                    else
+                        rc0_ie_we = 1;
                     rf_we = 0;
                 end
                 else begin              // mfc0

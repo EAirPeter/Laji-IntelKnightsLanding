@@ -41,6 +41,8 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(32                    , fwd_rc0_epc       );
     `DECL_DAT(1                     , ctl_rf_we         );
     `DECL_DAT(`RC0_OP_NBIT          , ctl_rc0_op        );
+    `DECL_DAT(1                     , ctl_rc0_ie_we     );
+    `DECL_DAT(1                     , ctl_rc0_epc_we    );
     `DECL_DAT(`ALU_OP_NBIT          , ctl_alu_op        );
     `DECL_DAT(`WTG_OP_NBIT          , ctl_wtg_op        );
     `DECL_DAT(1                     , ctl_syscall_en    );
@@ -50,8 +52,10 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(1                     , sel_rf_w_pc_4     );
     `DECL_DAT(1                     , sel_rf_w_dm       );
     `DECL_DAT(32                    , val_rf_w_tmp      );
-    `DECL_DAT(1                     , val_rc0_wie       );
-    `DECL_DAT(1                     , val_rc0_wepc      );
+    `DECL_DAT(`MUX_RC0_IEW_NBIT     , mux_rc0_ie_w      );
+    `DECL_DAT(`MUX_RC0_EPCW_NBIT    , mux_rc0_epc_w     );
+    `DECL_DAT(32                    , val_rc0_ie_w      );
+    `DECL_DAT(32                    , val_rc0_epc_w     );
     `DECL_DAT(`MUX_ALU_DATAY_NBIT   , mux_alu_data_y    );
     `DECL_DAT(1                     , is_irq            );
     `DECL_DAT(1                     , is_jump           );
@@ -201,14 +205,15 @@ module SynLajiIntelKnightsLanding(
         .en(en),
         .dbg_rf_req(dbg_rf_req),
         .irq_src(irq_src),
-        .pc(id_pc),
         .inst(id_inst),
         .prv_ctl_rf_we(wb_ctl_rf_we),
         .prv_val_rf_req_w(wb_val_rf_req_w),
         .prv_val_rf_data_w(wb_val_rf_data_w),
         .prv_ctl_rc0_op(wb_ctl_rc0_op),
-        .prv_val_rc0_wepc(wb_val_rc0_wepc),
-        .prv_val_rc0_data_w(wb_fwd_rf_b),
+        .prv_ctl_rc0_ie_we(wb_ctl_rc0_ie_we),
+        .prv_ctl_rc0_epc_we(wb_ctl_rc0_epc_we),
+        .prv_val_rc0_ie_w(wb_val_rc0_ie_w),
+        .prv_val_rc0_epc_w(wb_val_rc0_epc_w),
         .fwd_rc0_ie(id_fwd_rc0_ie),
         .fwd_rc0_epc(id_fwd_rc0_epc),
         .dbg_rf_data(dbg_rf_data),
@@ -224,6 +229,8 @@ module SynLajiIntelKnightsLanding(
         .ctl_rf_rb(id_ctl_rf_rb),
         .ctl_rf_we(id_ctl_rf_we),
         .ctl_rc0_op(id_ctl_rc0_op),
+        .ctl_rc0_ie_we(id_ctl_rc0_ie_we),
+        .ctl_rc0_epc_we(id_ctl_rc0_epc_we),
         .ctl_alu_op(id_ctl_alu_op),
         .ctl_wtg_op(id_ctl_wtg_op),
         .ctl_syscall_en(id_ctl_syscall_en),
@@ -234,8 +241,8 @@ module SynLajiIntelKnightsLanding(
         .val_rf_req_b(id_val_rf_req_b),
         .sel_rf_w_pc_4(id_sel_rf_w_pc_4),
         .sel_rf_w_dm(id_sel_rf_w_dm),
-        .val_rc0_wie(id_val_rc0_wie),
-        .val_rc0_wepc(id_val_rc0_wepc),
+        .mux_rc0_ie_w(id_mux_rc0_ie_w),
+        .mux_rc0_epc_w(id_mux_rc0_epc_w),
         .mux_alu_data_y(id_mux_alu_data_y),
         .is_irq(id_is_irq),
         .is_jump(id_is_jump),

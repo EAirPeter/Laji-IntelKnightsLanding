@@ -22,15 +22,18 @@ module CmbPIC(
     input [`IM_ADDR_NBIT - 1:0] ex_pc, ex_pc_4;
     input ex_bht_take, ex_rf_we;
     input [4:0] ex_rf_req_w;
+    input ex_rc0_ie_we, ex_rc0_epc_we;
     input ex_sel_rf_w_dm, ex_is_jump, ex_is_branch, ex_branched;
     input [`IM_ADDR_NBIT - 1:0] ex_wtg_pc_new;
     input ex_halt;
     input ma_rf_we;
     input [4:0] ma_rf_req_w;
+    input ma_rc0_ie_we, ma_rc0_epc_we;
     output reg pc_en, pc_ld_wtg;
     output reg [`BHT_OP_NBIT - 1:0] bht_op;
     output reg ifid_en, ifid_nop, idex_en, idex_nop; // combinatorial
     output reg [`MUX_FWD_RF_NBIT - 1:0] id_mux_fwd_rf_a, id_mux_fwd_rf_b;
+    output reg [`MUX_FWD_RC0_NBIT - 1:0] id_mux_fwd_rc0_ie, id_mux_fwd_rc0_epc;
     output reg is_nop, dbp_hit, dbp_miss;
 
     wire ex_is_jorb = ex_is_jump || ex_is_branch;
@@ -40,6 +43,19 @@ module CmbPIC(
     reg [`IM_ADDR_NBIT - 1:0] pc_correct;
     reg noc_go;
     reg is_clr;
+
+    always @(*) begin
+        id_mux_fwd_rc0_ie = `MUX_FWD_RC0_NORM;
+        id_mux_fwd_rc0_epc = `MUX_FWD_RC0_NORM;
+        if (ma_rc0_ie_we)
+            id_mux_fwd_rc0_ie = `MUX_FWD_RC0_MA;
+        if (ex_rc0_ie_we)
+            id_mux_fwd_rc0_ie = `MUX_FWD_RC0_EX;
+        if (ma_rc0_epc_we)
+            id_mux_fwd_rc0_ie = `MUX_FWD_RC0_MA;
+        if (ex_rc0_epc_we)
+            id_mux_fwd_rc0_ie = `MUX_FWD_RC0_EX;
+    end
 
     always @(*) begin
         pc_en = 1;
