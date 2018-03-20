@@ -51,7 +51,6 @@ module SynLajiIntelKnightsLanding(
     );
     ////////////////////////////
 
-
     CmbInstMem #(
         .ProgPath(ProgPath)
     ) vIM(
@@ -59,7 +58,7 @@ module SynLajiIntelKnightsLanding(
         // output
         .inst(inst_ps0)
     );
-
+    
 
     ////////////////////////////
     ///////   ps1 IF/ID  ////////
@@ -96,22 +95,22 @@ module SynLajiIntelKnightsLanding(
         .mux_regfile_req_w(mux_regfile_req_w_ps1),          // self use
         .mux_regfile_data_w(mux_regfile_data_w_ps1), 
         .mux_alu_data_y(mux_alu_data_y_ps1), 
+        .r_datamem(r_datamem_ps1),
         .is_jump(is_jump),      // out_connection
         .is_branch(is_branch)   // out_connection
     );
-
+    assign skip_load_use_ps1 = is_jump || is_branch || syscall_en_ps1;
     wire mux_regfile_a_req = syscall_en_ps1;
     wire mux_regfile_b_req = syscall_en_ps1;
     always@(*) begin
         case(mux_regfile_a_req)
-            `MUX_RFA_REQ_RS: regfile_req_a = rs;
-            `MUX_RFA_REQ_V0: regfile_req_a = `V0;
+            `MUX_RFA_REQ_RS: regfile_req_a_ps1 = rs;
+            `MUX_RFA_REQ_V0: regfile_req_a_ps1 = `V0;
         endcase
         case(mux_regfile_b_req)
             `MUX_RFB_REQ_RT: regfile_req_b = rt;
             `MUX_RFB_REQ_A0: regfile_req_b = `A0;
         endcase
- 
     end
 
     SynRegFile vRF(
@@ -121,13 +120,13 @@ module SynLajiIntelKnightsLanding(
         .w_en(regfile_w_en_ps4),        // DO AT PS4
         .req_dbg(regfile_req_dbg), 
         .req_w(regfile_req_w_ps4),          // DO AT PS4
-        .req_a(regfile_req_a),
+        .req_a(regfile_req_a_ps1),
         .req_b(regfile_req_b),
         .data_w(regfile_data_w_ps4),        // DO AT PS4
         // output
         .data_dbg(regfile_data_dbg), // out connection
-        .data_a(regfile_data_a_ps1), 
-        .data_b(regfile_data_b_ps1)
+        .data_a(regfile_data_a_ori_ps1), 
+        .data_b(regfile_data_b_ori_ps1)
     );
 
     always @(*) begin
@@ -143,55 +142,47 @@ module SynLajiIntelKnightsLanding(
         endcase
     end
 
-    CmbRedirect vWB_EX_X(
-        .self_use_en(1'h1), // buggy
-        .self_w_req(regfile_req_a),
-        .regfile_w_en(regfile_w_en_ps3),
-        .regfile_req_w(regfile_req_w_ps3),
-        .redirect(stop_x_wb_vps1)
-    );
+    // generator: ALU.out, DM.out
+    // receiver: port-a, port-b
+        //    !stop_x_wb_vps1
+        // && !stop_x_dm_vps1
+        // && !stop_y_wb_vps1
+        // && !stop_y_dm_vps1;
 
-    CmbRedirect vDMALU_EX_X(   // load-use, not solvable
-        .self_use_en(1'h1),   // buggy
-        .self_w_req(regfile_req_a),
-        .regfile_w_en(regfile_w_en_ps2),
-        .regfile_req_w(regfile_req_w_ps2),
-        .redirect(stop_x_dm_vps1)
-    );
-
-    CmbRedirect vWB_EX_Y(
-        .self_use_en(1'h1), // buggy
-        .self_w_req(regfile_req_b),
-        .regfile_w_en(regfile_w_en_ps3),
-        .regfile_req_w(regfile_req_w_ps3),
-        .redirect(stop_y_wb_vps1)
-    );
-
-
-    CmbRedirect vDMALU_EX_Y(        // contains load-use, not solvable
-        .self_use_en(1'h1),   // buggy
-        .self_w_req(regfile_req_b),
-        .regfile_w_en(regfile_w_en_ps2),
-        .regfile_req_w(regfile_req_w_ps2),
-        .redirect(stop_y_dm_vps1)
-    );
-
-    wire bubble_vps1 = 
-           !stop_x_wb_vps1
-        && !stop_x_dm_vps1
-        && !stop_y_wb_vps1
-        && !stop_y_dm_vps1;
-
-    /////////////////////////////
+   /////////////////////////////
     ///////   ps2 ID/EX  ////////
-    assign en_vps2 = en_vps3 && bubble_vps1;
-    assign clear_vps2 = !pred_succ || !bubble_vps1;
+    assign en_vps2 = en_vps3 ;
+    assign clear_vps2 = !pred_succ;
     `include "inc/Laji_vPS2_inc.vh"
     /////////////////////////////
     // data_src: ps3: alu.out/rd/rt
     // data_src: ps4: dm.out base_on rt
-    
-    
+    CmbReFlowDual vRF_A_REFLOW(
+        .origin_req(regfile_req_a_ps2), 
+        .origin_data(regfile_data_a_ori_ps2),
+        .reflow_en_1(regfile_w_en_ps3),
+        .reflow_req_1(regfile_req_w_ps3),
+        .reflow_data_1(alu_data_res_ps3),
+        .reflow_en_2(regfile_w_en_ps4),
+        .reflow_req_2(regfile_req_w_ps4),
+        .reflow_data_2(regfile_req_w_ps4),
+        // output
+        .data(regfile_data_a_ps2)
+    );
+
+    CmbReFlowDual vRF_B_REFLOW(
+        .origin_req(regfile_req_b_ps2), 
+        .origin_data(regfile_data_b_ori_ps2),
+        .reflow_en_1(regfile_w_en_ps3),
+        .reflow_req_1(regfile_req_w_ps3),
+        .reflow_data_1(alu_data_res_ps3),
+        .reflow_en_2(regfile_w_en_ps4),
+        .reflow_req_2(regfile_req_w_ps4),
+        .reflow_data_2(regfile_req_w_ps4),
+        // output
+        .data(regfile_data_b_ps2)
+    );
+
     CmbExt vExt(
         .imm16(imm16_ps2),
         .out_sign(ext_out_sign),
@@ -210,6 +201,7 @@ module SynLajiIntelKnightsLanding(
     //             alu_data_x <= 32'd0;
     //     endcase
     // end
+
 
     always @(*) begin
         case (mux_alu_data_y_ps2)
@@ -233,38 +225,65 @@ module SynLajiIntelKnightsLanding(
         .data_res(alu_data_res_ps2)
     );
 
-    // still needed
-    // CmbRedirect vWB_DM(
-    //     .self_use_en(datamem_w_en_ps2),
-    //     .self_w_req(rt_ps2),
-    //     .regfile_w_en(regfile_w_en_ps3),
-    //     .regfile_req_w(regfile_req_w_ps3),
-    //     .redirect(stop_vps2)
-    // );
+    CmbBubble vLD_USE_BUBBLE(
+        .self_use_en_1(1),
+        .self_use_req_1(regfile_data_a_ps2),
+        .self_use_en_2(1),
+        .self_use_req_2(regfile_data_b_ps2),
+        .mem_read_en(r_datamem_ps2 && !skip_load_use_ps2),
+        .regfile_req_w(regfile_req_w_ps),
+        .bubble(bubble)
+    );
     /////////////////////////////
-    ///////   ps3 ID/DM  ////////
-    assign en_vps3 = en_vps4;
-    assign clear_vps3 = !pred_succ;
+    ///////   ps3 EX/DM  ////////
+    assign en_vps3 = en_vps4 && !bubble;
+    assign clear_vps3 = !pred_succ || bubble;
     `include "inc/Laji_vPS3_inc.vh"
     /////////////////////////////
     // ps4: datamem: rt
+    CmbReFlowSingle vDM_REG_A_REFLOW(
+        .origin_req(regfile_req_a_ps3),
+        .origin_data(regfile_data_a_ps3),
+        .reflow_en_1(r_datamem_ps4),
+        .reflow_req_1(regfile_req_w_ps4),
+        .reflow_data_1(regfile_data_w_ps4),
+        .data(regfile_data_a_final_ps3)
+    );
+
+    CmbReFlowSingle vDM_REG_B_REFLOW(
+        .origin_req(regfile_req_b_ps3),
+        .origin_data(regfile_data_b_ps3),
+        .reflow_en_1(r_datamem_ps4),
+        .reflow_req_1(regfile_req_w_ps4),
+        .reflow_data_1(regfile_data_w_ps4),
+        .data(regfile_data_b_final_ps3)
+    );
+
+    // CmbReFlowSingle vDM_DMLOAD_REFLOW(
+    //     .origin_req(regfile_req_b_ps3),
+    //     .origin_data(regfile_data_b_final_ps3),
+    //     .reflow_en_1(r_datamem_ps4),
+    //     .reflow_req_1(regfile_req_w_ps4),
+    //     .reflow_data_1(regfile_data_w_ps4),
+    //     .data(regfile_data_b_final_ps3)
+    // );
+
     SynSyscall vSys(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
         .syscall_en(syscall_en_ps3),
-        .data_v0(regfile_data_a_ps3),
-        .data_a0(regfile_data_b_ps3),
+        .data_v0(regfile_data_a_final_ps3),
+        .data_a0(regfile_data_b_final_ps3),
         .display(display),              // out connection
         .halt(halt_ps3)                 // out connection
     );
 
-    wire pred_succ;
     CmbWTG vWTG(
         .op(wtg_op_ps3),
         .imm(imm16_ps3[`IM_ADDR_BIT - 1:0]),
-        .data_x(regfile_data_a_ps3),
-        .data_y(regfile_data_b_ps3),
+        .data_x(regfile_data_a_final_ps3),
+        .data_y(regfile_data_b_final_ps3),
         .pc_4(pc_4_ps3),
         .pc_guessed(pc_guessed_ps3),
         // output
@@ -281,7 +300,7 @@ module SynLajiIntelKnightsLanding(
         .w_en(datamem_w_en_ps3),
         .addr_dbg(datamem_addr_dbg),
         .addr(alu_data_res_ps3[`DM_ADDR_BIT - 1:0]),
-        .data_in(regfile_data_b_ps3),
+        .data_in(regfile_data_b_final_ps3),
         // output
         .data_dbg(datamem_data_dbg),
         .data(datamem_data_ps3)
@@ -321,7 +340,3 @@ module SynLajiIntelKnightsLanding(
     end
 endmodule
 
-// reorder marks
-// data race:
-// read_data: alu.x.y, dm.x.y, syscall.out(should)
-// write_data: alu.out, dm.out

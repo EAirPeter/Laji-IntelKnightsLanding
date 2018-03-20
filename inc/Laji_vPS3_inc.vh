@@ -6,6 +6,8 @@
         .clear(clear_vps3),
         .pc_4_in(pc_4_ps2),
         .pc_4(pc_4_ps3),
+        .regfile_req_a_in(regfile_req_a_ps2),
+        .regfile_req_a(regfile_req_a_ps3),
         .rt_in(rt_ps2),
         .rt(rt_ps3),
         .imm16_in(imm16_ps2),

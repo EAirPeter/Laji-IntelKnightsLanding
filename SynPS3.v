@@ -8,6 +8,7 @@ module SynPS3(
     input en,       
     input clear,
     input [`IM_ADDR_BIT - 1:0] pc_4_in,
+    input [4:0] regfile_req_a_in,
     input [4:0] rt_in,
     input [15:0] imm16_in,
     input regfile_w_en_in,
@@ -22,6 +23,7 @@ module SynPS3(
     input syscall_en_in,
     input [`IM_ADDR_BIT - 1:0] pc_guessed_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
+    output reg [4:0] regfile_req_a,
     output reg [4:0] rt,
     output reg [15:0] imm16,
     output reg regfile_w_en,
@@ -39,6 +41,7 @@ module SynPS3(
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n || clear) begin 
             pc_4 <= 0;
+            regfile_req_a <= 0;
             rt <= 0;
             imm16 <= 0;
             regfile_w_en <= 0;
@@ -54,6 +57,7 @@ module SynPS3(
             pc_guessed <= 0;
         end else if(en) begin
             pc_4 <= pc_4_in;
+            regfile_req_a <= regfile_req_a_in;
             rt <= rt_in;
             imm16 <= imm16_in;
             regfile_w_en <= regfile_w_en_in;

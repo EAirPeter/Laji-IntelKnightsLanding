@@ -7,7 +7,7 @@
 module CmbControl(
     opcode, rt, funct,
     op_wtg, w_en_regfile, op_alu, op_datamem, w_en_datamem, syscall_en,
-    mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y, is_jump, is_branch
+    mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y, r_datamem, is_jump, is_branch
 );
     input [5:0] opcode;
     input [4:0] rt;
@@ -21,10 +21,12 @@ module CmbControl(
     output reg [`MUX_RF_REQW_BIT - 1:0] mux_regfile_req_w;
     output reg [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w;
     output reg [`MUX_ALU_DATAY_BIT - 1:0] mux_alu_data_y;
+    output reg r_datamem;
     output reg is_jump;     // 1 if the current instruction is a jump instruction
     output reg is_branch;   // 1 if the current instruction is a branch instraction
 
     always@(*) begin
+        r_datamem = 0;
         op_wtg = `WTG_OP_DEFAULT;
         op_alu = `ALU_OP_AND;
         op_datamem = `DM_OP_WD;  
@@ -99,11 +101,11 @@ module CmbControl(
 
             6'b001111:  begin   op_alu = `ALU_OP_LUI; mux_regfile_data_w = `MUX_RF_DATAW_ALU; end   // lui
 
-            6'b100000:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_SB; end    // lb
-            6'b100001:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_SH; end    // lh
-            6'b100011:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_WD; end    // lw
-            6'b100100:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_UB; end    // lbu
-            6'b100101:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_UH; end    // lhu
+            6'b100000:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_SB; r_datamem = 1; end    // lb
+            6'b100001:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_SH; r_datamem = 1; end    // lh
+            6'b100011:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_WD; r_datamem = 1; end    // lw
+            6'b100100:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_UB; r_datamem = 1; end    // lbu
+            6'b100101:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_UH; r_datamem = 1; end    // lhu
 
             6'b101000:  begin   op_alu = `ALU_OP_ADD; op_datamem = `DM_OP_SB; w_en_datamem = 1; w_en_regfile = 0; end       // sb
             6'b101001:  begin   op_alu = `ALU_OP_ADD; op_datamem = `DM_OP_SH; w_en_datamem = 1; w_en_regfile = 0; end       // sh
