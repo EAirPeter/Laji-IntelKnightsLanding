@@ -7,23 +7,27 @@
 module CmbPIC(
     id_pc,
     id_rf_ra, id_rf_rb, id_rf_req_a, id_rf_req_b,
-    ex_pc, ex_pc_4, ex_bht_take, ex_rf_we, ex_rf_req_w,
-    ex_sel_rf_w_dm, ex_is_jump, ex_is_branch, ex_branched,
+    ex_pc, ex_pc_4, ex_rf_we, ex_rf_req_w,
+    ex_mux_rf_data_w, ex_rc0_op, ex_rc0_ie_we, ex_rc0_epc_we,
+    ex_is_jump, ex_is_branch, ex_branched,
     ex_wtg_pc_new, ex_halt,
-    ma_rf_we, ma_rf_req_w,
+    ma_rf_we, ma_rf_req_w, ma_rc0_ie_we, ma_rc0_epc_we,
     pc_en, pc_ld_wtg, bht_op,
     ifid_en, ifid_nop, idex_en, idex_nop,
     id_mux_fwd_rf_a, id_mux_fwd_rf_b,
+    id_mux_fwd_rc0_ie, id_mux_fwd_rc0_epc,
     is_nop, dbp_hit, dbp_miss
 );
     input [`IM_ADDR_NBIT - 1:0] id_pc;
     input id_rf_ra, id_rf_rb;
     input [4:0] id_rf_req_a, id_rf_req_b;
     input [`IM_ADDR_NBIT - 1:0] ex_pc, ex_pc_4;
-    input ex_bht_take, ex_rf_we;
+    input ex_rf_we;
     input [4:0] ex_rf_req_w;
+    input [`MUX_RF_DATAW_NBIT - 1:0] ex_mux_rf_data_w;
+    input [`RC0_OP_NBIT - 1:0] ex_rc0_op;
     input ex_rc0_ie_we, ex_rc0_epc_we;
-    input ex_sel_rf_w_dm, ex_is_jump, ex_is_branch, ex_branched;
+    input ex_is_jump, ex_is_branch, ex_branched;
     input [`IM_ADDR_NBIT - 1:0] ex_wtg_pc_new;
     input ex_halt;
     input ma_rf_we;
@@ -36,6 +40,10 @@ module CmbPIC(
     output reg [`MUX_FWD_RC0_NBIT - 1:0] id_mux_fwd_rc0_ie, id_mux_fwd_rc0_epc;
     output reg is_nop, dbp_hit, dbp_miss;
 
+    (* keep = "soft" *)
+    wire unused_rc0_op = ex_rc0_op[0];
+
+    wire ex_rf_w_dm = ex_mux_rf_data_w == `MUX_RF_DATAW_DM;
     wire ex_is_jorb = ex_is_jump || ex_is_branch;
 
     reg noc_ra, noc_rb, noc_ex, noc_ma;
@@ -52,9 +60,9 @@ module CmbPIC(
         if (ex_rc0_ie_we)
             id_mux_fwd_rc0_ie = `MUX_FWD_RC0_EX;
         if (ma_rc0_epc_we)
-            id_mux_fwd_rc0_ie = `MUX_FWD_RC0_MA;
+            id_mux_fwd_rc0_epc = `MUX_FWD_RC0_MA;
         if (ex_rc0_epc_we)
-            id_mux_fwd_rc0_ie = `MUX_FWD_RC0_EX;
+            id_mux_fwd_rc0_epc = `MUX_FWD_RC0_EX;
     end
 
     always @(*) begin
@@ -79,7 +87,7 @@ module CmbPIC(
         noc_rbex = noc_rb || noc_ex || id_rf_req_b != ex_rf_req_w;
         noc_rbma = noc_rb || noc_ma || id_rf_req_b != ma_rf_req_w;
         if (!noc_raex) begin
-            if (ex_sel_rf_w_dm)
+            if (ex_rf_w_dm)
                 is_nop = 1;
             else
                 id_mux_fwd_rf_a = `MUX_FWD_RF_TMP;
@@ -87,7 +95,7 @@ module CmbPIC(
         else if (!noc_rama)
             id_mux_fwd_rf_a = `MUX_FWD_RF_DAT;
         if (!noc_rbex) begin
-            if (ex_sel_rf_w_dm)
+            if (ex_rf_w_dm)
                 is_nop = 1;
             else
                 id_mux_fwd_rf_b = `MUX_FWD_RF_TMP;
@@ -98,7 +106,7 @@ module CmbPIC(
             is_nop = 1;
         pc_correct = ex_is_jorb ? ex_wtg_pc_new : ex_pc_4;
         noc_go = ex_pc == ex_pc_4;
-        is_clr = !noc_go && id_pc != pc_correct;
+        is_clr = ex_rc0_op[1] || (!noc_go && id_pc != pc_correct);
         if (is_nop) begin
             pc_en = 0;
             ifid_en = 0;
@@ -109,7 +117,7 @@ module CmbPIC(
             ifid_nop = 1;
             idex_nop = 1;
         end
-        if (ex_is_jorb) begin
+        if (!ex_rc0_op[1] && ex_is_jorb) begin
             if (is_clr)
                 dbp_miss = 1;
             else

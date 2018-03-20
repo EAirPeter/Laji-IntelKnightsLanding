@@ -5,16 +5,16 @@
 // Brief: Pipeline Interface
 // Author: EAirPeter
 module SynPiplIntf(clk, rst_n, en, nop, data_i, data_o);
-    parameter Bits = 32;
+    parameter NBit = 32;
     input clk, rst_n, en, nop;
-    input [Bits - 1:0] data_i;
-    output reg [Bits - 1:0] data_o;
+    input [NBit - 1:0] data_i;
+    output reg [NBit - 1:0] data_o;
     
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n)
-            data_o <= {Bits{1'b0}};
+            data_o <= {NBit{1'b0}};
         else if (en) begin
-            data_o <= nop ? {Bits{1'b0}} : data_i;
+            data_o <= nop ? {NBit{1'b0}} : data_i;
         end
     end
 endmodule

@@ -10,19 +10,17 @@ module PstID(
     prv_ctl_rf_we, prv_val_rf_req_w, prv_val_rf_data_w,
     prv_ctl_rc0_op, prv_ctl_rc0_ie_we, prv_ctl_rc0_epc_we,
     prv_val_rc0_ie_w, prv_val_rc0_epc_w,
-    fwd_rc0_ie, fwd_rc0_epc,
     dbg_rf_data,
     shamt, imm16, rf_data_a, rf_data_b,
-    rc0_ie, rc0_epc, rc0_data, rc0_inum,
+    rc0_ie, rc0_epc, rc0_ivld, rc0_inum,
     ctl_rf_ra, ctl_rf_rb, ctl_rf_we,
     ctl_rc0_op, ctl_rc0_ie_we, ctl_rc0_epc_we,
     ctl_alu_op, ctl_wtg_op,
     ctl_syscall_en, ctl_dm_op, ctl_dm_we,
-    val_rf_req_w, val_rf_req_a, val_rf_req_b,
-    sel_rf_w_pc_4, sel_rf_w_dm,
-    mux_rc0_ie_w, mux_rc0_epc_w,
+    val_rf_req_w, val_rf_req_a, val_rf_req_b, mux_rf_data_w,
+    sel_rc0_epc, mux_rc0_ie_w, mux_rc0_epc_w,
     mux_alu_data_y,
-    is_irq, is_jump, is_branch
+    is_jump, is_branch
 );
     input clk, rst_n, en;
     input [4:0] dbg_rf_req;
@@ -34,13 +32,11 @@ module PstID(
     input [`RC0_OP_NBIT - 1:0] prv_ctl_rc0_op;
     input prv_ctl_rc0_ie_we, prv_ctl_rc0_epc_we;
     input [31:0] prv_val_rc0_ie_w, prv_val_rc0_epc_w;
-    input [31:0] fwd_rc0_ie;
-    input [31:0] fwd_rc0_epc;
     output [31:0] dbg_rf_data;
     output [4:0] shamt;
     output [15:0] imm16;
     output [31:0] rf_data_a, rf_data_b, rc0_ie, rc0_epc;
-    output reg [31:0] rc0_data;     // combinatorial
+    output rc0_ivld;
     output [`NBIT_IRQ - 1:0] rc0_inum;
     output ctl_rf_ra, ctl_rf_rb, ctl_rf_we;
     output [`RC0_OP_NBIT - 1:0] ctl_rc0_op;
@@ -51,19 +47,19 @@ module PstID(
     output [`DM_OP_NBIT - 1:0] ctl_dm_op;
     output ctl_dm_we;
     output reg [4:0] val_rf_req_w, val_rf_req_a, val_rf_req_b; // combinatorial
-    output sel_rf_w_pc_4, sel_rf_w_dm;
+    output [`MUX_RF_DATAW_NBIT - 1:0] mux_rf_data_w;
+    output sel_rc0_epc;
     output [`MUX_RC0_IEW_NBIT - 1:0] mux_rc0_ie_w;
     output [`MUX_RC0_EPCW_NBIT - 1:0] mux_rc0_epc_w;
     output [`MUX_ALU_DATAY_NBIT - 1:0] mux_alu_data_y;
-    output is_irq, is_jump, is_branch;
+    output is_jump, is_branch;
 
     wire [5:0] opcode, funct;
     wire [4:0] rs, rt, rd;
     wire rc0_ivld;
     wire [`MUX_RF_REQW_NBIT - 1:0] mux_rf_req_w;
-    wire val_rc0_is_epc = rd[0];
 
-    assign is_irq = rc0_ivld && fwd_rc0_ie;
+    assign sel_rc0_epc = rd[0];
 
     always @(*) begin
         case (mux_rf_req_w)
@@ -86,10 +82,6 @@ module PstID(
                 val_rf_req_b <= 4;
             end
         endcase
-        case (val_rc0_is_epc)
-            0:  rc0_data <= fwd_rc0_ie;
-            1:  rc0_data <= fwd_rc0_epc;
-        endcase
     end
 
     CmbDecoder vDec(
@@ -104,6 +96,7 @@ module PstID(
     );
     SynRegFile vRF(
         .clk(clk),
+        .rst_n(rst_n),
         .en(en),
         .we(prv_ctl_rf_we),
         .req_dbg(dbg_rf_req),
@@ -134,8 +127,7 @@ module PstID(
         .opcode(opcode),
         .rs(rs),
         .funct(funct),
-        .is_irq(is_irq),
-        .is_epc(val_rc0_is_epc),
+        .is_epc(sel_rc0_epc),
         .wtg_op(ctl_wtg_op),
         .rf_ra(ctl_rf_ra),
         .rf_rb(ctl_rf_rb),
@@ -148,8 +140,7 @@ module PstID(
         .dm_we(ctl_dm_we),
         .syscall_en(ctl_syscall_en),
         .mux_rf_req_w(mux_rf_req_w),
-        .sel_rf_w_pc_4(sel_rf_w_pc_4),
-        .sel_rf_w_dm(sel_rf_w_dm),
+        .mux_rf_data_w(mux_rf_data_w),
         .mux_rc0_ie_w(mux_rc0_ie_w),
         .mux_rc0_epc_w(mux_rc0_epc_w),
         .mux_alu_data_y(mux_alu_data_y),

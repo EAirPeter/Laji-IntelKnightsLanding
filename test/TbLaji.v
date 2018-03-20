@@ -8,6 +8,7 @@ module TbLaji();
     reg rst_n = 1'b0;
     reg resume = 1'b0;
     reg [15:0] swt = 16'b11;
+    reg [2:0] btn = 3'b000;
     wire [7:0] seg_n;
     wire [7:0] an_n;
     initial begin
@@ -23,11 +24,17 @@ module TbLaji();
         `cp(1000) resume = 1'b1;
         `cp(1) resume = 1'b0;
     end
+    initial begin
+        `cp(22) btn[0] = 1'b1;
+        `cp(40) btn[2] = 1'b1;
+        `cp(250) btn[0] = 1'b0;
+    end
     TopLajiIntelKnightsLanding vDUT(
         .clk(clk),
         .rst_n(rst_n),
         .resume(resume),
         .swt(swt),
+        .btn(btn),
         .seg_n(seg_n),
         .an_n(an_n)
     );

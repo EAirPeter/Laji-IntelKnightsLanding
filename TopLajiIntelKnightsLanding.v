@@ -16,7 +16,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, btn, seg_n, an_n);
     input rst_n;
     input resume;
     input [15:0] swt;
-    input [`NIRQ - 1:0] btn
+    input [`NIRQ - 1:0] btn;
     output [7:0] seg_n;
     output [7:0] an_n;
 

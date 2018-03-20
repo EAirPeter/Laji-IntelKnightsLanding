@@ -4,9 +4,7 @@
 
 // Brief: Branch History Table, synchronized
 // Author: EAirPeter
-module SynBHT(
-    clk, rst_n, op, pc_r, pc_w, dst_w, dst_r, take_r
-);
+module SynBHT(clk, rst_n, op, pc_r, pc_w, dst_w, dst_r, take_r);
     localparam NBitAddr = 3;
     input clk, rst_n;
     input [`BHT_OP_NBIT - 1:0] op;

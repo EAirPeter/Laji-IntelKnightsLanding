@@ -17,13 +17,13 @@
 // RegistersC0.operation
 `define RC0_OP_NBIT         2
 `define RC0_OP_NOP          `RC0_OP_NBIT'h0
-`define RC0_OP_WEN          `RC0_OP_NBIT'h0
-`define RC0_OP_IRQ          `RC0_OP_NBIT'h0
-`define RC0_OP_RET          `RC0_OP_NBIT'h0
+// `define RC0_OP_WEN          `RC0_OP_NBIT'h1
+`define RC0_OP_IRQ          `RC0_OP_NBIT'h2
+`define RC0_OP_RET          `RC0_OP_NBIT'h3
 
 // WhereToGo.operation
 `define WTG_OP_NBIT         3
-`define WTG_OP_JNO          `WTG_OP_NBIT'h0
+`define WTG_OP_NOP          `WTG_OP_NBIT'h0
 `define WTG_OP_J32          `WTG_OP_NBIT'h1      //  Set pc_new to data_x
 `define WTG_OP_J26          `WTG_OP_NBIT'h2      //  Set pc_new to {pc_4[31:28], imm26, 2'b00}
 // Conditional branch, set pc_new to pc_4 + {off32[29:0], 2'b00} when
@@ -73,10 +73,12 @@
 `define MUX_RF_DATAW_NBIT   2
 // Output of ALU
 `define MUX_RF_DATAW_ALU    `MUX_RF_DATAW_NBIT'h0
+// Output of ALU
+`define MUX_RF_DATAW_RC0    `MUX_RF_DATAW_NBIT'h1
 // PC + 4
-`define MUX_RF_DATAW_PC4    `MUX_RF_DATAW_NBIT'h1
+`define MUX_RF_DATAW_PC4    `MUX_RF_DATAW_NBIT'h2
 // Output of DataMem
-`define MUX_RF_DATAW_DM     `MUX_RF_DATAW_NBIT'h2
+`define MUX_RF_DATAW_DM     `MUX_RF_DATAW_NBIT'h3
 
 // Multiplexer.RegistersC0.ie_w
 `define MUX_RC0_IEW_NBIT    2

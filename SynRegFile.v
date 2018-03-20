@@ -3,12 +3,10 @@
 // Brief: Register File, synchronized
 // Author: G-H-Y
 module SynRegFile(
-    clk, en, we, req_dbg, req_w, req_a, req_b, data_w,
+    clk, rst_n, en, we, req_dbg, req_w, req_a, req_b, data_w,
 	data_dbg, data_a, data_b
 );
-    input clk;
-    input en;
-    input we;
+    input clk, rst_n, en, we;
     input [4:0] req_dbg;
     input [4:0] req_w;
     input [4:0] req_a;
@@ -23,9 +21,16 @@ module SynRegFile(
     assign data_dbg = req_dbg == 0 ? 32'd0 : regs[req_dbg];
     assign data_a = req_a == 0 ? 32'd0 : regs[req_a];
     assign data_b = req_b == 0 ? 32'd0 : regs[req_b];
-    
-    always @(negedge clk) begin
-        if (en && we && req_w != 5'd0)
-            regs[req_w] <= data_w;
-    end
+   
+    generate
+        genvar i;
+        for (i = 1; i < 32; i = i + 1) begin
+            always @(negedge clk, negedge rst_n) begin
+                if (!rst_n)
+                    regs[i] <= 32'b0;
+                else if (en && we && req_w == i)
+                    regs[i] <= data_w;
+            end
+        end
+    endgenerate
 endmodule

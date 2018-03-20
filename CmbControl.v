@@ -5,10 +5,10 @@
 // Brief: Control Module, synchronized
 // Author: FluorineDog
 module CmbControl(
-    opcode, rs, funct, is_irq, is_epc,
+    opcode, rs, funct, is_epc,
     rf_ra, rf_rb, rf_we, rc0_op, rc0_ie_we, rc0_epc_we,
     alu_op, wtg_op, syscall_en, dm_op, dm_we,
-    mux_rf_req_w, sel_rf_w_pc_4, sel_rf_w_dm,
+    mux_rf_req_w, mux_rf_data_w,
     mux_rc0_ie_w, mux_rc0_epc_w,
     mux_alu_data_y,
     is_jump, is_branch
@@ -16,7 +16,7 @@ module CmbControl(
     input [5:0] opcode;
     input [4:0] rs;
     input [5:0] funct;
-    input is_irq, is_epc;
+    input is_epc;
     output reg rf_ra, rf_rb, rf_we;
     output reg [`RC0_OP_NBIT - 1:0] rc0_op;
     output reg rc0_ie_we, rc0_epc_we;
@@ -26,16 +26,18 @@ module CmbControl(
     output reg [`DM_OP_NBIT - 1:0] dm_op;
     output reg dm_we;
     output reg [`MUX_RF_REQW_NBIT - 1:0] mux_rf_req_w;
-    output reg sel_rf_w_pc_4;
-    output reg sel_rf_w_dm;
+    output reg [`MUX_RF_DATAW_NBIT - 1:0] mux_rf_data_w;
     output reg [`MUX_RC0_IEW_NBIT - 1:0] mux_rc0_ie_w;
     output reg [`MUX_RC0_EPCW_NBIT - 1:0] mux_rc0_epc_w;
     output reg [`MUX_ALU_DATAY_NBIT - 1:0] mux_alu_data_y;
     output reg is_jump;     // 1 if the current instruction is a jump instruction
     output reg is_branch;   // 1 if the current instruction is a branch instraction
     
+    (* keep = "soft" *)
+    wire [3:0] unused_rs = {rs[3], rs[1], rs[0]};
+
     always@(*) begin
-        wtg_op = `WTG_OP_JNO;
+        wtg_op = `WTG_OP_NOP;
         alu_op = `ALU_OP_ADD;
         dm_op = `DM_OP_WD;  
         rf_ra = 1;
@@ -50,23 +52,11 @@ module CmbControl(
         syscall_en = 0;
 
         mux_rf_req_w = `MUX_RF_REQW_RT;
-        sel_rf_w_pc_4 = 0;
-        sel_rf_w_dm = 0;
+        mux_rf_data_w = `MUX_RF_DATAW_ALU;
         mux_alu_data_y = `MUX_ALU_DATAY_EXTS;
         is_jump = 0;
         is_branch = 0;
-        if (is_irq) begin
-            rc0_op = `RC0_OP_IRQ;
-            rc0_ie_we = 1;
-            rc0_epc_we = 1;
-            mux_rc0_ie_w = `MUX_RC0_IEW_ZERO;
-            mux_rc0_epc_w = `MUX_RC0_EPCW_PC;
-            rf_ra = 0;
-            rf_rb = 0;
-            rf_we = 0;
-            wtg_op = `WTG_OP_IRQ;
-        end
-        else case(opcode)
+        case(opcode)
             6'b000000:  begin 
                 mux_rf_req_w = `MUX_RF_REQW_RD;
                 mux_alu_data_y = `MUX_ALU_DATAY_RFB;
@@ -111,7 +101,7 @@ module CmbControl(
                 rf_ra = 0;
                 rf_rb = 0;
                 mux_rf_req_w = `MUX_RF_REQW_31;
-                sel_rf_w_pc_4 = 1;
+                mux_rf_data_w = `MUX_RF_DATAW_PC4;
             end
             6'b000100:  begin   wtg_op = `WTG_OP_BEQ;   is_branch = 1; rf_we = 0;   end // beq
             6'b000101:  begin   wtg_op = `WTG_OP_BNE;   is_branch = 1; rf_we = 0;   end // bne
@@ -148,11 +138,20 @@ module CmbControl(
                 end
                 else begin              // mfc0
                     rf_rb = 0;
+                    mux_rf_data_w = `MUX_RF_DATAW_RC0;
                 end
             end
 
-            6'b100011:  begin   sel_rf_w_dm = 1; dm_op = `DM_OP_WD; rf_rb = 0; end  // lw
-            6'b100100:  begin   sel_rf_w_dm = 1; dm_op = `DM_OP_UB; rf_rb = 0; end  // lbu
+            6'b100011:  begin           // lw
+                mux_rf_data_w = `MUX_RF_DATAW_DM;
+                dm_op = `DM_OP_WD;
+                rf_rb = 0;
+            end
+            6'b100100:  begin           // lbu
+                mux_rf_data_w = `MUX_RF_DATAW_DM;
+                dm_op = `DM_OP_UB;
+                rf_rb = 0;
+            end
 
             6'b101011:  begin   dm_op = `DM_OP_WD; dm_we = 1; rf_we = 0; end  // sw
           endcase

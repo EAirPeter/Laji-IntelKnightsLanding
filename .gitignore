@@ -1,5 +1,6 @@
 *
 !.gitignore
+!*.cpp
 !*.md
 !*.v
 !*.vh
