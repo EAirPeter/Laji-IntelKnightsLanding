@@ -26,6 +26,10 @@ module SynLajiIntelKnightsLanding(
     parameter ProgPath = `BENCHMARK_FILEPATH;
     `include "inc/Laji_defines_inc.vh"
     assign pc_dbg = {20'd0, pc, 2'd0};
+    wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg1 = {pc_4_ps1, 2'd0};
+    wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg2 = {pc_4_ps2, 2'd0};
+    wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg3 = {pc_4_ps3, 2'd0};
+    wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg4 = {pc_4_ps4, 2'd0};
 
     // use BHT instead, buggy
     assign pc_guessed_ps0 = pc_4_ps0;
