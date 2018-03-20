@@ -32,7 +32,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire [31:0] datamem_data_dbg;
     wire [31:0] core_display;
     wire core_halt, core_is_jump, core_is_branch, core_branched;
-    wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched;
+    wire [31:0] cnt_cycle, cnt_jump, cnt_branch, cnt_branched, cnt_valid_inst;
 
     always @(*) begin
         case (mux_core_clk)
@@ -49,7 +49,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
             `MUX_DISP_DATA_CNT_BED: disp_data <= cnt_branched;
             `MUX_DISP_DATA_PC_DBG:  disp_data <= core_pc_dbg;
             `MUX_DISP_DATA_RF_DBG:  disp_data <= regfile_data_dbg;
-            `MUX_DISP_DATA_DM_DBG:  disp_data <= datamem_data_dbg;
+            `MUX_DISP_DATA_DM_DBG:  disp_data <= cnt_valid_inst;
             default:                disp_data <= core_display;
         endcase
     end
@@ -120,6 +120,18 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .val(32'd0),
         .cnt(cnt_branch)
     );
+
+    AuxCounter #(
+        .CntBit(32)
+    ) vValidInst(
+        .clk(core_clk),
+        .rst_n(rst_n),
+        .en(valid_inst),
+        .ld(1'b0),
+        .val(32'd0),
+        .cnt(cnt_valid_inst)
+    );
+    
     AuxCounter #(
         .CntBit(32)
     ) vCtrBranched(
@@ -152,6 +164,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .halt(core_halt),
         .is_jump(core_is_jump),
         .is_branch(core_is_branch),
-        .branched(core_branched)
+        .branched(core_branched),
+        .valid_inst(valid_inst)
     );
 endmodule

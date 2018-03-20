@@ -20,7 +20,8 @@ module SynLajiIntelKnightsLanding(
     output halt, 
     output is_jump, 
     output is_branch, 
-    output branched
+    output branched,
+    output valid_inst
 );
 
     parameter ProgPath = `BENCHMARK_FILEPATH;
@@ -158,9 +159,8 @@ module SynLajiIntelKnightsLanding(
         .redirect(stop_x_dm_vps1)
     );
 
-    wire use_y_port = (mux_alu_data_y_ps1 == `MUX_ALU_DATAY_RFB);
     CmbRedirect vWB_EX_Y(
-        .self_use_en(use_y_port), // buggy
+        .self_use_en(1'h1), // buggy
         .self_w_req(regfile_req_b),
         .regfile_w_en(regfile_w_en_ps3),
         .regfile_req_w(regfile_req_w_ps3),
@@ -169,7 +169,7 @@ module SynLajiIntelKnightsLanding(
 
 
     CmbRedirect vDMALU_EX_Y(        // contains load-use, not solvable
-        .self_use_en(use_y_port),   // buggy
+        .self_use_en(1'h1),   // buggy
         .self_w_req(regfile_req_b),
         .regfile_w_en(regfile_w_en_ps2),
         .regfile_req_w(regfile_req_w_ps2),
@@ -233,18 +233,18 @@ module SynLajiIntelKnightsLanding(
         .data_res(alu_data_res_ps2)
     );
 
-    CmbRedirect vWB_DM(
-        .self_use_en(datamem_w_en_ps2),
-        .self_w_req(rt_ps2),
-        .regfile_w_en(regfile_w_en_ps3),
-        .regfile_req_w(regfile_req_w_ps3),
-        .redirect(stop_vps2)
-    );
-     
+    // still needed
+    // CmbRedirect vWB_DM(
+    //     .self_use_en(datamem_w_en_ps2),
+    //     .self_w_req(rt_ps2),
+    //     .regfile_w_en(regfile_w_en_ps3),
+    //     .regfile_req_w(regfile_req_w_ps3),
+    //     .redirect(stop_vps2)
+    // );
     /////////////////////////////
     ///////   ps3 ID/DM  ////////
-    assign en_vps3 = en_vps4 && !stop_vps2;
-    assign clear_vps3 = !pred_succ || stop_vps2;
+    assign en_vps3 = en_vps4;
+    assign clear_vps3 = !pred_succ;
     `include "inc/Laji_vPS3_inc.vh"
     /////////////////////////////
     // ps4: datamem: rt
@@ -294,6 +294,18 @@ module SynLajiIntelKnightsLanding(
     `include "inc/Laji_vPS4_inc.vh"
     //////////////////////
 
+    reg [15:0] inst_counter;
+    assign valid_inst = (pc_4_ps4 != 0);
+
+    always @(posedge clk, negedge rst_n) begin
+        if(!rst_n)
+            inst_counter <= 0;
+        else begin
+            if(en && valid_inst) begin
+                inst_counter <= inst_counter + 1;
+            end
+        end
+    end
     assign halt = halt_ps4;
     always @(*) begin
         case (mux_regfile_data_w_ps4)

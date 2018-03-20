@@ -35,5 +35,4 @@ wire halt_ps3, halt_ps4;
 wire clear_vps1, clear_vps2, clear_vps3, clear_vps4;
 wire [`IM_ADDR_BIT - 1:0] pc_guessed_ps0, pc_guessed_ps1, pc_guessed_ps2, pc_guessed_ps3;
 wire stop_x_wb_vps1, stop_x_dm_vps1, stop_y_wb_vps1, stop_y_dm_vps1;
-wire stop_vps2;
 wire en_vps0, en_vps1, en_vps2, en_vps3, en_vps4;
