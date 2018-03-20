@@ -5,7 +5,7 @@
 
 // Brief: Top Module, I/O included
 // Author: EAirPeter
-module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
+module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, btn, seg_n, an_n);
     parameter ProgPath = "D:/code/hust/ACM01/cpu/asm/benchmark.hex";
     parameter CoreClk0Cnt = `CNT_HZ(2);
     parameter CoreClk1Cnt = `CNT_HZ(20);
@@ -16,6 +16,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     input rst_n;
     input resume;
     input [15:0] swt;
+    input [`NIRQ - 1:0] btn
     output [7:0] seg_n;
     output [7:0] an_n;
 
@@ -27,7 +28,6 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     wire core_en;
     wire [4:0] dbg_rf_req = swt[15:11];
     wire [`DM_ADDR_NBIT - 3:0] dbg_dm_addr = swt[15:18 - `DM_ADDR_NBIT];
-    wire [31:0] dbg_pc;
     wire [31:0] dbg_rf_data;
     wire [31:0] dbg_dm_data;
     wire [31:0] core_display;
@@ -177,7 +177,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .en(core_en),
         .dbg_rf_req(dbg_rf_req),
         .dbg_dm_addr(dbg_dm_addr),
-        .dbg_pc(dbg_pc),
+        .irq_src(btn),
         .dbg_rf_data(dbg_rf_data),
         .dbg_dm_data(dbg_dm_data),
         .is_jump(core_is_jump),

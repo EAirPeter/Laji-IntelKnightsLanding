@@ -9,8 +9,8 @@
 // Brief: CPU Top Module, synchronized
 // Author: EAirPeter
 module SynLajiIntelKnightsLanding(
-    clk, rst_n, en, dbg_rf_req, dbg_dm_addr,
-    dbg_pc, dbg_rf_data, dbg_dm_data,
+    clk, rst_n, en, dbg_rf_req, dbg_dm_addr, irq_src,
+    dbg_rf_data, dbg_dm_data,
     is_jump, is_branch, branched, is_nop,
     dbp_hit, dbp_miss, display, halt
 );
@@ -18,7 +18,7 @@ module SynLajiIntelKnightsLanding(
     input clk, rst_n, en;
     input [4:0] dbg_rf_req;
     input [`DM_ADDR_NBIT - 3:0] dbg_dm_addr;
-    output [31:0] dbg_pc;
+    input [`NIRQ - 1:0] irq_src;
     output [31:0] dbg_rf_data;
     output [31:0] dbg_dm_data;
     output is_jump, is_branch, branched, is_nop, dbp_hit, dbp_miss;
@@ -35,7 +35,12 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(32                    , rf_data_b         );
     `DECL_DAT(32                    , fwd_rf_a          );
     `DECL_DAT(32                    , fwd_rf_b          );
+    `DECL_DAT(32                    , rc0_data          );
+    `DECL_DAT(`NBIT_IRQ             , rc0_inum          );
+    `DECL_DAT(32                    , fwd_rc0_ie        );
+    `DECL_DAT(32                    , fwd_rc0_epc       );
     `DECL_DAT(1                     , ctl_rf_we         );
+    `DECL_DAT(`RC0_OP_NBIT          , ctl_rc0_op        );
     `DECL_DAT(`ALU_OP_NBIT          , ctl_alu_op        );
     `DECL_DAT(`WTG_OP_NBIT          , ctl_wtg_op        );
     `DECL_DAT(1                     , ctl_syscall_en    );
@@ -45,7 +50,10 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(1                     , sel_rf_w_pc_4     );
     `DECL_DAT(1                     , sel_rf_w_dm       );
     `DECL_DAT(32                    , val_rf_w_tmp      );
+    `DECL_DAT(1                     , val_rc0_wie       );
+    `DECL_DAT(1                     , val_rc0_wepc      );
     `DECL_DAT(`MUX_ALU_DATAY_NBIT   , mux_alu_data_y    );
+    `DECL_DAT(1                     , is_irq            );
     `DECL_DAT(1                     , is_jump           );
     `DECL_DAT(1                     , is_branch         );
     `DECL_DAT(32                    , alu_data_res      );
@@ -61,6 +69,7 @@ module SynLajiIntelKnightsLanding(
     `DECL_DAT(`MUX_FWD_RF_NBIT      , mux_fwd_rf_b      );
 
     wire [`IM_ADDR_NBIT - 1:0] if_bht_pc_new;
+    wire [31:0] id_rc0_ie, id_rc0_epc;
     wire id_ctl_rf_ra, id_ctl_rf_rb;
     wire [4:0] id_val_rf_req_a, id_val_rf_req_b;
     wire [`IM_ADDR_NBIT - 1:0] ex_wtg_pc_new, ex_wtg_pc_branch;
@@ -69,7 +78,6 @@ module SynLajiIntelKnightsLanding(
     wire pic_ifid_en, pic_ifid_nop;
     wire pic_idex_en, pic_idex_nop;
 
-    assign dbg_pc = {20'b0, if_pc, 2'b0};
     assign is_jump = ma_is_jump;
     assign is_branch = ma_is_branch;
     assign branched = ma_branched;
@@ -168,7 +176,7 @@ module SynLajiIntelKnightsLanding(
 `define GPI_IST ma
 `define GPI_OST wb
 `define GPI_DAT \
-    `GPI_(ctl_rf_we) `GPI(val_rf_req_w) `GPI(sel_rf_w_dm) `GPI(val_rf_w_tmp) \
+    `GPI_(fwd_rf_b) `GPI(ctl_rf_we) `GPI(val_rf_req_w) `GPI(sel_rf_w_dm) `GPI(val_rf_w_tmp) \
     `GPI(halt) `GPI(dm_data)
 `include "GenPiplIntf.vh"
 
@@ -192,18 +200,30 @@ module SynLajiIntelKnightsLanding(
         .rst_n(rst_n),
         .en(en),
         .dbg_rf_req(dbg_rf_req),
+        .irq_src(irq_src),
+        .pc(id_pc),
         .inst(id_inst),
         .prv_ctl_rf_we(wb_ctl_rf_we),
         .prv_val_rf_req_w(wb_val_rf_req_w),
         .prv_val_rf_data_w(wb_val_rf_data_w),
+        .prv_ctl_rc0_op(wb_ctl_rc0_op),
+        .prv_val_rc0_wepc(wb_val_rc0_wepc),
+        .prv_val_rc0_data_w(wb_fwd_rf_b),
+        .fwd_rc0_ie(id_fwd_rc0_ie),
+        .fwd_rc0_epc(id_fwd_rc0_epc),
         .dbg_rf_data(dbg_rf_data),
         .shamt(id_shamt),
         .imm16(id_imm16),
         .rf_data_a(id_rf_data_a),
         .rf_data_b(id_rf_data_b),
+        .rc0_ie(id_rc0_ie),
+        .rc0_epc(id_rc0_epc),
+        .rc0_data(id_rc0_data),
+        .rc0_inum(id_rc0_inum),
         .ctl_rf_ra(id_ctl_rf_ra),
         .ctl_rf_rb(id_ctl_rf_rb),
         .ctl_rf_we(id_ctl_rf_we),
+        .ctl_rc0_op(id_ctl_rc0_op),
         .ctl_alu_op(id_ctl_alu_op),
         .ctl_wtg_op(id_ctl_wtg_op),
         .ctl_syscall_en(id_ctl_syscall_en),
@@ -214,7 +234,10 @@ module SynLajiIntelKnightsLanding(
         .val_rf_req_b(id_val_rf_req_b),
         .sel_rf_w_pc_4(id_sel_rf_w_pc_4),
         .sel_rf_w_dm(id_sel_rf_w_dm),
+        .val_rc0_wie(id_val_rc0_wie),
+        .val_rc0_wepc(id_val_rc0_wepc),
         .mux_alu_data_y(id_mux_alu_data_y),
+        .is_irq(id_is_irq),
         .is_jump(id_is_jump),
         .is_branch(id_is_branch)
     );

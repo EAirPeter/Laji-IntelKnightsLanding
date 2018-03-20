@@ -8,12 +8,16 @@ module CmbForward(
     mux_fwd_rf_a, mux_fwd_rf_b,
     ex_rf_data_a, ex_rf_data_b,
     ma_val_rf_w_tmp, wb_val_rf_data_w,
-    ex_fwd_rf_a, ex_fwd_rf_b
+    mux_fwd_rc0_ie, mux_fwd_rc0_epc,
+    ma_rf_data_b,
+    ex_fwd_rf_a, ex_fwd_rf_b,,
+    id_fwd_rc0_ie, id_fwd_rc0_epc
 );
     input [`MUX_FWD_RF_NBIT - 1:0] mux_fwd_rf_a, mux_fwd_rf_b;
     input [31:0] ex_rf_data_a, ex_rf_data_b;
     input [31:0] ma_val_rf_w_tmp, wb_val_rf_data_w;
     output reg [31:0] ex_fwd_rf_a, ex_fwd_rf_b; // combinatorial
+    output reg [31:0] id_fwd_rc0_ie, id_fwd_rc0_epc; // combinatorial
 
     always @(*) begin
         case (mux_fwd_rf_a)
@@ -35,6 +39,11 @@ module CmbForward(
                 ex_fwd_rf_b <= wb_val_rf_data_w;
             default:
                 ex_fwd_rf_b <= ex_rf_data_a;
+        endcase
+        case (mux_fwd_rc0_ie)
+            `MUX_FWD_RC0_NORM:
+            `MUX_FWD_RC0_EX:
+            `MUX_FWD_RC0_MA:
         endcase
     end
 endmodule

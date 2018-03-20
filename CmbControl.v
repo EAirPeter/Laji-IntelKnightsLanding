@@ -5,14 +5,18 @@
 // Brief: Control Module, synchronized
 // Author: FluorineDog
 module CmbControl(
-    opcode, funct,
-    rf_ra, rf_rb, rf_we, alu_op, wtg_op, syscall_en, dm_op, dm_we,
+    opcode, rs, funct, is_irq,
+    rf_ra, rf_rb, rf_we, rc0_op,
+    alu_op, wtg_op, syscall_en, dm_op, dm_we,
     mux_rf_req_w, sel_rf_w_pc_4, sel_rf_w_dm, mux_alu_data_y,
     is_jump, is_branch
 );
     input [5:0] opcode;
+    input [4:0] rs;
     input [5:0] funct;
+    input is_irq;
     output reg rf_ra, rf_rb, rf_we;
+    output reg [`RC0_OP_NBIT - 1:0] rc0_op;
     output reg [`ALU_OP_NBIT - 1:0] alu_op; // alias to alu to increase Hamming Distance 
     output reg [`WTG_OP_NBIT - 1:0] wtg_op;
     output reg syscall_en;
@@ -32,6 +36,7 @@ module CmbControl(
         rf_ra = 1;
         rf_rb = 1;
         rf_we = 1;
+        rc0_op = `RC0_OP_NOP;
         dm_we = 0;
         syscall_en = 0;
 
@@ -41,7 +46,14 @@ module CmbControl(
         mux_alu_data_y = `MUX_ALU_DATAY_EXTS;
         is_jump = 0;
         is_branch = 0;
-        case(opcode)
+        if (is_irq) begin
+            rc0_op = `RC0_OP_IRQ;
+            rf_ra = 0;
+            rf_rb = 0;
+            rf_we = 0;
+            wtg_op = `WTG_OP_IRQ;
+        end
+        else case(opcode)
             6'b000000:  begin 
                 mux_rf_req_w = `MUX_RF_REQW_RD;
                 mux_alu_data_y = `MUX_ALU_DATAY_RFB;
@@ -103,6 +115,23 @@ module CmbControl(
             end
 
             6'b001111:  begin   alu_op = `ALU_OP_LUI; rf_ra = 0; rf_rb = 0; end     // lui
+
+            6'b010000:  begin
+                rf_ra = 0;
+                if (rs[4]) begin        // eret
+                    rc0_op = `RC0_OP_RET;
+                    rf_rb = 0;
+                    rf_we = 0;
+                    wtg_op = `WTG_OP_IRET;
+                end
+                else if (rs[2]) begin   // mtc0
+                    rc0_op = `RC0_OP_WEN;
+                    rf_we = 0;
+                end
+                else begin              // mfc0
+                    rf_rb = 0;
+                end
+            end
 
             6'b100011:  begin   sel_rf_w_dm = 1; dm_op = `DM_OP_WD; rf_rb = 0; end  // lw
             6'b100100:  begin   sel_rf_w_dm = 1; dm_op = `DM_OP_UB; rf_rb = 0; end  // lbu

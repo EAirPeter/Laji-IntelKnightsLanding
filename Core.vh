@@ -1,8 +1,11 @@
 `ifndef LAJIINTEL_CORE_VH_
 `define LAJIINTEL_CORE_VH_
 
-`define IM_ADDR_NBIT         10
-`define DM_ADDR_NBIT         12
+`define NIRQ                3
+`define NBIT_IRQ            2
+
+`define IM_ADDR_NBIT        10
+`define DM_ADDR_NBIT        12
 
 // BranchHistoryTable.operation
 `define BHT_OP_NBIT         2
@@ -10,6 +13,13 @@
 `define BHT_OP_SET          `WTG_OP_NBIT'h1
 `define BHT_OP_DEC          `WTG_OP_NBIT'h2
 `define BHT_OP_INC          `WTG_OP_NBIT'h3
+
+// RegistersC0.operation
+`define RC0_OP_NBIT         2
+`define RC0_OP_NOP          `RC0_OP_NBIT'h0
+`define RC0_OP_WEN          `RC0_OP_NBIT'h0
+`define RC0_OP_IRQ          `RC0_OP_NBIT'h0
+`define RC0_OP_RET          `RC0_OP_NBIT'h0
 
 // WhereToGo.operation
 `define WTG_OP_NBIT         3
@@ -21,6 +31,8 @@
 `define WTG_OP_BEQ          `WTG_OP_NBIT'h3
 `define WTG_OP_BNE          `WTG_OP_NBIT'h4
 `define WTG_OP_BGEZ         `WTG_OP_NBIT'h5
+`define WTG_OP_IRQ          `WTG_OP_NBIT'h6
+`define WTG_OP_IRET         `WTG_OP_NBIT'h7
 
 // ArithmeticLogicUnit.operation
 `define ALU_OP_NBIT         4
