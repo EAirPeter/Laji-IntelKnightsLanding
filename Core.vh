@@ -91,6 +91,6 @@
 
 
 `define FOLDERPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/cpu-testcase/"
-`define FILENAME "benchmark.hex"
+`define FILENAME "benchmark_ccmb.hex"
 `define BENCHMARK_FILEPATH {`FOLDERPATH, `FILENAME}
 `endif

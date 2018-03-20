@@ -26,6 +26,7 @@ module SynLajiIntelKnightsLanding(
     parameter ProgPath = `BENCHMARK_FILEPATH;
     `include "inc/Laji_defines_inc.vh"
     assign pc_dbg = {20'd0, pc, 2'd0};
+    wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg0 = {pc_4_ps0, 2'd0};
     wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg1 = {pc_4_ps1, 2'd0};
     wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg2 = {pc_4_ps2, 2'd0};
     wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg3 = {pc_4_ps3, 2'd0};
@@ -37,7 +38,7 @@ module SynLajiIntelKnightsLanding(
 
     ////////////////////////////
     ///////  ps0 gen/IF  ///////
-    assign en_vps0 = en_vps1;
+    assign en_vps0 = !pred_succ || en_vps2;
     SynPC vPC(
         .clk(clk),
         .rst_n(rst_n),
@@ -142,7 +143,7 @@ module SynLajiIntelKnightsLanding(
     end
 
     CmbRedirect vWB_EX_X(
-        .self_use_en(1), // buggy
+        .self_use_en(1'h1), // buggy
         .self_w_req(regfile_req_a),
         .regfile_w_en(regfile_w_en_ps3),
         .regfile_req_w(regfile_req_w_ps3),
@@ -150,7 +151,7 @@ module SynLajiIntelKnightsLanding(
     );
 
     CmbRedirect vDMALU_EX_X(   // load-use, not solvable
-        .self_use_en(1),   // buggy
+        .self_use_en(1'h1),   // buggy
         .self_w_req(regfile_req_a),
         .regfile_w_en(regfile_w_en_ps2),
         .regfile_req_w(regfile_req_w_ps2),
