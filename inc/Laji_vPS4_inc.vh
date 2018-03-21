@@ -21,5 +21,7 @@
         .mux_regfile_data_w_in(mux_regfile_data_w_ps3),
         .mux_regfile_data_w(mux_regfile_data_w_ps4),
         .halt_in(halt_ps3),
-        .halt(halt_ps4)
+        .halt(halt_ps4),
+        .r_datamem_in(r_datamem_ps3),
+        .r_datamem(r_datamem_ps4)
     );

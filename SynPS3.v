@@ -23,6 +23,7 @@ module SynPS3(
     input [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w_in,
     input syscall_en_in,
     input [`IM_ADDR_BIT - 1:0] pc_guessed_in,
+    input skip_load_use_in,
     input r_datamem_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
     output reg [4:0] regfile_req_a,
@@ -40,6 +41,7 @@ module SynPS3(
     output reg [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w,
     output reg syscall_en,
     output reg [`IM_ADDR_BIT - 1:0] pc_guessed,
+    output reg skip_load_use,
     output reg r_datamem
 );
     always @(posedge clk, negedge rst_n) begin
@@ -60,6 +62,7 @@ module SynPS3(
             mux_regfile_data_w <= 0;
             syscall_en <= 0;
             pc_guessed <= 0;
+            skip_load_use <= 0;
             r_datamem <= 0;
         end else if(en) begin
             pc_4 <= pc_4_in;
@@ -78,6 +81,7 @@ module SynPS3(
             mux_regfile_data_w <= mux_regfile_data_w_in;
             syscall_en <= syscall_en_in;
             pc_guessed <= pc_guessed_in;
+            skip_load_use <= skip_load_use_in;
             r_datamem <= r_datamem_in;
         end
     end
