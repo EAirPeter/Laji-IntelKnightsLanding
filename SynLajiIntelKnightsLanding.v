@@ -5,9 +5,6 @@
 // Brief: CPU Top Module, synchronized
 // Author: EAirPeter
 module SynLajiIntelKnightsLanding(
-    // clk, rst_n, en, regfile_req_dbg, datamem_addr_dbg,
-    // pc_dbg, regfile_data_dbg, datamem_data_dbg, display,
-    // halt, is_jump, is_branch, branched
     input clk, 
     input rst_n, 
     input en,
@@ -99,6 +96,7 @@ module SynLajiIntelKnightsLanding(
         .is_jump(is_jump),      // out_connection
         .is_branch(is_branch)   // out_connection
     );
+
     assign skip_load_use_ps1 = is_jump || is_branch || syscall_en_ps1;
     wire mux_regfile_a_req = syscall_en_ps1;
     wire mux_regfile_b_req = syscall_en_ps1;
@@ -142,12 +140,6 @@ module SynLajiIntelKnightsLanding(
         endcase
     end
 
-    // generator: ALU.out, DM.out
-    // receiver: port-a, port-b
-        //    !stop_x_wb_vps1
-        // && !stop_x_dm_vps1
-        // && !stop_y_wb_vps1
-        // && !stop_y_dm_vps1;
     CmbBubble vLD_USE_BUBBLE(
         .self_use_en_1(1'h1),
         .self_use_req_1(regfile_req_a_ps1),
@@ -164,8 +156,7 @@ module SynLajiIntelKnightsLanding(
     assign clear_vps2 = !pred_succ || bubble;
     `include "inc/Laji_vPS2_inc.vh"
     /////////////////////////////
-    // data_src: ps3: alu.out/rd/rt
-    // data_src: ps4: dm.out base_on rt
+
     CmbReFlowDual vRF_A_REFLOW(
         .origin_req(regfile_req_a_ps2), 
         .origin_data(regfile_data_a_ori_ps2),
@@ -226,7 +217,7 @@ module SynLajiIntelKnightsLanding(
     assign clear_vps3 = !pred_succ;
     `include "inc/Laji_vPS3_inc.vh"
     /////////////////////////////
-    // ps4: datamem: rt
+
     CmbReFlowSingle vDM_REG_A_REFLOW(
         .origin_req(regfile_req_a_ps3),
         .origin_data(regfile_data_a_ps3),
@@ -244,15 +235,6 @@ module SynLajiIntelKnightsLanding(
         .reflow_data_1(regfile_data_w_ps4),
         .data(regfile_data_b_final_ps3)
     );
-
-    // CmbReFlowSingle vDM_DMLOAD_REFLOW(
-    //     .origin_req(regfile_req_b_ps3),
-    //     .origin_data(regfile_data_b_final_ps3),
-    //     .reflow_en_1(r_datamem_ps4),
-    //     .reflow_req_1(regfile_req_w_ps4),
-    //     .reflow_data_1(regfile_data_w_ps4),
-    //     .data(regfile_data_b_final_ps3)
-    // );
 
     SynSyscall vSys(
         .clk(clk),
