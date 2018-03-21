@@ -5,7 +5,7 @@
 
 // Brief: Top Module, I/O included
 // Author: EAirPeter
-module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, btn, seg_n, an_n);
+module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, btn, led, seg_n, an_n);
     parameter ProgPath = "D:/code/hust/ACM01/cpu/asm/benchmark.hex";
     parameter CoreClk0Cnt = `CNT_HZ(2);
     parameter CoreClk1Cnt = `CNT_HZ(20);
@@ -17,6 +17,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, btn, seg_n, an_n);
     input resume;
     input [15:0] swt;
     input [`NIRQ - 1:0] btn;
+    output [`NIRQ - 1:0] led;
     output [7:0] seg_n;
     output [7:0] an_n;
 
@@ -180,6 +181,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, btn, seg_n, an_n);
         .irq_src(btn),
         .dbg_rf_data(dbg_rf_data),
         .dbg_dm_data(dbg_dm_data),
+        .irq_st(led),
         .is_jump(core_is_jump),
         .is_branch(core_is_branch),
         .branched(core_branched),

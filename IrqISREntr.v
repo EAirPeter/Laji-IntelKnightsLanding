@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 
 module IrqISREntr(inum, entr);
-    localparam Entr0 = 'h034 >> 2;
-    localparam Entr1 = 'h0b4 >> 2;
-    localparam Entr2 = 'h134 >> 2;
+    localparam Entr0 = 'h48c >> 2;
+    localparam Entr1 = 'h50c >> 2;
+    localparam Entr2 = 'h58c >> 2;
 
     input [`NBIT_IRQ - 1:0] inum;
     output reg [`IM_ADDR_NBIT - 1:0] entr;  // combinatorial

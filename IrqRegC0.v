@@ -8,19 +8,20 @@
 module IrqRegC0(
     clk, rst_n, en, op,
     ie_we, epc_we, ie_w, epc_w, irq_src,
-    ie, epc, ivld, inum
+    ir, ie, epc, ivld, inum
 );
     input clk, rst_n, en;
     input [`RC0_OP_NBIT - 1:0] op;
     input ie_we, epc_we;
     input [31:0] ie_w, epc_w;
     input [`NIRQ - 1:0] irq_src;
+    output reg [`NIRQ - 1:0] ir;
     output reg [31:0] ie;
     output reg [31:0] epc;
     output ivld;                            // combinatorial
     output reg [`NBIT_IRQ - 1:0] inum;      // combinatorial
 
-    reg [`NIRQ - 1:0] ir, irs;
+    reg [`NIRQ - 1:0] irs;
     reg [`NIRQ - 1:0] irm, irsm_n, imask;   // combinatorial
     wire [`NIRQ - 1:0] ivld_tmp = ir & imask;
     

@@ -25,9 +25,9 @@ module TbLaji();
         `cp(1) resume = 1'b0;
     end
     initial begin
-        `cp(22) btn[0] = 1'b1;
-        `cp(40) btn[2] = 1'b1;
-        `cp(250) btn[0] = 1'b0;
+        // `cp(22) btn[0] = 1'b1;
+        // `cp(40) btn[2] = 1'b1;
+        // `cp(250) btn[0] = 1'b0;
     end
     TopLajiIntelKnightsLanding vDUT(
         .clk(clk),

@@ -8,7 +8,7 @@
 module SynLajiIntelKnightsLanding(
     clk, rst_n, en, dbg_rf_req, dbg_dm_addr, irq_src,
     dbg_rf_data, dbg_dm_data,
-    is_jump, is_branch, branched, is_nop,
+    irq_st, is_jump, is_branch, branched, is_nop,
     dbp_hit, dbp_miss, display, halt
 );
     parameter ProgPath = "C:/.Xilinx/benchmark.hex";
@@ -18,55 +18,10 @@ module SynLajiIntelKnightsLanding(
     input [`NIRQ - 1:0] irq_src;
     output [31:0] dbg_rf_data;
     output [31:0] dbg_dm_data;
+    output [`NIRQ - 1:0] irq_st;
     output is_jump, is_branch, branched, is_nop, dbp_hit, dbp_miss;
     output [31:0] display;
     output halt;
-
-    `DECL_FDX___(`IM_ADDR_NBIT      , pc                );
-    `DECL_FDXM__(`IM_ADDR_NBIT      , pc_4              );
-    `DECL_FD____(32                 , inst              );
-    `DECL__DX___(5                  , shamt             );
-    `DECL__DX___(16                 , imm16             );
-    `DECL__DX__O(32                 , rf_data_a         );
-    `DECL__DXM_O(32                 , rf_data_b         );
-    `DECL__DX__O(32                 , rc0_ie            );
-    `DECL__DX__O(32                 , rc0_epc           );
-    `DECL__DX___(1                  , rc0_ivld          );
-    `DECL__DX___(`NBIT_IRQ          , rc0_inum          );
-    `DECL__DXMWO(1                  , ctl_rf_we         );
-    `DECL__DXMWO(`RC0_OP_NBIT       , ctl_rc0_op        );
-    `DECL__DXMWO(1                  , ctl_rc0_ie_we     );
-    `DECL__DXMWO(1                  , ctl_rc0_epc_we    );
-    `DECL__DX___(`ALU_OP_NBIT       , ctl_alu_op        );
-    `DECL__DX__O(`WTG_OP_NBIT       , ctl_wtg_op        );
-    `DECL__DX__O(1                  , ctl_syscall_en    );
-    `DECL__DXM__(`DM_OP_NBIT        , ctl_dm_op         );
-    `DECL__DXM_O(1                  , ctl_dm_we         );
-    `DECL__DXMW_(5                  , val_rf_req_w      );
-    `DECL__DXMW_(`MUX_RF_DATAW_NBIT , mux_rf_data_w     );
-    `DECL____MW_(32                 , val_rf_w_tmp      );
-    `DECL__DX___(1                  , sel_rc0_epc       );
-    `DECL___XM__(32                 , val_rc0_data      );
-    `DECL__DX__O(`MUX_RC0_IEW_NBIT  , mux_rc0_ie_w      );
-    `DECL__DX__O(`MUX_RC0_EPCW_NBIT , mux_rc0_epc_w     );
-    `DECL___XMW_(32                 , val_rc0_ie_w      );
-    `DECL___XMW_(32                 , val_rc0_epc_w     );
-    `DECL__DX___(`MUX_ALU_DATAY_NBIT, mux_alu_data_y    );
-    `DECL__DXM__(1                  , is_jump           );
-    `DECL__DXM__(1                  , is_branch         );
-    `DECL___XM__(32                 , alu_data_res      );
-    `DECL___XM__(1                  , branched          );
-    `DECL___XM__(1                  , is_nop            );
-    `DECL___XM__(1                  , dbp_hit           );
-    `DECL___XM__(1                  , dbp_miss          );
-    `DECL___XM__(32                 , display           );
-    `DECL___XMW_(1                  , halt              );
-    `DECL____MW_(32                 , dm_data           );
-    `DECL_____W_(32                 , val_rf_data_w     );
-    `DECL__DX___(`MUX_FWD_RF_NBIT   , mux_fwd_rf_a      );
-    `DECL__DX___(`MUX_FWD_RF_NBIT   , mux_fwd_rf_b      );
-    `DECL__DX___(`MUX_FWD_RC0_NBIT  , mux_fwd_rc0_ie    );
-    `DECL__DX___(`MUX_FWD_RC0_NBIT  , mux_fwd_rc0_epc   );
 
     wire [`IM_ADDR_NBIT - 1:0] if_bht_pc_new;
     wire if_bht_take;
@@ -77,6 +32,58 @@ module SynLajiIntelKnightsLanding(
     wire [`BHT_OP_NBIT - 1:0] pic_bht_op;
     wire pic_ifid_en, pic_ifid_nop;
     wire pic_idex_en, pic_idex_nop;
+
+`define GEN_DAT \
+    `GEN_FDX__(`IM_ADDR_NBIT        , pc                ) \
+    `GEN_FDXM_(`IM_ADDR_NBIT        , pc_4              ) \
+    `GEN_FD___(32                   , inst              ) \
+    `GEN__DX__(5                    , shamt             ) \
+    `GEN__DX__(16                   , imm16             ) \
+    `GEN__DO__(32                   , rf_data_a         ) \
+    `GEN__DOM_(32                   , rf_data_b         ) \
+    `GEN__DO__(32                   , rc0_ie            ) \
+    `GEN__DO__(32                   , rc0_epc           ) \
+    `GEN__DX__(1                    , rc0_ivld          ) \
+    `GEN__DX__(`NBIT_IRQ            , rc0_inum          ) \
+    `GEN__DOMW(1                    , ctl_rf_we         ) \
+    `GEN__DOMW(`RC0_OP_NBIT         , ctl_rc0_op        ) \
+    `GEN__DOMW(1                    , ctl_rc0_ie_we     ) \
+    `GEN__DOMW(1                    , ctl_rc0_epc_we    ) \
+    `GEN__DX__(`ALU_OP_NBIT         , ctl_alu_op        ) \
+    `GEN__DO__(`WTG_OP_NBIT         , ctl_wtg_op        ) \
+    `GEN__DO__(1                    , ctl_syscall_en    ) \
+    `GEN__DXM_(`DM_OP_NBIT          , ctl_dm_op         ) \
+    `GEN__DOM_(1                    , ctl_dm_we         ) \
+    `GEN__DXMW(5                    , val_rf_req_w      ) \
+    `GEN__DXMW(`MUX_RF_DATAW_NBIT   , mux_rf_data_w     ) \
+    `GEN____MW(32                   , val_rf_w_tmp      ) \
+    `GEN__DX__(1                    , sel_rc0_epc       ) \
+    `GEN___XM_(32                   , val_rc0_data      ) \
+    `GEN__DO__(`MUX_RC0_IEW_NBIT    , mux_rc0_ie_w      ) \
+    `GEN__DO__(`MUX_RC0_EPCW_NBIT   , mux_rc0_epc_w     ) \
+    `GEN___XMW(32                   , val_rc0_ie_w      ) \
+    `GEN___XMW(32                   , val_rc0_epc_w     ) \
+    `GEN__DX__(`MUX_ALU_DATAY_NBIT  , mux_alu_data_y    ) \
+    `GEN__DXM_(1                    , is_jump           ) \
+    `GEN__DXM_(1                    , is_branch         ) \
+    `GEN___XM_(32                   , alu_data_res      ) \
+    `GEN___XM_(1                    , branched          ) \
+    `GEN___XM_(1                    , is_nop            ) \
+    `GEN___XM_(1                    , dbp_hit           ) \
+    `GEN___XM_(1                    , dbp_miss          ) \
+    `GEN___XM_(32                   , display           ) \
+    `GEN___XMW(1                    , halt              ) \
+    `GEN____MW(32                   , dm_data           ) \
+    `GEN_____W(32                   , val_rf_data_w     ) \
+    `GEN__DX__(`MUX_FWD_RF_NBIT     , mux_fwd_rf_a      ) \
+    `GEN__DX__(`MUX_FWD_RF_NBIT     , mux_fwd_rf_b      ) \
+    `GEN__DX__(`MUX_FWD_RC0_NBIT    , mux_fwd_rc0_ie    ) \
+    `GEN__DX__(`MUX_FWD_RC0_NBIT    , mux_fwd_rc0_epc   )
+`define PIF_IFID_ENA en && pic_ifid_en
+`define PIF_IFID_NOP pic_ifid_nop
+`define PIF_IDEX_ENA en && pic_idex_en
+`define PIF_IDEX_NOP pic_idex_nop
+`include "GenAll.vh"
 
     assign is_jump = ma_is_jump;
     assign is_branch = ma_is_branch;
@@ -179,54 +186,6 @@ module SynLajiIntelKnightsLanding(
         .imx_rc0_ie_w(ex_mux_rc0_ie_w),
         .imx_rc0_epc_w(ex_mux_rc0_epc_w)
     );
-
-`define GPI_PIF vIFID
-`define GPI_ENA en && pic_ifid_en
-`define GPI_NOP pic_ifid_nop
-`define GPI_IST if
-`define GPI_OST id
-`define GPI_DAT `GPI_(pc) `GPI(pc_4) `GPI(inst)
-`include "GenPiplIntf.vh"
-
-`define GPI_PIF vIDEX
-`define GPI_ENA en && pic_idex_en
-`define GPI_NOP pic_idex_nop
-`define GPI_IST id
-`define GPI_OST ex
-`define GPI_DAT \
-    `GPI_(pc) `GPI(pc_4) `GPI(shamt) `GPI(imm16) \
-    `GPI_O(rf_data_a) `GPI_O(rf_data_b) \
-    `GPI_O(rc0_ie) `GPI_O(rc0_epc) `GPI(rc0_ivld) `GPI(rc0_inum) `GPI_O(ctl_rf_we) \
-    `GPI_O(ctl_rc0_op) `GPI_O(ctl_rc0_ie_we) `GPI_O(ctl_rc0_epc_we) \
-    `GPI(ctl_alu_op) `GPI_O(ctl_wtg_op) `GPI_O(ctl_syscall_en) \
-    `GPI(ctl_dm_op) `GPI_O(ctl_dm_we) `GPI(val_rf_req_w) \
-    `GPI(mux_rf_data_w) `GPI(sel_rc0_epc) `GPI_O(mux_rc0_ie_w) `GPI_O(mux_rc0_epc_w) \
-    `GPI(mux_alu_data_y) `GPI(is_jump) `GPI(is_branch) \
-    `GPI(mux_fwd_rf_a) `GPI(mux_fwd_rf_b) `GPI(mux_fwd_rc0_ie) `GPI(mux_fwd_rc0_epc)
-`include "GenPiplIntf.vh"
-
-`define GPI_PIF vEXMA
-`define GPI_IST ex
-`define GPI_OST ma
-`define GPI_DAT \
-    `GPI_(pc_4) `GPI(rf_data_b) `GPI(ctl_rf_we) \
-    `GPI(ctl_rc0_op) `GPI(ctl_rc0_ie_we) `GPI(ctl_rc0_epc_we) \
-    `GPI(ctl_dm_op) `GPI(ctl_dm_we) \
-    `GPI(val_rf_req_w) `GPI(mux_rf_data_w) \
-    `GPI(is_jump) `GPI(is_branch) `GPI(val_rc0_data) \
-    `GPI(val_rc0_ie_w) `GPI(val_rc0_epc_w) `GPI(alu_data_res) \
-    `GPI(branched) `GPI(is_nop) `GPI(dbp_hit) `GPI(dbp_miss) `GPI(display) `GPI(halt)
-`include "GenPiplIntf.vh"
-
-`define GPI_PIF vMAWB
-`define GPI_IST ma
-`define GPI_OST wb
-`define GPI_DAT \
-    `GPI_(ctl_rf_we) `GPI(val_rf_req_w) `GPI(mux_rf_data_w) `GPI(val_rf_w_tmp) \
-    `GPI(ctl_rc0_op) `GPI(ctl_rc0_ie_we) `GPI(ctl_rc0_epc_we) \
-    `GPI(val_rc0_ie_w) `GPI(val_rc0_epc_w) `GPI(halt) `GPI(dm_data)
-`include "GenPiplIntf.vh"
-
     PstIF #(
         .ProgPath(ProgPath)
     ) vIF(
@@ -262,6 +221,7 @@ module SynLajiIntelKnightsLanding(
         .imm16(id_imm16),
         .rf_data_a(id_rf_data_a),
         .rf_data_b(id_rf_data_b),
+        .rc0_ir(irq_st),
         .rc0_ie(id_rc0_ie),
         .rc0_epc(id_rc0_epc),
         .rc0_ivld(id_rc0_ivld),

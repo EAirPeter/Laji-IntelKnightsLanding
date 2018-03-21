@@ -12,7 +12,7 @@ module PstID(
     prv_val_rc0_ie_w, prv_val_rc0_epc_w,
     dbg_rf_data,
     shamt, imm16, rf_data_a, rf_data_b,
-    rc0_ie, rc0_epc, rc0_ivld, rc0_inum,
+    rc0_ir, rc0_ie, rc0_epc, rc0_ivld, rc0_inum,
     ctl_rf_ra, ctl_rf_rb, ctl_rf_we,
     ctl_rc0_op, ctl_rc0_ie_we, ctl_rc0_epc_we,
     ctl_alu_op, ctl_wtg_op,
@@ -35,7 +35,9 @@ module PstID(
     output [31:0] dbg_rf_data;
     output [4:0] shamt;
     output [15:0] imm16;
-    output [31:0] rf_data_a, rf_data_b, rc0_ie, rc0_epc;
+    output [31:0] rf_data_a, rf_data_b;
+    output [`NIRQ - 1:0] rc0_ir;
+    output [31:0] rc0_ie, rc0_epc;
     output rc0_ivld;
     output [`NBIT_IRQ - 1:0] rc0_inum;
     output ctl_rf_ra, ctl_rf_rb, ctl_rf_we;
@@ -118,6 +120,7 @@ module PstID(
         .ie_w(prv_val_rc0_ie_w),
         .epc_w(prv_val_rc0_epc_w),
         .irq_src(irq_src),
+        .ir(rc0_ir),
         .ie(rc0_ie),
         .epc(rc0_epc),
         .ivld(rc0_ivld),
