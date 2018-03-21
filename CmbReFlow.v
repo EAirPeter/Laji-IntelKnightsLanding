@@ -15,11 +15,15 @@ module CmbReFlowDual(
 );
     always @(*) begin 
         data = origin_data;
-        if(reflow_req_2 == origin_req)  begin
+        
+        if(reflow_en_2 && reflow_req_2 == origin_req)  begin
             data = reflow_data_2;
         end
-        if(reflow_req_1 == origin_req)  begin
+        if(reflow_en_1 && reflow_req_1 == origin_req)  begin
             data = reflow_data_1;
+        end
+        if(origin_req == 0) begin
+            data = origin_data;
         end
     end
 endmodule
@@ -34,8 +38,11 @@ module CmbReFlowSingle(
 );
     always @(*) begin 
         data = origin_data;
-        if(reflow_req_1 == origin_req)  begin
+        if(reflow_en_1 && reflow_req_1 == origin_req)  begin
             data = reflow_data_1;
+        end
+        if(origin_req == 0) begin
+            data = origin_data;
         end
     end
 endmodule

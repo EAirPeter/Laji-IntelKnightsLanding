@@ -148,11 +148,20 @@ module SynLajiIntelKnightsLanding(
         // && !stop_x_dm_vps1
         // && !stop_y_wb_vps1
         // && !stop_y_dm_vps1;
+    CmbBubble vLD_USE_BUBBLE(
+        .self_use_en_1(1'h1),
+        .self_use_req_1(regfile_req_a_ps1),
+        .self_use_en_2(1'h1),
+        .self_use_req_2(regfile_req_b_ps1),
+        .mem_read_en(r_datamem_ps2 && !skip_load_use_ps2),
+        .regfile_req_w(regfile_req_w_ps2),
+        .bubble(bubble)
+    );
 
    /////////////////////////////
     ///////   ps2 ID/EX  ////////
-    assign en_vps2 = en_vps3 ;
-    assign clear_vps2 = !pred_succ;
+    assign en_vps2 = en_vps3 && !bubble;
+    assign clear_vps2 = !pred_succ || bubble;
     `include "inc/Laji_vPS2_inc.vh"
     /////////////////////////////
     // data_src: ps3: alu.out/rd/rt
@@ -211,19 +220,10 @@ module SynLajiIntelKnightsLanding(
         .data_res(alu_data_res_ps2)
     );
 
-    CmbBubble vLD_USE_BUBBLE(
-        .self_use_en_1(1'h1),
-        .self_use_req_1(regfile_req_a_ps2),
-        .self_use_en_2(1'h1),
-        .self_use_req_2(regfile_req_b_ps2),
-        .mem_read_en(r_datamem_ps3 && !skip_load_use_ps3),
-        .regfile_req_w(regfile_req_w_ps3),
-        .bubble(bubble)
-    );
     /////////////////////////////
     ///////   ps3 EX/DM  ////////
-    assign en_vps3 = en_vps4 && !bubble;
-    assign clear_vps3 = !pred_succ || bubble;
+    assign en_vps3 = en_vps4;
+    assign clear_vps3 = !pred_succ;
     `include "inc/Laji_vPS3_inc.vh"
     /////////////////////////////
     // ps4: datamem: rt
