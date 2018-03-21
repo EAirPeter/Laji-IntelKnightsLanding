@@ -8,6 +8,8 @@
         .pc_4(pc_4_ps2),
         .regfile_req_a_in(regfile_req_a_ps1),
         .regfile_req_a(regfile_req_a_ps2),
+        .regfile_req_b_in(regfile_req_b_ps1),
+        .regfile_req_b(regfile_req_b_ps2),
         .rt_in(rt_ps1),
         .rt(rt_ps2),
         .rd_in(rd_ps1),

@@ -5,7 +5,8 @@ wire [4:0] rs;
 reg [4:0] regfile_req_a_ps1;   // conbinatorial
 wire [4:0] regfile_req_a_ps2, regfile_req_a_ps3, regfile_req_a_ps4;          
 wire [4:0] rt;
-reg [4:0] regfile_req_b;          // conbinatorial 
+reg [4:0] regfile_req_b_ps1;          // conbinatorial 
+wire [4:0] regfile_req_b_ps2, regfile_req_b_ps3, regfile_req_b_ps4;          
 wire [4:0] rt_ps1, rt_ps2, rt_ps3;
 wire [4:0] rd_ps1, rd_ps2;
 wire [4:0] shamt_ps1, shamt_ps2;
@@ -37,6 +38,6 @@ wire clear_vps1, clear_vps2, clear_vps3, clear_vps4;
 wire [`IM_ADDR_BIT - 1:0] pc_guessed_ps0, pc_guessed_ps1, pc_guessed_ps2, pc_guessed_ps3;
 wire en_vps0, en_vps1, en_vps2, en_vps3, en_vps4;
 wire skip_load_use_ps1, skip_load_use_ps2;
-wire r_datamem_ps1, r_datamem_ps2;
+wire r_datamem_ps1, r_datamem_ps2, r_datamem_ps3;
 wire bubble;
 wire pred_succ;

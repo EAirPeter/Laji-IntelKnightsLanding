@@ -108,8 +108,8 @@ module SynLajiIntelKnightsLanding(
             `MUX_RFA_REQ_V0: regfile_req_a_ps1 = `V0;
         endcase
         case(mux_regfile_b_req)
-            `MUX_RFB_REQ_RT: regfile_req_b = rt;
-            `MUX_RFB_REQ_A0: regfile_req_b = `A0;
+            `MUX_RFB_REQ_RT: regfile_req_b_ps1 = rt;
+            `MUX_RFB_REQ_A0: regfile_req_b_ps1 = `A0;
         endcase
     end
 
@@ -121,7 +121,7 @@ module SynLajiIntelKnightsLanding(
         .req_dbg(regfile_req_dbg), 
         .req_w(regfile_req_w_ps4),          // DO AT PS4
         .req_a(regfile_req_a_ps1),
-        .req_b(regfile_req_b),
+        .req_b(regfile_req_b_ps1),
         .data_w(regfile_data_w_ps4),        // DO AT PS4
         // output
         .data_dbg(regfile_data_dbg), // out connection
@@ -165,7 +165,7 @@ module SynLajiIntelKnightsLanding(
         .reflow_data_1(alu_data_res_ps3),
         .reflow_en_2(regfile_w_en_ps4),
         .reflow_req_2(regfile_req_w_ps4),
-        .reflow_data_2(regfile_req_w_ps4),
+        .reflow_data_2(regfile_data_w_ps4),
         // output
         .data(regfile_data_a_ps2)
     );
@@ -178,7 +178,7 @@ module SynLajiIntelKnightsLanding(
         .reflow_data_1(alu_data_res_ps3),
         .reflow_en_2(regfile_w_en_ps4),
         .reflow_req_2(regfile_req_w_ps4),
-        .reflow_data_2(regfile_req_w_ps4),
+        .reflow_data_2(regfile_data_w_ps4),
         // output
         .data(regfile_data_b_ps2)
     );
@@ -188,20 +188,6 @@ module SynLajiIntelKnightsLanding(
         .out_sign(ext_out_sign),
         .out_zero(ext_out_zero)
     );
-
-    // always @(*) begin
-    //     case (mux_alu_data_x_ps2)
-    //         `MUX_ALU_DATAY_RFB:
-    //             alu_data_x <= regfile_data_b_ps2;
-    //         `MUX_ALU_DATAY_EXTS:
-    //             alu_data_x <= ext_out_sign;
-    //         `MUX_ALU_DATAY_EXTZ:
-    //             alu_data_x <= ext_out_zero;
-    //         default:
-    //             alu_data_x <= 32'd0;
-    //     endcase
-    // end
-
 
     always @(*) begin
         case (mux_alu_data_y_ps2)
@@ -226,12 +212,12 @@ module SynLajiIntelKnightsLanding(
     );
 
     CmbBubble vLD_USE_BUBBLE(
-        .self_use_en_1(1),
-        .self_use_req_1(regfile_data_a_ps2),
-        .self_use_en_2(1),
-        .self_use_req_2(regfile_data_b_ps2),
-        .mem_read_en(r_datamem_ps2 && !skip_load_use_ps2),
-        .regfile_req_w(regfile_req_w_ps),
+        .self_use_en_1(1'h1),
+        .self_use_req_1(regfile_req_a_ps2),
+        .self_use_en_2(1'h1),
+        .self_use_req_2(regfile_req_b_ps2),
+        .mem_read_en(r_datamem_ps3 && !skip_load_use_ps3),
+        .regfile_req_w(regfile_req_w_ps3),
         .bubble(bubble)
     );
     /////////////////////////////

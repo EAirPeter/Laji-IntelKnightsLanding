@@ -9,6 +9,7 @@ module SynPS2(
     input clear,
     input [`IM_ADDR_BIT - 1:0] pc_4_in,
     input [4:0] regfile_req_a_in,
+    input [4:0] regfile_req_b_in,
     input [4:0] rt_in,
     input [4:0] rd_in,
     input [4:0] shamt_in,
@@ -30,6 +31,7 @@ module SynPS2(
     input r_datamem_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
     output reg [4:0] regfile_req_a,
+    output reg [4:0] regfile_req_b,
     output reg [4:0] rt,
     output reg [4:0] rd,
     output reg [4:0] shamt,
@@ -54,6 +56,7 @@ module SynPS2(
         if (!rst_n || clear) begin 
             pc_4 <= 0;
             regfile_req_a <= 0;
+            regfile_req_b <= 0;
             rt <= 0;
             rd <= 0;
             shamt <= 0;
@@ -76,6 +79,7 @@ module SynPS2(
         end else if(en) begin
             pc_4 <= pc_4_in;
             regfile_req_a <= regfile_req_a_in;
+            regfile_req_b <= regfile_req_b_in;
             rt <= rt_in;
             rd <= rd_in;
             shamt <= shamt_in;

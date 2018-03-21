@@ -8,6 +8,8 @@
         .pc_4(pc_4_ps3),
         .regfile_req_a_in(regfile_req_a_ps2),
         .regfile_req_a(regfile_req_a_ps3),
+        .regfile_req_b_in(regfile_req_b_ps2),
+        .regfile_req_b(regfile_req_b_ps3),
         .rt_in(rt_ps2),
         .rt(rt_ps3),
         .imm16_in(imm16_ps2),
@@ -33,5 +35,7 @@
         .syscall_en_in(syscall_en_ps2),
         .syscall_en(syscall_en_ps3),
         .pc_guessed_in(pc_guessed_ps2),
-        .pc_guessed(pc_guessed_ps3)
+        .pc_guessed(pc_guessed_ps3),
+        .r_datamem_in(r_datamem_ps2),
+        .r_datamem(r_datamem_ps3)
     );

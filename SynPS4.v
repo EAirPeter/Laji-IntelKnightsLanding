@@ -9,6 +9,7 @@ module SynPS4(
     input clear,
     input [`IM_ADDR_BIT - 1:0] pc_4_in,
     input [4:0] regfile_req_a_in,
+    input [4:0] regfile_req_b_in,
     input regfile_w_en_in,
     input [4:0] regfile_req_w_in,
     input [31:0] alu_data_res_in,
@@ -17,6 +18,7 @@ module SynPS4(
     input halt_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
     output reg [4:0] regfile_req_a,
+    output reg [4:0] regfile_req_b,
     output reg regfile_w_en,
     output reg [4:0] regfile_req_w,
     output reg [31:0] alu_data_res,
@@ -28,6 +30,7 @@ module SynPS4(
         if (!rst_n || clear) begin 
             pc_4 <= 0;
             regfile_req_a <= 0;
+            regfile_req_b <= 0;
             regfile_w_en <= 0;
             regfile_req_w <= 0;
             alu_data_res <= 0;
@@ -37,6 +40,7 @@ module SynPS4(
         end else if(en) begin
             pc_4 <= pc_4_in;
             regfile_req_a <= regfile_req_a_in;
+            regfile_req_b <= regfile_req_b_in;
             regfile_w_en <= regfile_w_en_in;
             regfile_req_w <= regfile_req_w_in;
             alu_data_res <= alu_data_res_in;
