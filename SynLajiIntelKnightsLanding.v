@@ -60,9 +60,9 @@ module SynLajiIntelKnightsLanding(
         .rst_n(rst_n),
         .update_en(wtg_op_ps3 != `WTG_OP_DEFAULT),
         .update_pc_4(pc_4_ps3),
-        .update_pc_remote(imm16_ps3[`IM_ADDR_BIT - 1:0]),
+        .update_pc_remote(pc_remote),
         .update_state_old(bht_state_ps3),
-        .branch_succ(branched),
+        .branch_succ(branched || is_jump_ps3),
         
         .pc_4(pc_4_ps0),
         .guess_new_pc(pc_guessed_ps0),
@@ -105,11 +105,11 @@ module SynLajiIntelKnightsLanding(
         .mux_regfile_data_w(mux_regfile_data_w_ps1), 
         .mux_alu_data_y(mux_alu_data_y_ps1), 
         .r_datamem(r_datamem_ps1),
-        .is_jump(is_jump),      // out_connection
-        .is_branch(is_branch)   // out_connection
+        .is_jump(is_jump_ps1),      
+        .is_branch(is_branch_ps1)  
     );
 
-    assign skip_load_use_ps1 = is_jump || is_branch || syscall_en_ps1;
+    assign skip_load_use_ps1 = is_jump_ps1 || is_branch_ps1 || syscall_en_ps1;
     wire mux_regfile_a_req = syscall_en_ps1;
     wire mux_regfile_b_req = syscall_en_ps1;
     always@(*) begin
@@ -229,6 +229,8 @@ module SynLajiIntelKnightsLanding(
     assign clear_vps3 = !pred_succ;
     `include "inc/Laji_vPS3_inc.vh"
     /////////////////////////////
+    assign is_jump = is_jump_ps3;
+    assign is_branch = is_branch_ps3;
 
     CmbReFlowSingle vDM_REG_A_REFLOW(
         .origin_req(regfile_req_a_ps3),
@@ -267,6 +269,7 @@ module SynLajiIntelKnightsLanding(
         .pc_4(pc_4_ps3),
         .pc_guessed(pc_guessed_ps3),
         // output
+        .pc_remote(pc_remote),
         .pc_new(wtg_pc_new_ps3),
         .pred_succ(pred_succ),
         .branched(branched)            // out connection

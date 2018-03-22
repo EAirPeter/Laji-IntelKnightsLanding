@@ -43,3 +43,5 @@ wire bubble;
 wire pred_succ;
 wire [1:0] bht_state_ps0, bht_state_ps1, bht_state_ps2, bht_state_ps3; 
 wire [`IM_ADDR_BIT - 1:0] pc_remote;
+wire is_branch_ps1, is_branch_ps2, is_branch_ps3;
+wire is_jump_ps1, is_jump_ps2, is_jump_ps3;

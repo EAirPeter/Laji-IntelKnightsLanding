@@ -14,7 +14,7 @@ module CmbWTG(
     input [`IM_ADDR_BIT - 1:0] pc_guessed,
     output reg [`IM_ADDR_BIT - 1:0] pc_new,
     // True on successful conditional branch
-    output reg pc_remote,
+    output reg [`IM_ADDR_BIT - 1:0] pc_remote,
     output reg branched,        
     output pred_succ
 );

@@ -49,5 +49,9 @@
         .r_datamem_in(r_datamem_ps1),
         .r_datamem(r_datamem_ps2),
         .bht_state_in(bht_state_ps1),
-        .bht_state(bht_state_ps2)
+        .bht_state(bht_state_ps2),
+        .is_branch_in(is_branch_ps1),
+        .is_branch(is_branch_ps2),
+        .is_jump_in(is_jump_ps1),
+        .is_jump(is_jump_ps2)
     );
