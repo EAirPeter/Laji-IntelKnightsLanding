@@ -89,7 +89,7 @@ module SynBHT(
                     lru_flags[i][j] <= (i <= j);
                 end
                 pc_4_array[i] <= 0;
-                // data_array[i] <= 'hfff;
+                data_array[i] <= 0;
             end
         end
         else if(update_en) begin 

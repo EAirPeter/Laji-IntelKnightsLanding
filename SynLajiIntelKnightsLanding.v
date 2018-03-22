@@ -296,18 +296,18 @@ module SynLajiIntelKnightsLanding(
     `include "inc/Laji_vPS4_inc.vh"
     //////////////////////
 
-    reg [15:0] inst_counter;
+    // reg [15:0] inst_counter;
     assign valid_inst = (pc_4_ps4 != 0);
 
-    always @(posedge clk, negedge rst_n) begin
-        if(!rst_n)
-            inst_counter <= 0;
-        else begin
-            if(en && valid_inst) begin
-                inst_counter <= inst_counter + 1;
-            end
-        end
-    end
+    // always @(posedge clk, negedge rst_n) begin
+    //     if(!rst_n)
+    //         inst_counter <= 0;
+    //     else begin
+    //         if(en && valid_inst) begin
+    //             inst_counter <= inst_counter + 1;
+    //         end
+    //     end
+    // end
     assign halt = halt_ps4;
     always @(*) begin
         case (mux_regfile_data_w_ps4)

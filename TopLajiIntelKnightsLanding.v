@@ -126,7 +126,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     ) vValidInst(
         .clk(core_clk),
         .rst_n(rst_n),
-        .en(valid_inst),
+        .en(valid_inst && core_en),
         .ld(1'b0),
         .val(32'd0),
         .cnt(cnt_valid_inst)
