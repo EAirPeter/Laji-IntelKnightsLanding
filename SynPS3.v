@@ -25,6 +25,7 @@ module SynPS3(
     input [`IM_ADDR_BIT - 1:0] pc_guessed_in,
     input skip_load_use_in,
     input r_datamem_in,
+    input [1:0] bht_state_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
     output reg [4:0] regfile_req_a,
     output reg [4:0] regfile_req_b,
@@ -42,7 +43,8 @@ module SynPS3(
     output reg syscall_en,
     output reg [`IM_ADDR_BIT - 1:0] pc_guessed,
     output reg skip_load_use,
-    output reg r_datamem
+    output reg r_datamem,
+    output reg [1:0] bht_state
 );
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n || clear) begin 
@@ -64,6 +66,7 @@ module SynPS3(
             pc_guessed <= 0;
             skip_load_use <= 0;
             r_datamem <= 0;
+            bht_state <= 0;
         end else if(en) begin
             pc_4 <= pc_4_in;
             regfile_req_a <= regfile_req_a_in;
@@ -83,6 +86,7 @@ module SynPS3(
             pc_guessed <= pc_guessed_in;
             skip_load_use <= skip_load_use_in;
             r_datamem <= r_datamem_in;
+            bht_state <= bht_state_in;
         end
     end
 endmodule

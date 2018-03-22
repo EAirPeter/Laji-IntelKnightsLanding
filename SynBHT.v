@@ -68,7 +68,6 @@ module SynBHT(
     assign mask_final = hit ? update_selector : to_die_mask;
     
 
-    reg[7:0] choosed_slot_mask;
     reg[1:0] new_state;
     always @(*) begin
         case({update_state_old, branch_succ}) 

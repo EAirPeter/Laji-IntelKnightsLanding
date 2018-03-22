@@ -31,9 +31,8 @@ module SynLajiIntelKnightsLanding(
     wire [`IM_ADDR_BIT - 1 + 2:0] pc_4_dbg4 = {pc_4_ps4, 2'd0};
 
     // use BHT instead, buggy
-    assign pc_guessed_ps0 = pc_4_ps0;
+    // assign pc_guessed_ps0 = pc_4_ps0;
     assign pc_new = pred_succ ? pc_guessed_ps0 : wtg_pc_new_ps3;
-
     ////////////////////////////
     ///////  ps0 gen/IF  ///////
     assign en_vps0 = !pred_succ || en_vps2;
@@ -55,7 +54,20 @@ module SynLajiIntelKnightsLanding(
         // output
         .inst(inst_ps0)
     );
-    
+    // current instruction: branch
+    SynBHT vBHT(
+        .clk(clk),
+        .rst_n(rst_n),
+        .update_en(wtg_op_ps3 != `WTG_OP_DEFAULT),
+        .update_pc_4(pc_4_ps3),
+        .update_pc_remote(imm16_ps3[`IM_ADDR_BIT - 1:0]),
+        .update_state_old(bht_state_ps3),
+        .branch_succ(branched),
+        
+        .pc_4(pc_4_ps0),
+        .guess_new_pc(pc_guessed_ps0),
+        .guess_state(bht_state_ps0)
+    );
 
     ////////////////////////////
     ///////   ps1 IF/ID  ////////

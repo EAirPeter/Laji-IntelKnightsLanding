@@ -41,3 +41,5 @@ wire skip_load_use_ps1, skip_load_use_ps2, skip_load_use_ps3;
 wire r_datamem_ps1, r_datamem_ps2, r_datamem_ps3, r_datamem_ps4;
 wire bubble;
 wire pred_succ;
+wire [1:0] bht_state_ps0, bht_state_ps1, bht_state_ps2, bht_state_ps3; 
+wire [`IM_ADDR_BIT - 1:0] pc_remote;

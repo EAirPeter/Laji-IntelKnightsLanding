@@ -14,6 +14,7 @@ module CmbWTG(
     input [`IM_ADDR_BIT - 1:0] pc_guessed,
     output reg [`IM_ADDR_BIT - 1:0] pc_new,
     // True on successful conditional branch
+    output reg pc_remote,
     output reg branched,        
     output pred_succ
 );
@@ -22,14 +23,17 @@ module CmbWTG(
     wire [`IM_ADDR_BIT - 1:0] b_addr = imm + pc_4;
 
     always @(*) begin
+        pc_remote = b_addr;
         case (op)
             `WTG_OP_J32: begin
                 branched = 0;
                 pc_new = data_x[`IM_ADDR_BIT - 1:0];
+                pc_remote = data_x[`IM_ADDR_BIT - 1:0];
             end
             `WTG_OP_J26: begin 
                 branched = 0;
                 pc_new = j_addr;
+                pc_remote = j_addr;
             end
             `WTG_OP_BEQ: begin
                 branched = (data_x == data_y);

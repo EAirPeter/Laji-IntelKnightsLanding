@@ -47,5 +47,7 @@
         .skip_load_use_in(skip_load_use_ps1),
         .skip_load_use(skip_load_use_ps2),
         .r_datamem_in(r_datamem_ps1),
-        .r_datamem(r_datamem_ps2)
+        .r_datamem(r_datamem_ps2),
+        .bht_state_in(bht_state_ps1),
+        .bht_state(bht_state_ps2)
     );
