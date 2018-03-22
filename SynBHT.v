@@ -28,30 +28,30 @@ module SynBHT(
     integer base;
     always @(*) begin
         guess_new_pc = pc_4;
+        
         for(i=0; i<8; i=i+1) begin 
             guess_selector[i] = (pc_4_array[i] == pc_4);
         end
-        if(&guess_selector) begin 
-            for(i=0; i < 8; i = i + 1) begin
-                data_tmp[8 + i] = (guess_selector[i]) ? data_array[i]: `IM_ADDR_BIT'h0;
-            end
-            for(base = (8 >> 1); base > 0 ; base = (base >> 1)) begin
-                for(j = 0; j < base; j = j + 1) begin
-                    data_tmp[base + j] = data_tmp[ 2 * base + 2*j] | data_tmp[ 2 * base + 2*j + 1];
-                end
-            end
-            guess_state = data_tmp[1][2+`IM_ADDR_BIT - 1 : `IM_ADDR_BIT];
-            pc_remote = data_tmp[1][`IM_ADDR_BIT - 1];
-            if(guess_state[1]) begin    // 11 -> 10 -> 00 -> 01
-                guess_new_pc = pc_remote;
-            end            
+        for(i=0; i < 8; i = i + 1) begin
+            data_tmp[8 + i] = (guess_selector[i]) ? data_array[i]: `IM_ADDR_BIT'h0;
         end
+
+        for(base = (8 >> 1); base > 0 ; base = (base >> 1)) begin
+            for(j = 0; j < base; j = j + 1) begin
+                data_tmp[base + j] = data_tmp[ 2 * base + 2*j] | data_tmp[ 2 * base + 2*j + 1];
+            end
+        end
+        guess_state = data_tmp[1][2+`IM_ADDR_BIT - 1 : `IM_ADDR_BIT];
+        pc_remote = data_tmp[1][`IM_ADDR_BIT - 1:0];
+        if(guess_state[1]) begin    // 11 -> 10 -> 00 -> 01
+            guess_new_pc = pc_remote;
+        end            
     end
 
     reg [7:0] to_die_mask; //Cmb
     reg [7:0] update_selector; //Cmb
-    reg [7:0] mask_final; // combinatorial
-    reg hit;    // combinatorial
+    wire [7:0] mask_final; // combinatorial
+    wire hit;    // combinatorial
     integer k;
     always @(*) begin
         for(i=0; i<8; i=i+1) begin 
@@ -62,11 +62,11 @@ module SynBHT(
             // use if not hit
             to_die_mask[k] = (&(lru_flags[k]));
         end
-        hit = &update_selector;
-        if(hit) begin
-            mask_final = hit?update_selector:to_die_mask;
-        end
     end
+
+    assign hit = |update_selector;
+    assign mask_final = hit ? update_selector : to_die_mask;
+    
 
     reg[7:0] choosed_slot_mask;
     reg[1:0] new_state;
@@ -89,16 +89,19 @@ module SynBHT(
                 for(j=0; j < 8; j = j + 1) begin
                     lru_flags[i][j] <= (i <= j);
                 end
+                pc_4_array[i] <= 0;
+                // data_array[i] <= 'hfff;
             end
         end
         else if(update_en) begin 
             for(i=0; i < 8; i = i+1) begin
                 if(mask_final[i]) begin
-                    data_array[i] <= {new_state, pc_remote};
+                    data_array[i] <= {new_state, update_pc_remote};
+                    pc_4_array[i] <= update_pc_4;
                 end
             end
             for(n=0; n < 8; n = n + 1) begin
-                lru_flags[n] <= (&(lru_flags[n])) ? mask_final: lru_flags[n] | mask_final;
+                lru_flags[n] <= (mask_final[n]) ? mask_final: lru_flags[n] | mask_final;
             end
         end
     end
