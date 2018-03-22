@@ -29,7 +29,18 @@ module SynPS4(
     output reg r_datamem
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n || clear) begin 
+        if (!rst_n) begin 
+            pc_4 <= 0;
+            regfile_req_a <= 0;
+            regfile_req_b <= 0;
+            regfile_w_en <= 0;
+            regfile_req_w <= 0;
+            alu_data_res <= 0;
+            datamem_data <= 0;
+            mux_regfile_data_w <= 0;
+            halt <= 0;
+            r_datamem <= 0;
+        end else if(clear) begin
             pc_4 <= 0;
             regfile_req_a <= 0;
             regfile_req_b <= 0;

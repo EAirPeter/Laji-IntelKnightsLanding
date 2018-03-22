@@ -15,7 +15,9 @@ module SynPS{0}(
 {1}
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n || clear) begin 
+        if (!rst_n) begin 
+{2}
+        end else if(clear) begin
 {2}
         end else if(en) begin
 {3}

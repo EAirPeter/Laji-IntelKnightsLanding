@@ -14,37 +14,37 @@ module CmbALU(op, data_x, data_y, shamt, data_res);
     always @(*) begin
         case (op)
             `ALU_OP_AND:
-                data_res <= (data_x & data_y);
+                data_res = (data_x & data_y);
             `ALU_OP_OR:
-                data_res <= (data_x | data_y);
+                data_res = (data_x | data_y);
             `ALU_OP_XOR:
-                data_res <= (data_x ^ data_y);
+                data_res = (data_x ^ data_y);
             `ALU_OP_NOR:
-                data_res <= ~(data_x | data_y);
+                data_res = ~(data_x | data_y);
             `ALU_OP_ADD:
-                data_res <= (data_x + data_y);
+                data_res = (data_x + data_y);
             `ALU_OP_SUB:
-                data_res <= (data_x - data_y);
+                data_res = (data_x - data_y);
             `ALU_OP_SLLV:
-                data_res <= (data_y << data_x[4:0]);
+                data_res = (data_y << data_x[4:0]);
             `ALU_OP_SRAV:
-                data_res <= $unsigned(($signed(data_y) >>> data_x[4:0]));
+                data_res = $unsigned(($signed(data_y) >>> data_x[4:0]));
             `ALU_OP_SRLV:
-                data_res <= (data_y >> data_x[4:0]);
+                data_res = (data_y >> data_x[4:0]);
             `ALU_OP_SLL:
-                data_res <= (data_y << shamt);
+                data_res = (data_y << shamt);
             `ALU_OP_SRA:
-                data_res <= $unsigned(($signed(data_y) >>> shamt));
+                data_res = $unsigned(($signed(data_y) >>> shamt));
             `ALU_OP_SRL:
-                data_res <= (data_y >> shamt);
+                data_res = (data_y >> shamt);
             `ALU_OP_SLT:
-                data_res <= ($signed(data_x) < $signed(data_y));
+                data_res = ($signed(data_x) < $signed(data_y));
             `ALU_OP_SLTU:
-                data_res <= (data_x < data_y);
+                data_res = (data_x < data_y);
             `ALU_OP_LUI:
-                data_res <= (data_y << 'd16);
+                data_res = (data_y << 'd16);
             default:
-                data_res <= 32'd0;
+                data_res = 32'd0;
         endcase
     end
 endmodule

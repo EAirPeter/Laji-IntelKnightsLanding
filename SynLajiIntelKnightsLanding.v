@@ -142,13 +142,13 @@ module SynLajiIntelKnightsLanding(
     always @(*) begin
         case (mux_regfile_req_w_ps1)
             `MUX_RF_REQW_RD:
-                regfile_req_w_ps1 <= rd_ps1;
+                regfile_req_w_ps1 = rd_ps1;
             `MUX_RF_REQW_RT:
-                regfile_req_w_ps1 <= rt_ps1;
+                regfile_req_w_ps1 = rt_ps1;
             `MUX_RF_REQW_31:
-                regfile_req_w_ps1 <= 5'd31;
+                regfile_req_w_ps1 = 5'd31;
             default:
-                regfile_req_w_ps1 <= 5'd0;
+                regfile_req_w_ps1 = 5'd0;
         endcase
     end
 
@@ -204,13 +204,13 @@ module SynLajiIntelKnightsLanding(
     always @(*) begin
         case (mux_alu_data_y_ps2)
             `MUX_ALU_DATAY_RFB:
-                alu_data_y <= regfile_data_b_ps2;
+                alu_data_y = regfile_data_b_ps2;
             `MUX_ALU_DATAY_EXTS:
-                alu_data_y <= ext_out_sign;
+                alu_data_y = ext_out_sign;
             `MUX_ALU_DATAY_EXTZ:
-                alu_data_y <= ext_out_zero;
+                alu_data_y = ext_out_zero;
             default:
-                alu_data_y <= 32'd0;
+                alu_data_y = 32'd0;
         endcase
     end
 
@@ -312,13 +312,13 @@ module SynLajiIntelKnightsLanding(
     always @(*) begin
         case (mux_regfile_data_w_ps4)
             `MUX_RF_DATAW_ALU:
-                regfile_data_w_ps4 <= alu_data_res_ps4;
+                regfile_data_w_ps4 = alu_data_res_ps4;
             `MUX_RF_DATAW_DM:
-                regfile_data_w_ps4 <= datamem_data_ps4;
+                regfile_data_w_ps4 = datamem_data_ps4;
             `MUX_RF_DATAW_PC4:
-                regfile_data_w_ps4 <= pc_4_ps4;
+                regfile_data_w_ps4 = pc_4_ps4;
             default:
-                regfile_data_w_ps4 <= 32'd0;
+                regfile_data_w_ps4 = 32'd0;
         endcase
     end
 endmodule

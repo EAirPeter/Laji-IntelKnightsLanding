@@ -26,22 +26,22 @@ module AuxDisplay(clk, data, seg_n, an_n);
     wire [3:0] current = value[ctr_cnt];
     always @(*) begin
         case (current)
-            'h0: seg_n <= 'b11000000;
-            'h1: seg_n <= 'b11111001;
-            'h2: seg_n <= 'b10100100;
-            'h3: seg_n <= 'b10110000;
-            'h4: seg_n <= 'b10011001;
-            'h5: seg_n <= 'b10010010;
-            'h6: seg_n <= 'b10000010;
-            'h7: seg_n <= 'b11111000;
-            'h8: seg_n <= 'b10000000;
-            'h9: seg_n <= 'b10010000;
-            'ha: seg_n <= 'b10001000;
-            'hb: seg_n <= 'b10000011;
-            'hc: seg_n <= 'b11000110;
-            'hd: seg_n <= 'b10100001;
-            'he: seg_n <= 'b10000110;
-            'hf: seg_n <= 'b10001110;
+            'h0: seg_n = 'b11000000;
+            'h1: seg_n = 'b11111001;
+            'h2: seg_n = 'b10100100;
+            'h3: seg_n = 'b10110000;
+            'h4: seg_n = 'b10011001;
+            'h5: seg_n = 'b10010010;
+            'h6: seg_n = 'b10000010;
+            'h7: seg_n = 'b11111000;
+            'h8: seg_n = 'b10000000;
+            'h9: seg_n = 'b10010000;
+            'ha: seg_n = 'b10001000;
+            'hb: seg_n = 'b10000011;
+            'hc: seg_n = 'b11000110;
+            'hd: seg_n = 'b10100001;
+            'he: seg_n = 'b10000110;
+            'hf: seg_n = 'b10001110;
         endcase
     end
 

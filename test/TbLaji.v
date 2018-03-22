@@ -5,7 +5,7 @@
 module TbLaji();
     reg clk = 1'b1;
     always #5 clk <= !clk;
-    reg rst_n = 1'b0;
+    reg rst_n = 0'b0;
     reg resume = 1'b0;
     reg [15:0] swt = 16'b11;
     wire [7:0] seg_n;

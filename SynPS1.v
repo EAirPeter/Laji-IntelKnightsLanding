@@ -17,7 +17,12 @@ module SynPS1(
     output reg [1:0] bht_state
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n || clear) begin 
+        if (!rst_n) begin 
+            pc_4 <= 0;
+            inst <= 0;
+            pc_guessed <= 0;
+            bht_state <= 0;
+        end else if(clear) begin
             pc_4 <= 0;
             inst <= 0;
             pc_guessed <= 0;

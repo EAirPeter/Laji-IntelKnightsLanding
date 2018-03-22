@@ -51,7 +51,29 @@ module SynPS3(
     output reg is_jump
 );
     always @(posedge clk, negedge rst_n) begin
-        if (!rst_n || clear) begin 
+        if (!rst_n) begin 
+            pc_4 <= 0;
+            regfile_req_a <= 0;
+            regfile_req_b <= 0;
+            rt <= 0;
+            imm16 <= 0;
+            regfile_w_en <= 0;
+            regfile_data_a <= 0;
+            regfile_data_b <= 0;
+            regfile_req_w <= 0;
+            wtg_op <= 0;
+            alu_data_res <= 0;
+            datamem_op <= 0;
+            datamem_w_en <= 0;
+            mux_regfile_data_w <= 0;
+            syscall_en <= 0;
+            pc_guessed <= 0;
+            skip_load_use <= 0;
+            r_datamem <= 0;
+            bht_state <= 0;
+            is_branch <= 0;
+            is_jump <= 0;
+        end else if(clear) begin
             pc_4 <= 0;
             regfile_req_a <= 0;
             regfile_req_b <= 0;
