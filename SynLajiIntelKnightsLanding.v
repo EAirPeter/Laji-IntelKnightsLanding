@@ -261,6 +261,9 @@ module SynLajiIntelKnightsLanding(
         .halt(halt_ps3)                 // out connection
     );
 
+    // interrupter: 
+    
+
     CmbWTG vWTG(
         .op(wtg_op_ps3),
         .imm(imm16_ps3[`IM_ADDR_BIT - 1:0]),
@@ -322,4 +325,3 @@ module SynLajiIntelKnightsLanding(
         endcase
     end
 endmodule
-

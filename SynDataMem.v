@@ -2,7 +2,7 @@
 
 `include "Core.vh"
 
-// Brief: Data Memory, combinatorial
+// Brief: Data Memory, Synchorized
 // Author: cuishaobo
 module SynDataMem(clk, rst_n, en, op, w_en, addr_dbg, addr, data_in, data_dbg, data);
     localparam MemLen = 1 << (`DM_ADDR_BIT - 2);
