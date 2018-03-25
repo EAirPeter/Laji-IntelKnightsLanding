@@ -3,7 +3,7 @@
 #############################################################
 .text
 benchmark_start:
-  addi $s1,$zero, 1   #测试j,jal,jr指令，如需要可分开测试，执行正常应该是15个周期
+ addi $s1,$zero, 1   #测试j,jal,jr指令，如需要可分开测试，执行正常应该是15个周期
  j jmp_next1
  addi $s1,$zero, 1
  addi $s2,$zero, 2
@@ -300,26 +300,108 @@ sort_next:
 # insert your ccmb benchmark program here!!!
 #############################################
 
-j benchmark_start       #delete this instruction for ccmb bencmark
+# j benchmark_start       #delete this instruction for ccmb bencmark
 #C1 instruction benchmark
+addi $t0,$zero,1     
+addi $t1,$zero,3     
+addi $s1,$zero,  0x876     
 
+add $a0,$0,$s1           
+addi $v0,$zero,34         # system call for print
+syscall                  # print
+
+addi $t3,$zero,8
+
+sllv_branch:
+sllv $s1,$s1,$t0     #测试指令
+sllv $s1,$s1,$t1     #测试指令
+add $a0,$0,$s1          
+addi $v0,$zero,34         # system call for print
+syscall                  # print
+addi $t3,$t3, -1    
+bne $t3,$zero,sllv_branch
+
+addi   $v0,$zero,50         # system call for exit
+syscall                  # we are out of here.   
 
 
 #C2 instruction benchmark
+addi $t0,$zero,1     #sllv 移位次数
+addi $t1,$zero,3     #sllv 移位次数
+addi $s1,$zero, 0x876     #
+sll $s1,$s1,20     #
 
+add $a0,$0,$s1           
+addi $v0,$zero,34         # system call for print
+syscall                  # print
+
+addi $t3,$zero,8
+
+srlv_branch:
+srlv $s1,$s1,$t0     #先移1位
+srlv $s1,$s1,$t1     #再移3位
+add $a0,$0,$s1          
+addi $v0,$zero,34         # system call for print
+syscall                  # print
+addi $t3,$t3, -1    
+bne $t3,$zero,srlv_branch   #循环8次
+
+addi   $v0,$zero,50         # system call for exit
+syscall                  # we are out of here.   
 
 
 #Mem instruction benchmark
 
+addi $t1,$zero,0     #init_addr 
+addi $t3,$zero,16     #counter
 
+#预先写入数据，实际是按字节顺序存入 0x81,82,84,86,87,88,89.......等差数列
+ori $s1,$zero, 0x8483  #
+addi $s2,$zero, 0x0404  #
+sll $s1,$s1,16
+sll $s2,$s2,16
+ori $s1,$s1, 0x8281  #    注意一般情况下MIPS采用大端方式
+addi $s2,$s2, 0x0404  #   init_data= 0x84838281 next_data=init_data+ 0x04040404
 
+lh_store:
+sw $s1,($t1)
+add $s1,$s1,$s2   #data +1
+addi $t1,$t1,4    # addr +4  
+addi $t3,$t3,-1   #counter
+bne $t3,$zero,lh_store
+
+addi $t3,$zero,32
+addi $t1,$zero,0    # addr  
+lh_branch:
+lh $s1,($t1)     #测试指令
+add $a0,$0,$s1          
+addi $v0,$zero,34         
+syscall                  # print
+addi $t1,$t1, 2    
+addi $t3,$t3, -1    
+bne $t3,$zero,lh_branch
+
+addi   $v0,$zero,50         # system call for exit
+syscall                  # we are out of here.   
 
 #Branch instruction benchmark
+addi $s1,$zero,-15       #初始值
+bltz_branch:
+add $a0,$0,$s1          
+addi $v0,$zero,34         
+syscall                  #输出当前值
+addi $s1,$s1,1 
+bltz $s1,bltz_branch     #当前指令
+
+
+addi   $v0,$zero,50    
+syscall                  #暂停或退出
+
 
 
                  
- addi   $v0,$zero,10         # system call for exit
- syscall                  # we are out of here.   
+addi   $v0,$zero,10         # system call for exit
+syscall                  # we are out of here.   
  
  #MIPS处理器实现中请用停机指令实现syscall
 
