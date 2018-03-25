@@ -489,12 +489,18 @@ sw $a0, 0($sp)
 # clear IE
 addiu $sp, $sp, -4
 mfc0 $s0, $12 
-# i doubt if it is useful
+# calculate and save interrupt mask
 sw $s0, 0($sp) # save interrupt mask'
+
+# careful calculation
 andi $s0, $s0, 0xff
 addiu $s3, $zero, 0x100
-sllv
-mtc0 $s0, $12
+sllv $s3, $s3, $s6
+sub $s0, $s0, $s3
+# enable IE
+ori $s0, $s0, 0x1
+# save it now
+mtc0 $s0, $12 
 
 #a0 v0 s0 s3 s4 s5 (s6) 
 addi $s4,$zero,6      #循环次数初始值  
@@ -508,7 +514,6 @@ add $s0,$zero,$s6
 
 IntLeftShift:       
 
-
 sll $s0, $s0, 4  
 or $s3,$s0,$s4
 add    $a0,$0,$s3       #display $s0
@@ -519,10 +524,9 @@ bne $s0, $zero, IntLeftShift
 sub $s4,$s4,$s5      #循环次数递减
 bne $s4, $zero, IntLoop
 
-#clear IE
-mfc0 $s0, $12
-sw $s0, $s0, 0x1
-
+#restore old IE
+lw $s0, 0($sp)
+mtc0 $s0, $12
 addiu $sp, $sp, -4
 
 lw $a0, 0($sp)
