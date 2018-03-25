@@ -367,3 +367,73 @@ jmp_count: addi $s0,$zero, 0
 
        
        jr $31
+
+.text+0x1000
+interrupt_vector:
+#0
+addiu $sp, $sp, -8
+sw $s6, 4($sp)
+addiu $s6, $zero, 0
+jmp main_interrupt_handler
+#1
+addiu $sp, $sp, -8
+sw $s6, 4($sp)
+addiu $s6, $zero, 1
+jmp main_interrupt_handler
+#2
+addiu $sp, $sp, -8
+sw $s6, 4($sp)
+addiu $s6, $zero, 2
+jmp main_interrupt_handler
+#3
+addiu $sp, $sp, -4
+sw $s6, 0($sp)
+addiu $s6, $zero, 3
+jmp main_interrupt_handler
+#... 
+
+
+main_interrupt_handler:
+
+addiu $sp, $sp, -28
+sw $ra, 24($sp)
+sw $s5, 20($sp)
+sw $s4, 16($sp)
+sw $s3, 12($sp)
+sw $s0, 8($sp)
+sw $v0, 4($sp)
+sw $a0, 0($sp)
+#a0 v0 s0 s3 s4 s5 (s6) 
+addi $s4,$zero,6      #循环次数初始值  
+addi $s5,$zero,1       #计数器累加值
+###################################################################
+#                逻辑左移，每次移位4位 
+# 显示区域依次显示0x00000016 0x00000106 0x00001006 0x00010006 ... 10000006  00000006 依次循环6次
+###################################################################
+IntLoop:
+add $s0,$zero,$s6   
+
+IntLeftShift:       
+
+
+sll $s0, $s0, 4  
+or $s3,$s0,$s4
+add    $a0,$0,$s3       #display $s0
+addi   $v0,$0,34         # display hex
+syscall                 # we are out of here.   
+
+bne $s0, $zero, IntLeftShift
+sub $s4,$s4,$s5      #循环次数递减
+bne $s4, $zero, IntLoop
+
+lw $a0, 0($sp)
+lw $v0, 4($sp)
+lw $s0, 8($sp) 
+lw $s3, 12($sp) 
+lw $s4, 16($sp) 
+lw $s5, 20($sp) 
+lw $ra, 24($sp) 
+lw $s6, 28($sp)  
+addiu $sp, $sp, 32
+#a0 v0 s0 s3 s4 s5 (s6)  
+eret
