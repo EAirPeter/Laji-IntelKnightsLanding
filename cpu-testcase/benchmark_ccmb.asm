@@ -452,31 +452,31 @@ jmp_count: addi $s0,$zero, 0
 
 .text+0x1000
 interrupt_vector:
-#0
-addiu $sp, $sp, -8
-sw $s6, 4($sp)
-addiu $s6, $zero, 0
-jmp main_interrupt_handler
-#1
-addiu $sp, $sp, -8
-sw $s6, 4($sp)
-addiu $s6, $zero, 1
-jmp main_interrupt_handler
-#2
-addiu $sp, $sp, -8
-sw $s6, 4($sp)
-addiu $s6, $zero, 2
-jmp main_interrupt_handler
-#3
-addiu $sp, $sp, -4
-sw $s6, 0($sp)
-addiu $s6, $zero, 3
-jmp main_interrupt_handler
-#... 
+  #0
+  addiu $sp, $sp, -4
+  sw $s6, 0($sp)
+  addiu $s6, $zero, 0
+  jmp main_interrupt_handler
+  #1
+  addiu $sp, $sp, -4
+  sw $s6, 0($sp)
+  addiu $s6, $zero, 1
+  jmp main_interrupt_handler
+  #2
+  addiu $sp, $sp, -4
+  sw $s6, 0($sp)
+  addiu $s6, $zero, 2
+  jmp main_interrupt_handler
+  #3
+  addiu $sp, $sp, -4
+  sw $s6, 0($sp)
+  addiu $s6, $zero, 3
+  jmp main_interrupt_handler
+  #... 
 
 
 main_interrupt_handler:
-
+# save the context
 addiu $sp, $sp, -28
 sw $ra, 24($sp)
 sw $s5, 20($sp)
@@ -485,6 +485,17 @@ sw $s3, 12($sp)
 sw $s0, 8($sp)
 sw $v0, 4($sp)
 sw $a0, 0($sp)
+
+# clear IE
+addiu $sp, $sp, -4
+mfc0 $s0, $12 
+# i doubt if it is useful
+sw $s0, 0($sp) # save interrupt mask'
+andi $s0, $s0, 0xff
+addiu $s3, $zero, 0x100
+sllv
+mtc0 $s0, $12
+
 #a0 v0 s0 s3 s4 s5 (s6) 
 addi $s4,$zero,6      #循环次数初始值  
 addi $s5,$zero,1       #计数器累加值
@@ -508,6 +519,12 @@ bne $s0, $zero, IntLeftShift
 sub $s4,$s4,$s5      #循环次数递减
 bne $s4, $zero, IntLoop
 
+#clear IE
+mfc0 $s0, $12
+sw $s0, $s0, 0x1
+
+addiu $sp, $sp, -4
+
 lw $a0, 0($sp)
 lw $v0, 4($sp)
 lw $s0, 8($sp) 
@@ -515,7 +532,7 @@ lw $s3, 12($sp)
 lw $s4, 16($sp) 
 lw $s5, 20($sp) 
 lw $ra, 24($sp) 
-lw $s6, 28($sp)  
-addiu $sp, $sp, 32
+lw $s6, 32($sp)
+addiu $sp, $sp, 36
 #a0 v0 s0 s3 s4 s5 (s6)  
 eret
