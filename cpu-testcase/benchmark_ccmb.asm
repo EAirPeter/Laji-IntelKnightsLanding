@@ -450,47 +450,58 @@ jmp_count: addi $s0,$zero, 0
        
        jr $31
 
-.text+0x1000
+#########################################################################
+#   Macro definitions and includes
+#########################################################################
+
+	# Push a .word register
+	.macro  push($reg)
+	addi    $sp, $sp, -4
+	sw      $reg, ($sp)
+	.end_macro
+	
+	# Pop a .word register
+	.macro  pop($reg)
+	lw      $reg, ($sp)
+	addi    $sp, $sp, 4
+	.end_macro
+
+####################################
+.text
 interrupt_vector:
   #0
-  addiu $sp, $sp, -4
-  sw $s6, 0($sp)
+  push($s6)
   addiu $s6, $zero, 0
-  jmp main_interrupt_handler
+  j main_interrupt_handler
   #1
-  addiu $sp, $sp, -4
-  sw $s6, 0($sp)
+  push($s6)
   addiu $s6, $zero, 1
-  jmp main_interrupt_handler
+  j main_interrupt_handler
   #2
-  addiu $sp, $sp, -4
-  sw $s6, 0($sp)
+  push($s6)
   addiu $s6, $zero, 2
-  jmp main_interrupt_handler
+  j main_interrupt_handler
   #3
-  addiu $sp, $sp, -4
-  sw $s6, 0($sp)
+  push($s6)
   addiu $s6, $zero, 3
-  jmp main_interrupt_handler
+  j main_interrupt_handler
   #... 
 
-
+.text
 main_interrupt_handler:
 # save the context
-addiu $sp, $sp, -28
-sw $ra, 24($sp)
-sw $s5, 20($sp)
-sw $s4, 16($sp)
-sw $s3, 12($sp)
-sw $s0, 8($sp)
-sw $v0, 4($sp)
-sw $a0, 0($sp)
+push($ra)
+push($s5)
+push($s4)
+push($s3)
+push($s0)
+push($v0)
+push($a0)
 
-# clear IE
-addiu $sp, $sp, -4
+
+# save old interrupt mask
 mfc0 $s0, $12 
-# calculate and save interrupt mask
-sw $s0, 0($sp) # save interrupt mask'
+push($s0)
 
 # careful calculation
 andi $s0, $s0, 0xff
@@ -525,18 +536,16 @@ sub $s4,$s4,$s5      #循环次数递减
 bne $s4, $zero, IntLoop
 
 #restore old IE
-lw $s0, 0($sp)
+pop($s0)
 mtc0 $s0, $12
-addiu $sp, $sp, -4
 
-lw $a0, 0($sp)
-lw $v0, 4($sp)
-lw $s0, 8($sp) 
-lw $s3, 12($sp) 
-lw $s4, 16($sp) 
-lw $s5, 20($sp) 
-lw $ra, 24($sp) 
-lw $s6, 32($sp)
-addiu $sp, $sp, 36
+pop($a0)
+pop($v0)
+pop($s0)
+pop($s3) 
+pop($s4) 
+pop($s5) 
+pop($ra) 
+pop($s6)
 #a0 v0 s0 s3 s4 s5 (s6)  
 eret

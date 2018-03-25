@@ -23,5 +23,7 @@
         .halt_in(halt_ps3),
         .halt(halt_ps4),
         .r_datamem_in(r_datamem_ps3),
-        .r_datamem(r_datamem_ps4)
+        .r_datamem(r_datamem_ps4),
+        .cp0_data_in(cp0_data_ps3),
+        .cp0_data(cp0_data_ps4)
     );

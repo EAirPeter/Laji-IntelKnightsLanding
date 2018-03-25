@@ -66,6 +66,8 @@
 `define MUX_RF_DATAW_DM     `MUX_RF_DATAW_BIT'h1
 // PC + 4
 `define MUX_RF_DATAW_PC4    `MUX_RF_DATAW_BIT'h2
+// CP0
+`define MUX_RF_DATAW_CP0    `MUX_RF_DATAW_BIT'h3
 
 
 `define V0  5'h2
@@ -89,6 +91,16 @@
 // Zero-extended imm16
 `define MUX_ALU_DATAY_EXTZ  `MUX_ALU_DATAY_BIT'h2
 
+// interrupt.operatrion
+`define INTR_OP_BIT   2
+`define INTR_OP_DEFAULT     `INTR_OP_BIT'h0
+`define INTR_OP_ERET        `INTR_OP_BIT'h1
+`define INTR_OP_MFC0        `INTR_OP_BIT'h2
+`define INTR_OP_MTC0        `INTR_OP_BIT'h3
+
+`define INTERRUPT_VECTOR_TOP_DIV4 'h11e
+`define CP0_EPC_REQ_NUM 'h4
+`define CP0_STATUS_REQ_NUM 12
 
 `define FOLDERPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/cpu-testcase/"
 `define FILENAME "benchmark_ccmb.hex"

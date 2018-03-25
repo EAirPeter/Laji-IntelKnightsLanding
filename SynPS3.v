@@ -11,6 +11,7 @@ module SynPS3(
     input [4:0] regfile_req_a_in,
     input [4:0] regfile_req_b_in,
     input [4:0] rt_in,
+    input [4:0] rd_in,
     input [15:0] imm16_in,
     input regfile_w_en_in,
     input [31:0] regfile_data_a_in,
@@ -32,6 +33,7 @@ module SynPS3(
     output reg [4:0] regfile_req_a,
     output reg [4:0] regfile_req_b,
     output reg [4:0] rt,
+    output reg [4:0] rd,
     output reg [15:0] imm16,
     output reg regfile_w_en,
     output reg [31:0] regfile_data_a,
@@ -56,6 +58,7 @@ module SynPS3(
             regfile_req_a <= 0;
             regfile_req_b <= 0;
             rt <= 0;
+            rd <= 0;
             imm16 <= 0;
             regfile_w_en <= 0;
             regfile_data_a <= 0;
@@ -78,6 +81,7 @@ module SynPS3(
             regfile_req_a <= 0;
             regfile_req_b <= 0;
             rt <= 0;
+            rd <= 0;
             imm16 <= 0;
             regfile_w_en <= 0;
             regfile_data_a <= 0;
@@ -100,6 +104,7 @@ module SynPS3(
             regfile_req_a <= regfile_req_a_in;
             regfile_req_b <= regfile_req_b_in;
             rt <= rt_in;
+            rd <= rd_in;
             imm16 <= imm16_in;
             regfile_w_en <= regfile_w_en_in;
             regfile_data_a <= regfile_data_a_in;

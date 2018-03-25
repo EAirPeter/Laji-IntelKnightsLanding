@@ -17,6 +17,7 @@ module SynPS4(
     input [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w_in,
     input halt_in,
     input r_datamem_in,
+    input [31:0] cp0_data_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
     output reg [4:0] regfile_req_a,
     output reg [4:0] regfile_req_b,
@@ -26,7 +27,8 @@ module SynPS4(
     output reg [31:0] datamem_data,
     output reg [`MUX_RF_DATAW_BIT - 1:0] mux_regfile_data_w,
     output reg halt,
-    output reg r_datamem
+    output reg r_datamem,
+    output reg [31:0] cp0_data
 );
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin 
@@ -40,6 +42,7 @@ module SynPS4(
             mux_regfile_data_w <= 0;
             halt <= 0;
             r_datamem <= 0;
+            cp0_data <= 0;
         end else if(clear) begin
             pc_4 <= 0;
             regfile_req_a <= 0;
@@ -51,6 +54,7 @@ module SynPS4(
             mux_regfile_data_w <= 0;
             halt <= 0;
             r_datamem <= 0;
+            cp0_data <= 0;
         end else if(en) begin
             pc_4 <= pc_4_in;
             regfile_req_a <= regfile_req_a_in;
@@ -62,6 +66,7 @@ module SynPS4(
             mux_regfile_data_w <= mux_regfile_data_w_in;
             halt <= halt_in;
             r_datamem <= r_datamem_in;
+            cp0_data <= cp0_data_in;
         end
     end
 endmodule

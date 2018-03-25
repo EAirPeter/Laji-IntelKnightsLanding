@@ -12,6 +12,8 @@
         .regfile_req_b(regfile_req_b_ps3),
         .rt_in(rt_ps2),
         .rt(rt_ps3),
+        .rd_in(rd_ps2),
+        .rd(rd_ps3),
         .imm16_in(imm16_ps2),
         .imm16(imm16_ps3),
         .regfile_w_en_in(regfile_w_en_ps2),

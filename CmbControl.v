@@ -5,11 +5,12 @@
 // Brief: Control Module, synchronized
 // Author: FluorineDog
 module CmbControl(
-    opcode, rt, funct,
+    opcode, rs, rt, funct,
     op_wtg, w_en_regfile, op_alu, op_datamem, w_en_datamem, syscall_en,
-    mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y, r_datamem, is_jump, is_branch
+    mux_regfile_req_w, mux_regfile_data_w, mux_alu_data_y, r_datamem, is_jump, is_branch, op_intr
 );
     input [5:0] opcode;
+    input [4:0] rs;
     input [4:0] rt;
     input [5:0] funct;
     output reg [`WTG_OP_BIT - 1:0] op_wtg;
@@ -24,6 +25,7 @@ module CmbControl(
     output reg r_datamem;
     output reg is_jump;     // 1 if the current instruction is a jump instruction
     output reg is_branch;   // 1 if the current instruction is a branch instraction
+    output reg op_intr;
 
     always@(*) begin
         r_datamem = 0;
@@ -33,6 +35,7 @@ module CmbControl(
         w_en_regfile = 1;
         w_en_datamem = 0;
         syscall_en = 0;
+        op_intr = `INTR_OP_DEFAULT;
 
         mux_regfile_req_w = `MUX_RF_REQW_RT;
         mux_regfile_data_w = `MUX_RF_DATAW_ALU;
@@ -100,6 +103,13 @@ module CmbControl(
             6'b001110:  begin   op_alu = `ALU_OP_XOR; mux_alu_data_y = `MUX_ALU_DATAY_EXTZ; end     // xori
 
             6'b001111:  begin   op_alu = `ALU_OP_LUI; mux_regfile_data_w = `MUX_RF_DATAW_ALU; end   // lui
+            6'b010000:  begin // cp0 insts
+                case(rs)
+                    5'b00000: begin op_intr = `INTR_OP_MFC0; mux_regfile_data_w = `MUX_RF_DATAW_CP0; r_datamem = 1; end // mfc0, like a load
+                    5'b01000: begin op_intr = `INTR_OP_MTC0; w_en_regfile = 0; end // mtc0
+                    // 5'b10000: begin op_intr = `INTR_OP_ERET; end
+                endcase
+            end
 
             6'b100000:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_SB; r_datamem = 1; end    // lb
             6'b100001:  begin   op_alu = `ALU_OP_ADD; mux_regfile_data_w = `MUX_RF_DATAW_DM; op_datamem = `DM_OP_SH; r_datamem = 1; end    // lh

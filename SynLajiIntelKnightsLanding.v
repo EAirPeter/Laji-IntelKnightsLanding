@@ -10,6 +10,7 @@ module SynLajiIntelKnightsLanding(
     input en,
     input [4:0] regfile_req_dbg,
     input [`DM_ADDR_BIT - 1:0] datamem_addr_dbg,
+    input [3:0] device_request,
     output [31:0] pc_dbg,
     output [31:0] regfile_data_dbg,
     output [31:0] datamem_data_dbg,
@@ -92,6 +93,7 @@ module SynLajiIntelKnightsLanding(
 
     CmbControl vCtl(
         .opcode(opcode),
+        .rs(rs),
         .rt(rt),
         .funct(funct),
         // output
@@ -223,6 +225,7 @@ module SynLajiIntelKnightsLanding(
         .data_res(alu_data_res_ps2)
     );
 
+
     /////////////////////////////
     ///////   ps3 EX/DM  ////////
     assign en_vps3 = en_vps4;
@@ -261,8 +264,20 @@ module SynLajiIntelKnightsLanding(
         .halt(halt_ps3)                 // out connection
     );
 
-    // interrupter: 
-    
+
+    // present here
+    // SynIntrDevice vIntrDev(
+    //     .clk(clk),
+    //     .rst_n(rst_n),
+
+    //     .intr_en(intr_en && PC_4_ps3 != 0),
+    //     .intr_mask(intr_mask),
+    //     .device_request(device_request),
+    //     .eret_clear_en(is_eret),
+
+    //     .intr_jmp(intr_jmp),
+    //     .intr_jmp_addr(intr_jmp_addr)
+    // );   
 
     CmbWTG vWTG(
         .op(wtg_op_ps3),
@@ -278,6 +293,7 @@ module SynLajiIntelKnightsLanding(
         .branched(branched)            // out connection
     );
 
+    
     SynDataMem vDM(
         .clk(clk),
         .rst_n(rst_n),
@@ -290,6 +306,25 @@ module SynLajiIntelKnightsLanding(
         // output
         .data_dbg(datamem_data_dbg),
         .data(datamem_data_ps3)
+    );
+
+    // interrupter: 
+    SynCP0 vCP0(
+        .clk(clk),
+        .rst_n(rst_n),
+
+        .w_en(op_intr_ps3 == `INTR_OP_MTC0),
+        .w_req(rd_ps3),
+        .w_data(regfile_data_b_ps3),
+        .epc_w_en(0),
+        .epc_w_data(pc_4_ps3),
+
+        .r_req(rd_ps3),
+        .r_data(cp0_data_ps3),
+
+        // output
+        .intr_en(intr_en),
+        .intr_mask(intr_mask)
     );
 
     ///////////////////////
@@ -320,8 +355,13 @@ module SynLajiIntelKnightsLanding(
                 regfile_data_w_ps4 = datamem_data_ps4;
             `MUX_RF_DATAW_PC4:
                 regfile_data_w_ps4 = pc_4_ps4;
-            default:
+            `MUX_RF_DATAW_CP0:
+                regfile_data_w_ps4 = cp0_data_ps4;
+            default: 
                 regfile_data_w_ps4 = 32'd0;
         endcase
     end
+
+
 endmodule
+
