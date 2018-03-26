@@ -286,7 +286,7 @@ module SynLajiIntelKnightsLanding(
         .branched(branched)            // out connection
     );
 
-    assign pred_succ = pred_succ && !is_eret && !intr_jmp;
+    assign pred_succ = pred_succ_tmp && !is_eret && !intr_jmp;
     
     SynDataMem vDM(
         .clk(clk),
@@ -303,7 +303,7 @@ module SynLajiIntelKnightsLanding(
     );
 
     // interrupter: 
-    wire is_eret = op_intr_ps3 == `INTR_OP_ERET;
+    assign is_eret = op_intr_ps3 == `INTR_OP_ERET;
     SynCP0 vCP0(
         .clk(clk),
         .rst_n(rst_n),
@@ -327,7 +327,7 @@ module SynLajiIntelKnightsLanding(
         .clk(clk),
         .rst_n(rst_n),
 
-        .intr_en(intr_en && PC_4_ps3 != 0),
+        .intr_en(intr_en && pc_4_ps3 != 0),
         .intr_mask(intr_mask),
         .device_request(device_request),
         .eret_clear_en(is_eret),

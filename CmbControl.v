@@ -25,7 +25,7 @@ module CmbControl(
     output reg r_datamem;
     output reg is_jump;     // 1 if the current instruction is a jump instruction
     output reg is_branch;   // 1 if the current instruction is a branch instraction
-    output reg op_intr;
+    output reg [`INTR_OP_BIT-1:0] op_intr;
 
     always@(*) begin
         r_datamem = 0;

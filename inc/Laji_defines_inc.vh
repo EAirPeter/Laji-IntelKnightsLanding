@@ -40,7 +40,6 @@ wire en_vps0, en_vps1, en_vps2, en_vps3, en_vps4;
 wire skip_load_use_ps1, skip_load_use_ps2, skip_load_use_ps3;
 wire r_datamem_ps1, r_datamem_ps2, r_datamem_ps3, r_datamem_ps4;
 wire bubble;
-wire pred_succ;
 wire [1:0] bht_state_ps0, bht_state_ps1, bht_state_ps2, bht_state_ps3; 
 wire [`IM_ADDR_BIT - 1:0] pc_remote;
 wire is_branch_ps1, is_branch_ps2, is_branch_ps3;
@@ -49,4 +48,7 @@ wire [31:0] cp0_data_ps3, cp0_data_ps4;
 wire intr_en;
 wire [3:0] intr_mask;
 wire [`INTR_OP_BIT-1:0] op_intr_ps1, op_intr_ps2, op_intr_ps3;
-
+wire is_eret;
+wire pred_succ, pred_succ_tmp;
+wire intr_jmp;
+wire [`IM_ADDR_BIT-1:0] epc_addr, intr_jmp_addr;
