@@ -19,9 +19,10 @@ module SynIntrDevice(
 ); 
     reg [3:0] device_in_queue;
     reg [1:0] highest_req;
+    integer i;
     always @(*) begin
         highest_req = 0;
-        for(integer i = 0; i < 4; i=i+1) begin
+        for( i = 0; i < 4; i=i+1) begin
             if(device_request[i])begin
                 highest_req = i;
             end

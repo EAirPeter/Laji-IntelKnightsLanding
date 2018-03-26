@@ -40,10 +40,12 @@ module SynCP0(
     assign checker = {1'b0, w_en} + {1'b0, epc_w_en} + {1'b0, is_eret};
 
     assign epc_addr = cp0_data[`CP0_EPC_REQ_NUM][`IM_ADDR_BIT-1:0];
+    integer i;
     always@(posedge clk, negedge rst_n) begin 
         if(!rst_n) begin
-            cp0_data[`CP0_EPC_REQ_NUM] <= 0;
-            cp0_data[`CP0_STATUS_REQ_NUM] <= 32'hff01;
+            for(i=0; i < 32; i=i+1) begin
+                cp0_data[i] = (`CP0_STATUS_REQ_NUM == i)? 32'hff01:32'hcccc;
+            end
         end else if(epc_w_en)begin  
             // i ready to jmp 
             // store pc here

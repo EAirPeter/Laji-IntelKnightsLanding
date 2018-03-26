@@ -506,7 +506,7 @@ push($s0)
 
 # careful calculation for new mask
 andi $s0, $s0, 0xff
-addiu $s3, $zero, 0x100
+addiu $s3, $zero, 0x200
 sllv $s3, $s3, $s6
 sub $s0, $s0, $s3
 # enable IE

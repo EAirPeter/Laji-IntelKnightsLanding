@@ -25,11 +25,13 @@ module SynRegFile(
     assign data_dbg = req_dbg == 0 ? 32'd0 : regs[req_dbg];
     assign data_a = req_a == 0 ? 32'd0 : regs[req_a];
     assign data_b = req_b == 0 ? 32'd0 : regs[req_b];
-    
+    integer i;    
     always @(negedge clk) begin
         if(!rst_n) begin
             // set initial for sp
-            regs[29] <= 'h400;
+            for(i = 0; i < 32; i=i+1) begin
+                regs[i] <= i ? 'h400:'hcccc;
+            end
         end
         else if (en && w_en && req_w != 5'd0)
             regs[req_w] <= data_w;

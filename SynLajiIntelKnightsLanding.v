@@ -304,15 +304,19 @@ module SynLajiIntelKnightsLanding(
 
     // interrupter: 
     assign is_eret = op_intr_ps3 == `INTR_OP_ERET;
+    assign is_mtc0 = op_intr_ps3 == `INTR_OP_MTC0;
     SynCP0 vCP0(
         .clk(clk),
         .rst_n(rst_n),
 
-        .w_en(op_intr_ps3 == `INTR_OP_MTC0),
+        .w_en(is_mtc0),
         .w_req(rd_ps3),
         .w_data(regfile_data_b_ps3),
+
         .epc_w_en(intr_jmp),
         .epc_w_data(wtg_pc_new_ps3),
+
+        .is_eret(is_eret),
 
         .r_req(rd_ps3),
         .r_data(cp0_data_ps3),
@@ -320,6 +324,7 @@ module SynLajiIntelKnightsLanding(
         // output
         .intr_en(intr_en),
         .intr_mask(intr_mask),
+
         .epc_addr(epc_addr)
     );
 

@@ -106,8 +106,8 @@ module CmbControl(
             6'b010000:  begin // cp0 insts
                 case(rs)
                     5'b00000: begin op_intr = `INTR_OP_MFC0; mux_regfile_data_w = `MUX_RF_DATAW_CP0; r_datamem = 1; end // mfc0, like a load
-                    5'b01000: begin op_intr = `INTR_OP_MTC0; w_en_regfile = 0; end // mtc0
-                    // 5'b10000: begin op_intr = `INTR_OP_ERET; end
+                    5'b00100: begin op_intr = `INTR_OP_MTC0; w_en_regfile = 0; end // mtc0
+                    5'b10000: begin op_intr = `INTR_OP_ERET; end
                 endcase
             end
 
