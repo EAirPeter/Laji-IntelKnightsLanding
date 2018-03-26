@@ -71,13 +71,13 @@ module SynBHT(
     reg[1:0] new_state;
     always @(*) begin
         case({update_state_old, branch_succ}) 
-            3'b111: new_state = 2'b11;
-            3'b101: new_state = 2'b11;
-            3'b110: new_state = 2'b10;
+            3'b101: new_state = 2'b10;
+            3'b100: new_state = 2'b11;
+            3'b111: new_state = 2'b10;
+            3'b110: new_state = 2'b01;
             3'b001: new_state = 2'b10;
-            3'b100: new_state = 2'b00;
-            3'b011: new_state = 2'b00;
             3'b000: new_state = 2'b01;
+            3'b011: new_state = 2'b00;
             3'b010: new_state = 2'b01;
         endcase
     end
