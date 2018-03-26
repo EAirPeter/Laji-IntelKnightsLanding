@@ -47,5 +47,7 @@
         .is_branch_in(is_branch_ps2),
         .is_branch(is_branch_ps3),
         .is_jump_in(is_jump_ps2),
-        .is_jump(is_jump_ps3)
+        .is_jump(is_jump_ps3),
+        .op_intr_in(op_intr_ps2),
+        .op_intr(op_intr_ps3)
     );

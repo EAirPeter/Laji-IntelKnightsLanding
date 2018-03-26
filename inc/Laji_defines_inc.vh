@@ -48,3 +48,5 @@ wire is_jump_ps1, is_jump_ps2, is_jump_ps3;
 wire [31:0] cp0_data_ps3, cp0_data_ps4;
 wire intr_en;
 wire [3:0] intr_mask;
+wire [`INTR_OP_BIT-1:0] op_intr_ps1, op_intr_ps2, op_intr_ps3;
+

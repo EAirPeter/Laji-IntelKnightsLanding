@@ -33,7 +33,10 @@ module SynLajiIntelKnightsLanding(
 
     // use BHT instead, buggy
     // assign pc_guessed_ps0 = pc_4_ps0;
-    assign pc_new = pred_succ ? pc_guessed_ps0 : wtg_pc_new_ps3;
+    assign pc_new = pred_succ ? pc_guessed_ps0 : 
+                    (is_eret? epc_addr:
+                    (intr_jmp ? intr_jmp_addr : wtg_pc_new_ps3));
+
     ////////////////////////////
     ///////  ps0 gen/IF  ///////
     assign en_vps0 = !pred_succ || en_vps2;
@@ -108,7 +111,8 @@ module SynLajiIntelKnightsLanding(
         .mux_alu_data_y(mux_alu_data_y_ps1), 
         .r_datamem(r_datamem_ps1),
         .is_jump(is_jump_ps1),      
-        .is_branch(is_branch_ps1)  
+        .is_branch(is_branch_ps1),
+        .op_intr(op_intr_ps1)
     );
 
     assign skip_load_use_ps1 = is_jump_ps1 || is_branch_ps1 || syscall_en_ps1;
@@ -266,18 +270,6 @@ module SynLajiIntelKnightsLanding(
 
 
     // present here
-    // SynIntrDevice vIntrDev(
-    //     .clk(clk),
-    //     .rst_n(rst_n),
-
-    //     .intr_en(intr_en && PC_4_ps3 != 0),
-    //     .intr_mask(intr_mask),
-    //     .device_request(device_request),
-    //     .eret_clear_en(is_eret),
-
-    //     .intr_jmp(intr_jmp),
-    //     .intr_jmp_addr(intr_jmp_addr)
-    // );   
 
     CmbWTG vWTG(
         .op(wtg_op_ps3),
@@ -289,10 +281,12 @@ module SynLajiIntelKnightsLanding(
         // output
         .pc_remote(pc_remote),
         .pc_new(wtg_pc_new_ps3),
-        .pred_succ(pred_succ),
+
+        .pred_succ(pred_succ_tmp),
         .branched(branched)            // out connection
     );
 
+    assign pred_succ = pred_succ && !is_eret && !intr_jmp;
     
     SynDataMem vDM(
         .clk(clk),
@@ -309,6 +303,7 @@ module SynLajiIntelKnightsLanding(
     );
 
     // interrupter: 
+    wire is_eret = op_intr_ps3 == `INTR_OP_ERET;
     SynCP0 vCP0(
         .clk(clk),
         .rst_n(rst_n),
@@ -316,16 +311,30 @@ module SynLajiIntelKnightsLanding(
         .w_en(op_intr_ps3 == `INTR_OP_MTC0),
         .w_req(rd_ps3),
         .w_data(regfile_data_b_ps3),
-        .epc_w_en(0),
-        .epc_w_data(pc_4_ps3),
+        .epc_w_en(intr_jmp),
+        .epc_w_data(wtg_pc_new_ps3),
 
         .r_req(rd_ps3),
         .r_data(cp0_data_ps3),
 
         // output
         .intr_en(intr_en),
-        .intr_mask(intr_mask)
+        .intr_mask(intr_mask),
+        .epc_addr(epc_addr)
     );
+
+    SynIntrDevice vIntrDev(
+        .clk(clk),
+        .rst_n(rst_n),
+
+        .intr_en(intr_en && PC_4_ps3 != 0),
+        .intr_mask(intr_mask),
+        .device_request(device_request),
+        .eret_clear_en(is_eret),
+
+        .intr_jmp(intr_jmp),
+        .intr_jmp_addr(intr_jmp_addr)
+    );   
 
     ///////////////////////
     //////write back///////

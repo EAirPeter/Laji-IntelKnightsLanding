@@ -99,8 +99,8 @@
 `define INTR_OP_MTC0        `INTR_OP_BIT'h3
 
 `define INTERRUPT_VECTOR_TOP_DIV4 'h11e
-`define CP0_EPC_REQ_NUM 'h4
-`define CP0_STATUS_REQ_NUM 12
+`define CP0_EPC_REQ_NUM             14
+`define CP0_STATUS_REQ_NUM          12
 
 `define FOLDERPATH  "/home/mike/workspace/Laji-IntelKnightsLanding/cpu-testcase/"
 `define FILENAME "benchmark_ccmb.hex"

@@ -29,6 +29,7 @@ module SynPS3(
     input [1:0] bht_state_in,
     input is_branch_in,
     input is_jump_in,
+    input [`INTR_OP_BIT-1:0] op_intr_in,
     output reg [`IM_ADDR_BIT - 1:0] pc_4,
     output reg [4:0] regfile_req_a,
     output reg [4:0] regfile_req_b,
@@ -50,7 +51,8 @@ module SynPS3(
     output reg r_datamem,
     output reg [1:0] bht_state,
     output reg is_branch,
-    output reg is_jump
+    output reg is_jump,
+    output reg [`INTR_OP_BIT-1:0] op_intr
 );
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin 
@@ -76,6 +78,7 @@ module SynPS3(
             bht_state <= 0;
             is_branch <= 0;
             is_jump <= 0;
+            op_intr <= 0;
         end else if(clear) begin
             pc_4 <= 0;
             regfile_req_a <= 0;
@@ -99,6 +102,7 @@ module SynPS3(
             bht_state <= 0;
             is_branch <= 0;
             is_jump <= 0;
+            op_intr <= 0;
         end else if(en) begin
             pc_4 <= pc_4_in;
             regfile_req_a <= regfile_req_a_in;
@@ -122,6 +126,7 @@ module SynPS3(
             bht_state <= bht_state_in;
             is_branch <= is_branch_in;
             is_jump <= is_jump_in;
+            op_intr <= op_intr_in;
         end
     end
 endmodule

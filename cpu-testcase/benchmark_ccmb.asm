@@ -490,20 +490,21 @@ interrupt_vector:
 .text
 main_interrupt_handler:
 # save the context
-push($ra)
 push($s5)
 push($s4)
 push($s3)
 push($s0)
 push($v0)
 push($a0)
-
+# save old EPC
+mfc0 $s0, $14
+push($s0)
 
 # save old interrupt mask
 mfc0 $s0, $12 
 push($s0)
 
-# careful calculation
+# careful calculation for new mask
 andi $s0, $s0, 0xff
 addiu $s3, $zero, 0x100
 sllv $s3, $s3, $s6
@@ -535,9 +536,12 @@ bne $s0, $zero, IntLeftShift
 sub $s4,$s4,$s5      #循环次数递减
 bne $s4, $zero, IntLoop
 
-#restore old IE
+# restore old IE, clear IE
 pop($s0)
 mtc0 $s0, $12
+# restore old EPC
+pop($s0)
+mtc0 $s0, $14
 
 pop($a0)
 pop($v0)
@@ -545,7 +549,6 @@ pop($s0)
 pop($s3) 
 pop($s4) 
 pop($s5) 
-pop($ra) 
 pop($s6)
 #a0 v0 s0 s3 s4 s5 (s6)  
 eret

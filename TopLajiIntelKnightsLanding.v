@@ -5,7 +5,7 @@
 
 // Brief: Top Module, I/O included
 // Author: EAirPeter
-module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
+module TopLajiIntelKnightsLanding(clk, rst_n, resume, device_request, swt, seg_n, an_n);
     parameter ProgPath = `BENCHMARK_FILEPATH;
     parameter CoreClk0Cnt = `CNT_HZ(2);
     parameter CoreClk1Cnt = `CNT_HZ(20);
@@ -15,6 +15,7 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
     input clk;
     input rst_n;
     input resume;
+    input [3:0] device_request;
     input [15:0] swt;
     output [7:0] seg_n;
     output [7:0] an_n;
@@ -158,6 +159,8 @@ module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, seg_n, an_n);
         .en(core_en),
         .regfile_req_dbg(regfile_req_dbg),
         .datamem_addr_dbg(datamem_addr_dbg),
+        .device_request(device_request),
+        // output
         .pc_dbg(core_pc_dbg),
         .regfile_data_dbg(regfile_data_dbg),
         .datamem_data_dbg(datamem_data_dbg),

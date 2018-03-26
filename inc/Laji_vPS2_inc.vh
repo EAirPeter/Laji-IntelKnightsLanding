@@ -53,5 +53,7 @@
         .is_branch_in(is_branch_ps1),
         .is_branch(is_branch_ps2),
         .is_jump_in(is_jump_ps1),
-        .is_jump(is_jump_ps2)
+        .is_jump(is_jump_ps2),
+        .op_intr_in(op_intr_ps1),
+        .op_intr(op_intr_ps2)
     );
