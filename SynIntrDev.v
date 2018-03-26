@@ -23,7 +23,7 @@ module SynIntrDevice(
     always @(*) begin
         highest_req = 0;
         for( i = 0; i < 4; i=i+1) begin
-            if(device_request[i])begin
+            if(device_in_queue[i])begin
                 highest_req = i;
             end
         end
