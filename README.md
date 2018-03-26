@@ -27,4 +27,5 @@ Laji-IntelKnightsLanding
   * `111`：`Value Of Valid Instruction Executed`  
   <!-- * `111`：`内存地址(swt[15:6] * 4)的值`   -->
 * `CPU RESET`按键用于异步复位（电平触发），主要作用是将PC清零  
-* `BTNC`按键用于停机后继续执行（电平触发）  
+* `BTNU`按键用于停机后继续执行（电平触发）  
+* `BTNL`, `BTNC`, `BTNR`按键用于产生中断信号（电平触发） 
