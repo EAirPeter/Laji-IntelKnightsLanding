@@ -12,8 +12,10 @@ module TbLaji();
     wire [7:0] an_n;
     reg[3:0] device_request;
     initial begin
-        device_request <= 0;
+        device_request = 0;
         `cp(10) rst_n = 1'b1;
+        `cp(50) device_request = 4'b0100;
+        `cp(3) device_request = 4'b0000;
     end
     TopLajiIntelKnightsLanding vDUT(
         .clk(clk),
