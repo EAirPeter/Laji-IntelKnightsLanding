@@ -38,8 +38,6 @@
         .syscall_en(syscall_en_ps3),
         .pc_guessed_in(pc_guessed_ps2),
         .pc_guessed(pc_guessed_ps3),
-        .skip_load_use_in(skip_load_use_ps2),
-        .skip_load_use(skip_load_use_ps3),
         .r_datamem_in(r_datamem_ps2),
         .r_datamem(r_datamem_ps3),
         .bht_state_in(bht_state_ps2),

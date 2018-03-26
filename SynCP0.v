@@ -44,7 +44,7 @@ module SynCP0(
     always@(posedge clk, negedge rst_n) begin 
         if(!rst_n) begin
             for(i=0; i < 32; i=i+1) begin
-                cp0_data[i] = (`CP0_STATUS_REQ_NUM == i)? 32'hff01:32'hcccc;
+                cp0_data[i] <= (`CP0_STATUS_REQ_NUM == i)? 32'hff01:32'hcccc;
             end
         end else if(epc_w_en)begin  
             // i ready to jmp 

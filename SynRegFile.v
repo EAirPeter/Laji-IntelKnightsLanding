@@ -29,7 +29,7 @@ module SynRegFile(
     always @(negedge clk) begin
         if(!rst_n) begin
             // set initial for sp
-            for(i = 0; i < 32; i=i+1) begin
+            for(i = 1; i < 32; i=i+1) begin
                 regs[i] <= i ? 'h400:'hcccc;
             end
         end
