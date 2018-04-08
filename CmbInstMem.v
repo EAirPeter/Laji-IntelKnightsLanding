@@ -6,7 +6,7 @@
 // Description: Fetch instruction from memory
 // Author: azure-crab
 module CmbInstMem(addr, inst);
-    parameter ProgPath = "F:/Vivado_Projects/benchmark.hex";
+    parameter ProgPath = "";
     input [`IM_ADDR_NBIT - 1:0] addr;
     output [31:0] inst;
     

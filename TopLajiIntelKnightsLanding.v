@@ -6,7 +6,7 @@
 // Brief: Top Module, I/O included
 // Author: EAirPeter
 module TopLajiIntelKnightsLanding(clk, rst_n, resume, swt, btn, led, seg_n, an_n);
-    parameter ProgPath = "D:/code/hust/ACM01/cpu/asm/benchmark.hex";
+    parameter ProgPath = "asm/benchmark_ccmb_irq.hex";
     parameter CoreClk0Cnt = `CNT_HZ(2);
     parameter CoreClk1Cnt = `CNT_HZ(20);
     parameter CoreClk2Cnt = `CNT_HZ(200);

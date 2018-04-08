@@ -1,7 +1,6 @@
 `timescale 1ns / 1ps
 
 `include "Core.vh"
-`include "DeclDat.vh"
 
 // Brief: CPU Top Module, synchronized
 // Author: EAirPeter
@@ -11,7 +10,7 @@ module SynLajiIntelKnightsLanding(
     irq_st, is_jump, is_branch, branched, is_nop,
     dbp_hit, dbp_miss, display, halt
 );
-    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
+    parameter ProgPath = "";
     input clk, rst_n, en;
     input [4:0] dbg_rf_req;
     input [`DM_ADDR_NBIT - 3:0] dbg_dm_addr;

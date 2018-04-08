@@ -9,7 +9,7 @@ module PstIF(
     pc_en, pc_ld_wtg, pc_ld_bht, wtg_pc_new, bht_pc_new,
     pc, pc_4, inst
 );
-    parameter ProgPath = "C:/.Xilinx/benchmark.hex";
+    parameter ProgPath = "";
     input clk, rst_n, en;
     input pc_en, pc_ld_wtg, pc_ld_bht;
     input [`IM_ADDR_NBIT - 1:0] wtg_pc_new, bht_pc_new;
