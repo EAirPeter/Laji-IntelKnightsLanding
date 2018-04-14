@@ -1,5 +1,9 @@
 `timescale 1ns / 1ps
 
+`include "Core.vh"
+
+// Brief: Interrupt Service Routing Entrance, combinatorial, interrupt
+// Author: EAirPeter
 module IrqISREntr(inum, entr);
     localparam Entr0 = 'h48c >> 2;
     localparam Entr1 = 'h50c >> 2;
