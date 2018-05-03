@@ -55,9 +55,7 @@ header2 = """    // dog auto generation
     );
 """
 
-# print("hhh")
 def gen(key_list, index):
-    # filename = "test/Laji_vPS" + str(index)
     input_lines = []
     output_lines = []
     rst_lines = []
@@ -74,20 +72,21 @@ def gen(key_list, index):
         assign_lines.append(tab2 + ".%s(%s_ps%d)" % (word, word, index + 1))
 
 
-    l1 = ",\n".join(input_lines + output_lines)
-    l2 = "\n".join(rst_lines)
-    l3 = "\n".join(pc_4_lines)
-
-    ll1 = ",\n".join(assign_lines)
     index += 1
+
+    arg1 = ",\n".join(input_lines + output_lines)
+    arg2 = "\n".join(rst_lines)
+    arg3 = "\n".join(pc_4_lines)
+    # modify for your interest
     filename = "SynPS%d.v" % index 
     with open(filename, "w") as file:
-        file.write(header.format(index, l1, l2, l3))
+        file.write(header.format(index, arg1, arg2, arg3))
 
-    
+    arg1 = ",\n".join(assign_lines)
+    # modify for your interest
     filename = "inc/Laji_vPS%d_inc.vh" % index
     with open(filename, "w") as file:
-        file.write(header2.format(index, ll1))
+        file.write(header2.format(index, arg1))
     
 for src in range(0, 5):
     if src == 4:
@@ -96,7 +95,6 @@ for src in range(0, 5):
     key_list = []
     for word_src, width in table[src]:
         word_dest = word_src[:-1] + str(dest)
-        # print(word1)
         if (word_dest, width) in table[dest]:
             key_list.append((word_src[:-4], width))
     gen(key_list, src)
