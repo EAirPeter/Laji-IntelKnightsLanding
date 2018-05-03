@@ -1,4 +1,4 @@
-CPU Pipeline Verilog Code Auto Generator
+CPU Pipeline Parts Verilog Code Auto Generator
 --------------------------
 ### Authored by Fluorine Dog
 
@@ -18,10 +18,9 @@ CPU Pipeline Verilog Code Auto Generator
 2. 流水线模块连接代码，也就是inc文件夹下的Laji_vPSx_inc.vh文件系列，
 在主模块直接`include即可使用
 
-# 使用方法
+# 命名规范
 
 使用这个脚本，变量名需要参照一定的命名风格。
-
 
 5个流水线阶段(Pipeline Stage)中需要被放上流水线的变量
 分别命名xx_ps0, xx_ps1, xx_ps2, xx_ps3, xx_ps4。
@@ -31,7 +30,6 @@ CPU Pipeline Verilog Code Auto Generator
 解析其类型（主要指位宽）并在SynPS(N.v)中给出定义，
 在Laji_vPS(N)_inc.vh中直接连线。对于不满足xx_psX命名风格的变量，
 脚本会自动忽略，比如定义的clear_vps2, clear_vps3并不会进入流水线接口。
-
 
 当然也可以自行修改脚本满足自己的需求。
 
@@ -43,4 +41,4 @@ wire [31:0] data_ps2;           // reg is also OK if needed
 wire [31:0] data_ps3, data_ps4; // cannot use reg here
 ```
 
-然后运行 gen.py 脚本自动生成。这样，data数据就会自动经过SynPS3、SynPS4两个流水部件，从
+然后运行 gen.py 脚本自动生成。这样，data_ps2的数据就会自动经过SynPS3、SynPS4两个流水部件, 两个周期后到达data_ps4。
